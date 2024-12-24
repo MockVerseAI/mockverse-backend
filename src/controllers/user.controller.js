@@ -46,7 +46,11 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (existedUser) {
-    throw new ApiError(409, "User with email or username already exists", []);
+    throw new ApiError(
+      409,
+      "User with email or username already exists \n Check email if not verified",
+      []
+    );
   }
   const user = await User.create({
     email,
@@ -76,9 +80,7 @@ const registerUser = asyncHandler(async (req, res) => {
     subject: "Please verify your email",
     mailgenContent: emailVerificationMailgenContent(
       user.username,
-      `${req.protocol}://${req.get(
-        "host"
-      )}/api/v1/user/verify-email/${unHashedToken}`
+      `${process.env.FRONTEND_URL}/verify-email/${unHashedToken}`
     ),
   });
 
@@ -230,7 +232,8 @@ const verifyEmail = asyncHandler(async (req, res) => {
 // In case he did not get the email or the email verification token is expired
 // he will be able to resend the token while he is logged in
 const resendEmailVerification = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user?._id);
+  const { userId } = req.params;
+  const user = await User.findById(userId);
 
   if (!user) {
     throw new ApiError(404, "User does not exists", []);
@@ -253,9 +256,7 @@ const resendEmailVerification = asyncHandler(async (req, res) => {
     subject: "Please verify your email",
     mailgenContent: emailVerificationMailgenContent(
       user.username,
-      `${req.protocol}://${req.get(
-        "host"
-      )}/api/v1/user/verify-email/${unHashedToken}`
+      `${process.env.FRONTEND_URL}/verify-email/${unHashedToken}`
     ),
   });
   return res

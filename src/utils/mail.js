@@ -11,8 +11,8 @@ const sendEmail = async (options) => {
   const mailGenerator = new Mailgen({
     theme: "default",
     product: {
-      name: "FreeAPI",
-      link: "https://freeapi.app",
+      name: "MockVerse",
+      link: "https://mockverse.app",
     },
   });
 
@@ -69,7 +69,7 @@ const emailVerificationMailgenContent = (username, verificationUrl) => {
         instructions:
           "To verify your email please click on the following button:",
         button: {
-          color: "#22BC66", // Optional action button color
+          color: "#3d61ff", // Optional action button color
           text: "Verify your email",
           link: verificationUrl,
         },

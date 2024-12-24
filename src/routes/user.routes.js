@@ -60,8 +60,8 @@ router
     changeCurrentPassword
   );
 router
-  .route("/resend-email-verification")
-  .post(verifyJWT, resendEmailVerification);
+  .route("/resend-email-verification/:userId")
+  .post(resendEmailVerification);
 
 // SSO routes
 router.route("/google").get(
