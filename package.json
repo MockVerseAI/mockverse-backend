@@ -49,11 +49,11 @@
     "prettier": "^3.4.2"
   },
   "lint-staged": {
-    "**/*.{js,jsx,ts,tsx}": [
+    "./src/**/*.{js,jsx,ts,tsx}": [
       "npx eslint --fix",
       "npx prettier --write"
     ],
-    "**/*.{json,md,yml,css,scss,html}": [
+    "./src/**/*.{json,md,yml,css,scss,html}": [
       "npx prettier --write"
     ]
   }
