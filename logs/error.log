@@ -1,2 +1,0 @@
-[22 Dec, 2024 - 10:10:30:1030] [31merror[39m: [31msecretOrPrivateKey must have a value[39m
-[22 Dec, 2024 - 10:12:27:1227] [31merror[39m: [31m"expiresIn" should be a number of seconds or string representing a timespan[39m

@@ -1,21 +1,19 @@
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import { UserLoginType } from "../utils/constants.js";
+import logger from "../logger/winston.logger.js";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import {
-  getLocalPath,
-  getStaticFilePath,
-  removeLocalFile,
-} from "../utils/helpers.js";
+import { UserLoginType } from "../utils/constants.js";
+import { getLocalPath, getStaticFilePath } from "../utils/helpers.js";
 import {
   emailVerificationMailgenContent,
   forgotPasswordMailgenContent,
   sendEmail,
 } from "../utils/mail.js";
-import logger from "../logger/winston.logger.js";
+import { upload } from "../utils/upload.js";
+import { file } from "googleapis/build/src/apis/file/index.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
@@ -471,21 +469,30 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Avatar image is required");
   }
 
-  // get avatar file system url and local path
-  const avatarUrl = getStaticFilePath(req, req.file?.filename);
-  const avatarLocalPath = getLocalPath(req.file?.filename);
+  const file = req.file;
 
-  const user = await User.findById(req.user._id);
+  const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+  if (file.size > MAX_SIZE) {
+    throw new ApiError(
+      409,
+      "Uploaded file exceeds the maximum size of 10 MB",
+      []
+    );
+  }
+
+  const key = `avatar/${Date.now()}-${file.originalname}`;
+
+  // get avatar file system url and local path
+  const avatarUrl = await upload(file, key);
 
   let updatedUser = await User.findByIdAndUpdate(
     req.user._id,
-
     {
       $set: {
         // set the newly uploaded avatar
         avatar: {
           url: avatarUrl,
-          localPath: avatarLocalPath,
+          localPath: "",
         },
       },
     },
@@ -493,9 +500,6 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
   ).select(
     "-password -refreshToken -emailVerificationToken -emailVerificationExpiry"
   );
-
-  // remove the old avatar
-  removeLocalFile(user.avatar.localPath);
 
   return res
     .status(200)

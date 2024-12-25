@@ -16,7 +16,6 @@ import {
 } from "../controllers/user.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
-import "../passport/index.js"; // Importing passport configuration
 import {
   userChangeCurrentPasswordValidator,
   userForgotPasswordValidator,
@@ -49,7 +48,7 @@ router
 router.route("/logout").post(verifyJWT, logoutUser);
 router
   .route("/avatar")
-  .patch(verifyJWT, upload.single("avatar"), updateUserAvatar);
+  .post(verifyJWT, upload.single("avatar"), updateUserAvatar);
 router.route("/current-user").get(verifyJWT, getCurrentUser);
 router
   .route("/change-password")
@@ -62,6 +61,8 @@ router
 router
   .route("/resend-email-verification/:userId")
   .post(resendEmailVerification);
+
+import "../passport/index.js"; // Importing passport configuration
 
 // SSO routes
 router.route("/google").get(
