@@ -12,6 +12,7 @@ import { errorHandler } from "./middlewares/error.middleware.js";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import heathcheckRouter from "./routes/healthcheck.routes.js";
+import interviewRouter from "./routes/interview.routes.js";
 import userRouter from "./routes/user.routes.js";
 import { ApiError } from "./utils/ApiError.js";
 
@@ -64,6 +65,7 @@ app.use(passport.session()); // persistent login sessions
 // routes
 app.use("/api/v1/healthcheck", heathcheckRouter);
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/interview", interviewRouter);
 
 app.use(errorHandler);
 

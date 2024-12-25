@@ -6,14 +6,12 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { UserLoginType } from "../utils/constants.js";
-import { getLocalPath, getStaticFilePath } from "../utils/helpers.js";
 import {
   emailVerificationMailgenContent,
   forgotPasswordMailgenContent,
   sendEmail,
 } from "../utils/mail.js";
 import { upload } from "../utils/upload.js";
-import { file } from "googleapis/build/src/apis/file/index.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {

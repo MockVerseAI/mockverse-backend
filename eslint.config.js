@@ -8,7 +8,7 @@ export default [
       globals: globals.node,
     },
     rules: {
-      "no-unused-vars": false,
+      "no-unused-vars": "off",
     },
   },
   pluginJs.configs.recommended,
