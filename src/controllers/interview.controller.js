@@ -33,7 +33,7 @@ const setupInterview = asyncHandler(async (req, res) => {
         content: `Here is the resume text: ${resumeContent}`,
       },
     ],
-    model: "llama-3.3-70b-specdec",
+    model: "llama3-70b-8192",
   });
 
   const parsedContent = groqResponse.choices[0].message.content;
@@ -49,13 +49,7 @@ const setupInterview = asyncHandler(async (req, res) => {
 
   return res
     .status(201)
-    .json(
-      new ApiResponse(
-        200,
-        { data: interview },
-        "Interview is setup successfully"
-      )
-    );
+    .json(new ApiResponse(200, interview, "Interview is setup successfully"));
 });
 
 export { setupInterview };
