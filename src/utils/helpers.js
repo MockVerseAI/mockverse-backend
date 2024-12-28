@@ -1,4 +1,5 @@
 import fs from "fs";
+import Groq from "groq-sdk";
 import logger from "../logger/winston.logger.js";
 
 /**
@@ -185,3 +186,7 @@ export const getMongoosePaginationOptions = ({
 export const getRandomNumber = (max) => {
   return Math.floor(Math.random() * max);
 };
+
+export const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
+});

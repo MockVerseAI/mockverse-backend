@@ -1,3 +1,5 @@
+import crypto from "crypto";
+
 const getFormattedDateTime = () => {
   const now = new Date();
 
@@ -18,4 +20,8 @@ const getFormattedDateTime = () => {
   return `${formattedDate} ${formattedTime}`;
 };
 
-export { getFormattedDateTime };
+const getHash = (content) => {
+  return crypto.createHash("sha256").update(content).digest("hex");
+};
+
+export { getFormattedDateTime, getHash };

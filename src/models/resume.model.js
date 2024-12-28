@@ -1,20 +1,19 @@
 import mongoose, { Schema } from "mongoose";
 
-const interviewSchema = new Schema(
+const resumeSchema = new Schema(
   {
-    jobRole: {
+    content: {
       type: String,
       required: true,
       trim: true,
     },
-    jobDescription: {
+    hash: {
       type: String,
       required: true,
       trim: true,
     },
-    resumeId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Resume",
+    parsedContent: {
+      type: String,
       required: true,
     },
     userId: {
@@ -28,4 +27,7 @@ const interviewSchema = new Schema(
   }
 );
 
-export const Interview = mongoose.model("Interview", interviewSchema);
+resumeSchema.index({ hash: 1 });
+resumeSchema.index({ _id: 1, userId: 1 });
+
+export const Resume = mongoose.model("Resume", resumeSchema);
