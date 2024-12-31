@@ -2,7 +2,17 @@ import mongoose, { Schema } from "mongoose";
 
 const resumeSchema = new Schema(
   {
+    fileName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     content: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    url: {
       type: String,
       required: true,
       trim: true,
