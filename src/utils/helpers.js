@@ -187,6 +187,21 @@ export const getRandomNumber = (max) => {
   return Math.floor(Math.random() * max);
 };
 
-export const groq = new Groq({
+const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
+
+/**
+ * Generates an AI response using the Groq API.
+ *
+ * @param {Array<{content: string, role: "system" | "user"}>} messages - An array of message objects, where each object represents a conversation message with `content` and `role`.
+ * @returns {Promise<string>} The generated AI response as a string.
+ */
+export const generateAIResponse = async (messages) => {
+  const groqResponse = await groq.chat.completions.create({
+    messages,
+    model: "llama3-70b-8192",
+  });
+
+  return groqResponse.choices[0].message.content;
+};

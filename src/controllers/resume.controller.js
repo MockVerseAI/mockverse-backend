@@ -5,7 +5,11 @@ import { Resume } from "../models/resume.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js ";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { getLocalPath, groq, removeLocalFile } from "../utils/helpers.js";
+import {
+  generateAIResponse,
+  getLocalPath,
+  removeLocalFile,
+} from "../utils/helpers.js";
 import { getHash } from "../utils/lib.js";
 import { resumeParsePrompt } from "../utils/prompts.js";
 import { upload } from "../utils/upload.js";
@@ -37,25 +41,22 @@ const createResume = asyncHandler(async (req, res) => {
 
   const fileKey = `resume/${Date.now()}-${file.originalname}`;
 
-  const [fileUrl, groqResponse] = await Promise.all([
+  const messages = [
+    {
+      role: "system",
+      content: resumeParsePrompt,
+    },
+    {
+      role: "user",
+      content: `Here is the resume text: ${resumeContent}`,
+    },
+  ];
+
+  const [fileUrl, parsedContent] = await Promise.all([
     upload(file, fileKey),
-    groq.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: resumeParsePrompt,
-        },
-        {
-          role: "user",
-          content: `Here is the resume text: ${resumeContent}`,
-        },
-      ],
-      model: "llama3-70b-8192",
-    }),
+    generateAIResponse(messages),
   ]);
   removeLocalFile(localPath);
-
-  const parsedContent = groqResponse.choices[0].message.content;
 
   logger.info("LLM called");
 
