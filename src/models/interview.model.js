@@ -22,6 +22,10 @@ const interviewSchema = new Schema(
       ref: "User",
       required: true,
     },
+    isCompleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

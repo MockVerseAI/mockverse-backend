@@ -200,7 +200,7 @@ const groq = new Groq({
 export const generateAIResponse = async (messages) => {
   const groqResponse = await groq.chat.completions.create({
     messages,
-    model: "llama3-70b-8192",
+    model: "llama-3.3-70b-versatile",
   });
 
   return groqResponse.choices[0].message.content;

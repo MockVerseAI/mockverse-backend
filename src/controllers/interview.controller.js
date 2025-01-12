@@ -57,6 +57,9 @@ const chat = asyncHandler(async (req, res) => {
   try {
     if (isFirst) {
       if (messages.length > 0) {
+        await session.commitTransaction();
+        session.endSession();
+
         return res
           .status(200)
           .json(
@@ -151,4 +154,32 @@ const chat = asyncHandler(async (req, res) => {
   }
 });
 
-export { chat, setupInterview };
+const getAllInterviews = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+
+  const interviews = await Interview.find({ userId });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, interviews, "Interviews fetched successfully"));
+});
+
+const endInterview = asyncHandler(async (req, res) => {
+  const { interviewId } = req.body;
+
+  const interview = await Interview.findById(interviewId);
+
+  if (interview.isCompleted) {
+    throw new ApiError(400, "Interview has already ended");
+  }
+
+  await Interview.findByIdAndUpdate(interviewId, {
+    isCompleted: true,
+  });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, interview, "Interview ended successfully"));
+});
+
+export { chat, setupInterview, getAllInterviews, endInterview };
