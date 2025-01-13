@@ -23,7 +23,7 @@ const createResume = asyncHandler(async (req, res) => {
   const { text: resumeContent } = await PdfParse(pdfBuffer);
   const hash = getHash(`${resumeContent}-${req?.user?._id}`);
 
-  const existingResume = (await Resume.findOne({ hash })).toObject();
+  const existingResume = await Resume.findOne({ hash });
 
   if (existingResume) {
     removeLocalFile(localPath);
@@ -33,7 +33,7 @@ const createResume = asyncHandler(async (req, res) => {
       .json(
         new ApiResponse(
           200,
-          { ...existingResume, alreadyExists: true },
+          { ...existingResume.toObject(), alreadyExists: true },
           "Existing Resume found"
         )
       );
@@ -54,7 +54,7 @@ const createResume = asyncHandler(async (req, res) => {
 
   const [fileUrl, parsedContent] = await Promise.all([
     upload(file, fileKey),
-    generateAIResponse(messages),
+    generateAIResponse({ messages }),
   ]);
   removeLocalFile(localPath);
 

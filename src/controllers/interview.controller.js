@@ -7,7 +7,11 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js ";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { generateAIResponse } from "../utils/helpers.js";
-import { initialInterviewPrompt } from "../utils/prompts.js";
+import {
+  initialInterviewPrompt,
+  interviewReportGeneratePrompt,
+} from "../utils/prompts.js";
+import { InterviewReport } from "../models/interviewReport.model.js";
 
 const setupInterview = asyncHandler(async (req, res) => {
   const { jobRole, jobDescription, resumeId } = req.body;
@@ -34,10 +38,13 @@ const setupInterview = asyncHandler(async (req, res) => {
 });
 
 const chat = asyncHandler(async (req, res) => {
-  const { message, isFirst, interviewId } = req.body;
+  const { interviewId } = req.params;
+  const { message, isFirst } = req.body;
 
   const [messages, interview] = await Promise.all([
-    Message.find({ interviewId }).select("content role -_id"),
+    Message.find({ interviewId })
+      .select("content role createdAt -_id")
+      .sort({ createdAt: 1 }),
     Interview.findById(interviewId).populate("resumeId"),
   ]);
 
@@ -74,7 +81,9 @@ const chat = asyncHandler(async (req, res) => {
         },
       ];
 
-      const aiResponse = await generateAIResponse(initialMessages);
+      const aiResponse = await generateAIResponse({
+        messages: initialMessages,
+      });
 
       await Message.create(
         [
@@ -116,7 +125,7 @@ const chat = asyncHandler(async (req, res) => {
       { session }
     );
 
-    const aiResponse = await generateAIResponse(allMessages);
+    const aiResponse = await generateAIResponse({ messages: allMessages });
 
     await Message.create(
       [
@@ -165,13 +174,23 @@ const getAllInterviews = asyncHandler(async (req, res) => {
 });
 
 const endInterview = asyncHandler(async (req, res) => {
-  const { interviewId } = req.body;
+  const { interviewId } = req.params;
 
-  const interview = await Interview.findById(interviewId);
+  const [messages, interview] = await Promise.all([
+    Message.find({ interviewId })
+      .select("content role createdAt -_id")
+      .sort({ createdAt: 1 }),
+    Interview.findById(interviewId),
+  ]);
 
-  if (interview.isCompleted) {
+  if (messages.length < 10)
+    throw new ApiError(
+      409,
+      "Interview is too short. Please continue with the interview."
+    );
+
+  if (interview.isCompleted)
     throw new ApiError(400, "Interview has already ended");
-  }
 
   await Interview.findByIdAndUpdate(interviewId, {
     isCompleted: true,
@@ -182,4 +201,90 @@ const endInterview = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, interview, "Interview ended successfully"));
 });
 
-export { chat, setupInterview, getAllInterviews, endInterview };
+const getOrGenerateReport = asyncHandler(async (req, res) => {
+  const { interviewId } = req.params;
+
+  const [messages, interview] = await Promise.all([
+    Message.find({ interviewId })
+      .select("content role createdAt -_id")
+      .sort({ createdAt: 1 }),
+    Interview.findById(interviewId).populate("resumeId"),
+  ]);
+
+  if (!interview) throw new ApiError(404, "Interview not found");
+
+  if (!interview.isCompleted)
+    throw new ApiError(409, "Interview is not completed");
+
+  const formattedMessages = messages.map((item) => ({
+    role: item.role,
+    content: item.content,
+  }));
+
+  const existingInterviewReport = await InterviewReport.findOne({
+    interviewId,
+  });
+
+  if (existingInterviewReport) {
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          interviewReport: existingInterviewReport.toObject(),
+          messages: formattedMessages,
+        },
+        "Interview report fetched successfully"
+      )
+    );
+  }
+
+  const aiPrompt = interviewReportGeneratePrompt({
+    jobRole: interview.jobRole,
+    jobDescription: interview.jobDescription,
+    parsedResume: interview.resumeId.parsedContent,
+    conversation: JSON.stringify(formattedMessages),
+  });
+
+  console.log(aiPrompt);
+
+  const aiMessages = [
+    {
+      role: "system",
+      content: aiPrompt,
+    },
+  ];
+
+  const aiResponse = await generateAIResponse({
+    messages: aiMessages,
+    jsonMode: true,
+  });
+
+  const parsedResponse = JSON.parse(aiResponse);
+
+  const interviewReport = await InterviewReport.create({
+    areasOfImprovement: parsedResponse.areasOfImprovement,
+    strengths: parsedResponse.strengths,
+    overallFeel: parsedResponse.overallFeel,
+    interviewScore: parsedResponse.interviewScore,
+    userId: req.user._id,
+    interviewId,
+  });
+
+  return res
+    .status(201)
+    .json(
+      new ApiResponse(
+        201,
+        { interviewReport, messages: formattedMessages },
+        "Interview report generated successfully"
+      )
+    );
+});
+
+export {
+  chat,
+  setupInterview,
+  getAllInterviews,
+  endInterview,
+  getOrGenerateReport,
+};
