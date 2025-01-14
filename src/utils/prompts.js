@@ -90,3 +90,27 @@ export const initialInterviewPrompt = ({
     Follow this format strictly to ensure professionalism, clarity, and adherence to the time constraint."
     `;
 };
+
+export const interviewReportGeneratePrompt = ({
+  jobRole,
+  jobDescription,
+  parsedResume,
+  conversation,
+}) => {
+  return `You are an advanced AI interviewer analyzer with expertise in evaluating interview performance, identifying strengths and weaknesses, and providing actionable feedback. Your task is to analyze the given job role, job description, parsed resume content, and the entire conversation between the user and the AI interviewer. Based on this analysis, generate a detailed response in JSON format.  
+    
+    The JSON response should include the following keys:  
+    - areasOfImprovement: A list of areas where the user can improve based on their interview performance and resume content.  
+    - strengths: A list of the user's key strengths demonstrated during the interview and highlighted in their resume.  
+    - overallFeel: A brief summary of the overall impression of the user's performance during the interview.  
+    - interviewScore: A numerical score (out of 100) representing the user's performance in the interview.
+
+    Here are the details you need to analyze:  
+    Job Role: ${jobRole}
+    Job Description: ${jobDescription}
+    Parsed Resume Content: ${parsedResume}
+    Conversation Between User and AI Interviewer: ${conversation}
+
+    Ensure the JSON response is structured, detailed, and tailored to the provided inputs. Use clear and concise language for all fields, and make sure the feedback is actionable and relevant to the job role.
+`;
+};

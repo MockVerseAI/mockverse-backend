@@ -20,10 +20,6 @@ const chatValidator = () => {
       .isBoolean()
       .withMessage("isFirst must be a boolean")
       .toBoolean(),
-    body("interviewId")
-      .trim()
-      .notEmpty()
-      .withMessage("interviewId is required"),
     body("message")
       .if(body("isFirst").equals("false")) // Only validate `message` if `isFirst` is false
       .trim()
@@ -31,13 +27,5 @@ const chatValidator = () => {
       .withMessage("message is required"),
   ];
 };
-const endInterviewValidator = () => {
-  return [
-    body("interviewId")
-      .trim()
-      .notEmpty()
-      .withMessage("interviewId is required"),
-  ];
-};
 
-export { setupInterviewValidator, chatValidator, endInterviewValidator };
+export { setupInterviewValidator, chatValidator };
