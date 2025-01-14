@@ -65,10 +65,7 @@ try {
             password: profile._json.sub, // Set user's password as sub (coming from the google)
             username: profile._json.email?.split("@")[0], // as email is unique, this username will be unique
             isEmailVerified: true, // email will be already verified
-            avatar: {
-              url: profile._json.picture,
-              localPath: "",
-            }, // set avatar as user's google picture
+            avatar: profile._json.picture, // set avatar as user's google picture
             loginType: UserLoginType.GOOGLE,
           });
           if (createdUser) {
@@ -130,10 +127,7 @@ try {
                   profile._json.email?.split("@")[0]
                 : profile?.username,
               isEmailVerified: true, // email will be already verified
-              avatar: {
-                url: profile._json.avatar_url,
-                localPath: "",
-              },
+              avatar: profile._json.avatar_url,
               loginType: UserLoginType.GITHUB,
             });
             if (createdUser) {

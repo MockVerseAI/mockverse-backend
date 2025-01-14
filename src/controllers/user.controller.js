@@ -143,10 +143,10 @@ const loginUser = asyncHandler(async (req, res) => {
     "-password -refreshToken -emailVerificationToken -emailVerificationExpiry"
   );
 
-  // TODO: Add more options to make cookie more secure and reliable
   const options = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   };
 
   return res
@@ -176,6 +176,7 @@ const logoutUser = asyncHandler(async (req, res) => {
   const options = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   };
 
   return res
@@ -288,6 +289,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     const options = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     };
 
     const { accessToken, refreshToken: newRefreshToken } =
@@ -449,6 +451,7 @@ const handleSocialLogin = asyncHandler(async (req, res) => {
   const options = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   };
 
   return res
@@ -488,10 +491,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     {
       $set: {
         // set the newly uploaded avatar
-        avatar: {
-          url: avatarUrl,
-          localPath: "",
-        },
+        avatar: avatarUrl,
       },
     },
     { new: true }

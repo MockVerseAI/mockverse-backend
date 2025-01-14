@@ -90,7 +90,7 @@ const chat = asyncHandler(async (req, res) => {
           {
             content: aiResponse,
             interviewId,
-            role: "system",
+            role: "assistant",
             userId: req?.user?._id,
           },
         ],
@@ -105,13 +105,22 @@ const chat = asyncHandler(async (req, res) => {
         .json(
           new ApiResponse(
             201,
-            { content: aiResponse, role: "system" },
+            { content: aiResponse, role: "assistant" },
             "Interview setup successfully"
           )
         );
     }
 
-    const allMessages = [{ content: aiPrompt, role: "system" }, ...messages];
+    const formattedMessages = messages.map((item) => ({
+      role: item.role,
+      content: item.content,
+    }));
+
+    const allMessages = [
+      { content: aiPrompt, role: "system" },
+      ...formattedMessages,
+      { content: message, role: "user" },
+    ];
 
     await Message.create(
       [
@@ -132,7 +141,7 @@ const chat = asyncHandler(async (req, res) => {
         {
           content: aiResponse,
           interviewId,
-          role: "system",
+          role: "assistant",
           userId: req?.user?._id,
         },
       ],
@@ -147,7 +156,7 @@ const chat = asyncHandler(async (req, res) => {
       .json(
         new ApiResponse(
           201,
-          { content: aiResponse, role: "system" },
+          { content: aiResponse, role: "assistant" },
           "Message processed successfully"
         )
       );
