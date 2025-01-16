@@ -56,7 +56,6 @@ const createResume = asyncHandler(async (req, res) => {
     upload(file, fileKey),
     generateAIResponse({ messages }),
   ]);
-  removeLocalFile(localPath);
 
   logger.info("LLM called");
 

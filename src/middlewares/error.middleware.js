@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 import { ApiError } from "../utils/ApiError.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import logger from "../logger/winston.logger.js";
 
 /**
  *
@@ -13,7 +13,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
  *
  * @description This middleware is responsible to catch the errors from any request handler wrapped inside the {@link asyncHandler}
  */
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res) => {
   let error = err;
 
   // Check if the error is an instance of an ApiError class which extends native Error class
@@ -38,7 +38,7 @@ const errorHandler = (err, req, res, next) => {
   };
 
   // Send error response
-  if (process.env.NODE_ENV === "development") console.log(error);
+  if (process.env.NODE_ENV === "development") logger.error(error);
 
   return res.status(error.statusCode).json(response);
 };
