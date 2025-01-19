@@ -11,6 +11,7 @@ import { errorHandler } from "./middlewares/error.middleware.js";
 // routers
 import cookieParser from "cookie-parser";
 import session from "express-session";
+import applicationRouter from "./routes/application.routes.js";
 import heathcheckRouter from "./routes/healthcheck.routes.js";
 import interviewRouter from "./routes/interview.routes.js";
 import resumeRouter from "./routes/resume.routes.js";
@@ -68,6 +69,7 @@ app.use("/api/v1/healthcheck", heathcheckRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/interview", interviewRouter);
 app.use("/api/v1/resume", resumeRouter);
+app.use("/api/v1/application", applicationRouter);
 
 app.use(errorHandler);
 

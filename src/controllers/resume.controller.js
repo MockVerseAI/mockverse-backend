@@ -34,7 +34,7 @@ const createResume = asyncHandler(async (req, res) => {
         new ApiResponse(
           200,
           { ...existingResume.toObject(), alreadyExists: true },
-          "Existing Resume found"
+          "Resume already exists"
         )
       );
   }
@@ -99,7 +99,7 @@ const deleteResume = asyncHandler(async (req, res) => {
 const getResumes = asyncHandler(async (req, res) => {
   const resumes = await Resume.find({
     userId: req.user?.id,
-  });
+  }).sort({ createdAt: -1 });
 
   return res
     .status(200)
