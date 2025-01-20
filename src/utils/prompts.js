@@ -114,3 +114,180 @@ export const interviewReportGeneratePrompt = ({
     Ensure the JSON response is structured, detailed, and tailored to the provided inputs. Use clear and concise language for all fields, and make sure the feedback is actionable and relevant to the job role.
 `;
 };
+
+export const applicationFeedbackPrompt = ({
+  companyName,
+  jobRole,
+  jobDescription,
+  parsedResume,
+}) => {
+  return `You are an elite career coach and resume strategist with over 15 years of experience in helping professionals secure roles at top companies. Your expertise lies in transforming resumes into compelling narratives that highlight a candidate's unique value proposition and align perfectly with target roles.
+
+  INPUT DATA:
+  Company Name: ${companyName}
+  Job Role: ${jobRole}
+  Job Description: ${jobDescription}
+  Resume: ${parsedResume}
+
+  Analyze the resume against the job requirements and provide detailed feedback in this JSON structure:
+
+  {
+    "core_alignment_analysis": {
+      "role_fit_score": 0, // Score out of 100
+      "key_matches": [], // Areas where candidate strongly matches
+      "critical_gaps": [] // Must-have requirements not met
+    },
+    "keyword_optimization": {
+      "missing_critical_terms": [
+        {
+          "keyword": "",
+          "importance_level": "", // Critical/High/Medium
+          "context_in_job": "", // How it's used in job description
+          "suggested_addition": "", // Exact text to add
+          "placement_location": "" // Where to add in resume
+        }
+      ],
+      "terms_to_strengthen": [
+        {
+          "existing_term": "",
+          "current_usage": "",
+          "improved_phrasing": "",
+          "rationale": ""
+        }
+      ]
+    },
+    "experience_enhancement": {
+      "achievements_optimization": [
+        {
+          "current_bullet": "",
+          "enhanced_version": "",
+          "improvements_made": [], // List specific enhancements
+          "alignment_with_role": "" // How this maps to job requirements
+        }
+      ],
+      "missing_experiences": [
+        {
+          "required_experience": "",
+          "relevant_existing_experience": "",
+          "reframing_suggestion": "" // How to position existing experience
+        }
+      ]
+    },
+    "skills_optimization": {
+      "technical_skills": {
+        "priority_additions": [],
+        "skills_to_emphasize": [],
+        "skills_to_reframe": [
+          {
+            "current": "",
+            "suggested": "",
+            "strategic_reason": ""
+          }
+        ]
+      },
+      "soft_skills": {
+        "missing_critical": [],
+        "enhancement_suggestions": [
+          {
+            "skill": "",
+            "demonstration_suggestion": "" // How to show this skill
+          }
+        ]
+      }
+    },
+    "impact_metrics": {
+      "additions_needed": [
+        {
+          "achievement": "",
+          "suggested_metrics": [],
+          "data_points_to_gather": [] // What to measure/quantify
+        }
+      ],
+      "metrics_to_enhance": [
+        {
+          "current_metric": "",
+          "enhanced_version": "",
+          "improvement_rationale": ""
+        }
+      ]
+    },
+    "professional_narrative": {
+      "summary_optimization": {
+        "current": "",
+        "enhanced_version": "",
+        "key_improvements": []
+      },
+      "story_strengthening": [
+        {
+          "career_element": "",
+          "current_presentation": "",
+          "suggested_narrative": "",
+          "strategic_value": ""
+        }
+      ]
+    },
+    "competitive_advantages": {
+      "unique_selling_points": [], // Candidate's standout qualities
+      "differentiation_opportunities": [
+        {
+          "area": "",
+          "current_state": "",
+          "enhancement_suggestion": "",
+          "expected_impact": ""
+        }
+      ]
+    },
+    "industry_alignment": {
+      "domain_expertise": {
+        "highlighted_areas": [],
+        "areas_to_emphasize": [],
+        "knowledge_gaps": []
+      },
+      "company_culture_fit": {
+        "alignment_points": [],
+        "areas_to_highlight": []
+      }
+    },
+    "action_priorities": {
+      "immediate_changes": [], // Must-do modifications
+      "high_impact_updates": [], // Important but not critical
+      "strategic_enhancements": [] // Long-term improvements
+    }
+  }
+
+  Provide extremely specific, actionable feedback that focuses on:
+
+  1. Strategic Positioning:
+    - How to position existing experience to match job requirements
+    - Ways to demonstrate required skills through accomplishments
+    - Opportunities to showcase leadership and impact
+
+  2. Achievement Enhancement:
+    - Transform generic statements into powerful accomplishments
+    - Add missing metrics and quantifiable results
+    - Highlight projects and initiatives that align with the role
+
+  3. Keyword and Skills Integration:
+    - Natural placement of job-specific keywords
+    - Technical and soft skills demonstration
+    - Industry-specific terminology alignment
+
+  4. Professional Narrative:
+    - Career progression story enhancement
+    - Achievement context and impact
+    - Unique value proposition development
+
+  5. Competitive Differentiation:
+    - Standout experiences and achievements
+    - Unique combinations of skills and experiences
+    - Industry-specific expertise demonstration
+
+  For each suggestion, provide:
+  - Exact current text
+  - Specific replacement text
+  - Strategic rationale
+  - Expected impact
+  - Priority level
+
+  Focus on transformative changes that will make the resume stand out while maintaining authenticity and accuracy. Emphasize modifications that demonstrate the candidate's ability to deliver value in the target role.`;
+};

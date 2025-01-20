@@ -195,13 +195,20 @@ const groq = new Groq({
  * Generates a response from the AI using the Groq API.
  * @returns {Promise<string>} A promise that resolves to the AI-generated response as a string.
  */
-export const generateAIResponse = async ({ messages, jsonMode = false }) => {
+export const generateAIResponse = async ({
+  messages,
+  model = "llama-3.3-70b-versatile",
+  jsonMode = false,
+  ...params
+}) => {
   const groqResponse = await groq.chat.completions.create({
     messages,
-    model: "llama-3.3-70b-versatile",
+    model,
     response_format: {
       type: jsonMode ? "json_object" : "text",
     },
+    temperature: 0,
+    ...params,
   });
 
   return groqResponse.choices[0].message.content;
