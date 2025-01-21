@@ -59,15 +59,16 @@ const getOrGenerateApplicationFeedback = asyncHandler(async (req, res) => {
   });
 
   if (existingApplicationFeedback) {
-    return res
-      .status(200)
-      .json(
-        new ApiResponse(
-          200,
-          existingApplicationFeedback.toObject(),
-          "Application feedback fetched successfully"
-        )
-      );
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          applicationFeedback: existingApplicationFeedback.toObject(),
+          application,
+        },
+        "Application feedback fetched successfully"
+      )
+    );
   }
 
   const aiPrompt = applicationFeedbackPrompt({
@@ -111,7 +112,7 @@ const getOrGenerateApplicationFeedback = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        applicationFeedback,
+        { applicationFeedback, application },
         "Application feedback generated successfully"
       )
     );
