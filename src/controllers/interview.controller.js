@@ -241,6 +241,7 @@ const getOrGenerateReport = asyncHandler(async (req, res) => {
         {
           interviewReport: existingInterviewReport.toObject(),
           messages: formattedMessages,
+          interview,
         },
         "Interview report fetched successfully"
       )
@@ -284,7 +285,7 @@ const getOrGenerateReport = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         201,
-        { interviewReport, messages: formattedMessages },
+        { interviewReport, messages: formattedMessages, interview },
         "Interview report generated successfully"
       )
     );
