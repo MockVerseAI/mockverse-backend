@@ -1,5 +1,6 @@
 import fs from "fs";
 import Groq from "groq-sdk";
+import { ApiError } from "../utils/ApiError.js";
 import logger from "../logger/winston.logger.js";
 
 /**
@@ -197,19 +198,42 @@ const groq = new Groq({
  */
 export const generateAIResponse = async ({
   messages,
-  model = "llama-3.3-70b-versatile",
+  model = "deepseek-r1-distill-llama-70b",
   jsonMode = false,
   ...params
 }) => {
-  const groqResponse = await groq.chat.completions.create({
-    messages,
-    model,
-    response_format: {
-      type: jsonMode ? "json_object" : "text",
-    },
-    temperature: 0,
-    ...params,
-  });
+  try {
+    const groqResponse = await groq.chat.completions.create({
+      messages,
+      model,
+      response_format: {
+        type: jsonMode ? "json_object" : "text",
+      },
+      temperature: 0,
+      ...params,
+    });
 
-  return groqResponse.choices[0].message.content;
+    return groqResponse.choices[0].message.content;
+  } catch (error) {
+    logger.error("AI Response Generation Error:", {
+      error: error.message,
+      details: error.response?.data,
+      messages: messages.map((m) => ({
+        role: m.role,
+        contentLength: m.content.length,
+      })),
+    });
+
+    throw new ApiError(
+      error.response?.status || 500,
+      `AI Service Error: ${error.response?.data?.error || error.message}`,
+      [
+        {
+          service: "LLM",
+          model,
+          error: error.response?.data || error.message,
+        },
+      ]
+    );
+  }
 };

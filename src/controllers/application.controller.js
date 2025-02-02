@@ -88,7 +88,7 @@ const getOrGenerateApplicationFeedback = asyncHandler(async (req, res) => {
   const aiResponse = await generateAIResponse({
     messages,
     jsonMode: true,
-    max_completion_tokens: 2048,
+    max_completion_tokens: 4096,
   });
 
   const parsedResponse = JSON.parse(aiResponse);
