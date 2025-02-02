@@ -11,6 +11,7 @@ import { errorHandler } from "./middlewares/error.middleware.js";
 // routers
 import cookieParser from "cookie-parser";
 import session from "express-session";
+import logger from "./logger/winston.logger.js";
 import applicationRouter from "./routes/application.routes.js";
 import heathcheckRouter from "./routes/healthcheck.routes.js";
 import interviewRouter from "./routes/interview.routes.js";
@@ -81,3 +82,13 @@ const startServer = async () => {
 };
 
 startServer();
+
+process.on("uncaughtException", (error) => {
+  logger.error("Uncaught Exception:", error);
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (error) => {
+  logger.error("Unhandled Rejection:", error);
+  process.exit(1);
+});

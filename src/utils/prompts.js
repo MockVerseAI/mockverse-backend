@@ -97,21 +97,241 @@ export const interviewReportGeneratePrompt = ({
   parsedResume,
   conversation,
 }) => {
-  return `You are an advanced AI interviewer analyzer with expertise in evaluating interview performance, identifying strengths and weaknesses, and providing actionable feedback. Your task is to analyze the given job role, job description, parsed resume content, and the entire conversation between the user and the AI interviewer. Based on this analysis, generate a detailed response in JSON format.  
-    
-    The JSON response should include the following keys:  
-    - areasOfImprovement: A list of areas where the user can improve based on their interview performance and resume content.  
-    - strengths: A list of the user's key strengths demonstrated during the interview and highlighted in their resume.  
-    - overallFeel: A brief summary of the overall impression of the user's performance during the interview.  
-    - interviewScore: A numerical score (out of 100) representing the user's performance in the interview.
+  return `You are an elite interview analysis system combining expertise in behavioral psychology, technical assessment, career coaching, industry best practices, and communication analysis. Your task is to generate an extraordinarily detailed and actionable interview evaluation report by analyzing:
 
-    Here are the details you need to analyze:  
-    Job Role: ${jobRole}
-    Job Description: ${jobDescription}
-    Parsed Resume Content: ${parsedResume}
-    Conversation Between User and AI Interviewer: ${conversation}
+  Input Components:
+  Job Role: ${jobRole}
+  Job Description: ${jobDescription}
+  Parsed Resume Content: ${parsedResume}
+  Interview Conversation: ${conversation}
 
-    Ensure the JSON response is structured, detailed, and tailored to the provided inputs. Use clear and concise language for all fields, and make sure the feedback is actionable and relevant to the job role.
+  Generate a comprehensive JSON response with the following structure:
+
+ {
+    "technicalAssessment": {
+      "skillsAnalysis": {
+        "demonstrated": [                    // Array<{skill: string, level: string, evidence: string}>
+          {
+            "skill": "",                  // Technical skill name
+            "level": "",                  // beginner/intermediate/advanced/expert
+            "evidence": ""                // Demonstration from interview
+          }
+        ],
+        "required": [                       // Array<{skill: string, priority: string, level: string}>
+          {
+            "skill": "",                  // Required skill name
+            "priority": "",               // must-have/preferred
+            "level": ""                   // Required proficiency
+          }
+        ],
+        "gaps": [                           // Array<{skill: string, impact: string, recommendation: string}>
+          {
+            "skill": "",                  // Skill gap identified
+            "impact": "",                 // high/medium/low
+            "recommendation": ""          // Improvement suggestion
+          }
+        ],
+        "growthPath": [                     // Array<{skill: string, timeline: string, resources: string[]}>
+          {
+            "skill": "",                  // Skill to develop
+            "timeline": "",               // Development timeframe
+            "resources": []                 // Learning resources
+          }
+        ]
+      },
+      "problemSolving": {
+        "analytical": "",                 // string: Problem breakdown assessment
+        "design": "",                    // string: Solution approach evaluation
+        "scalability": ""                // string: Scaling considerations
+      },
+      "technicalCommunication": {
+        "clarity": "",                   // string: Technical explanation ability
+        "depth": ""                      // string: Technical discussion command
+      }
+    },
+
+    "behavioralAnalysis": {
+      "leadership": {
+        "decisionMaking": "",            // string: Decision process evaluation
+        "teamInfluence": "",             // string: Leadership impact
+        "initiative": [                     // Array<{example: string, impact: string, context: string}>
+          {
+            "example": "",                // Initiative example
+            "impact": "",                 // Result achieved
+            "context": ""                 // Situation context
+          }
+        ]
+      },
+      "adaptability": {
+        "changeResponse": "",             // string: Change handling assessment
+        "learning": "",                   // string: Learning approach
+        "growth": ""                      // string: Growth mindset
+      },
+      "collaboration": {
+        "teamwork": "",                   // string: Team interaction style
+        "communication": "",              // string: Communication effectiveness
+        "crossTeam": []                     // string[]: Cross-team examples
+      }
+    },
+
+    "responseQuality": {
+      "structure": {
+        "clarity": 0,                       // number: 0-10 score
+        "organization": "",               // string: Thought organization
+        "improvement": []                   // string[]: Areas to improve
+      },
+      "starMethod": {
+        "situation": "",                  // string: Context setting
+        "task": "",                       // string: Role definition
+        "action": "",                     // string: Action description
+        "result": "",                     // string: Outcome measurement
+        "tips": []                          // string[]: Improvement tips
+      }
+    },
+
+    "roleAlignment": {
+      "requirements": {
+        "essential": [                      // Array<{requirement: string, met: boolean, notes: string}>
+          {
+            "requirement": "",            // Required qualification
+            "met": true,                    // Whether requirement is met
+            "notes": ""                   // Additional context
+          }
+        ],
+        "experience": "",                 // string: Experience relevance
+        "skills": {}                        // Record<string, {match: number, notes: string}>
+      },
+      "potential": {
+        "growth": "",                     // string: Growth potential
+        "advancement": "",                // string: Promotion readiness
+        "development": []                   // string[]: Development areas
+      },
+      "cultural": {
+        "values": "",                     // string: Values alignment
+        "workStyle": "",                  // string: Work style fit
+        "fit": []                           // string[]: Cultural indicators
+      }
+    },
+
+    "performanceMetrics": {
+      "scores": {
+        "overall": 0,                       // number: 0-100 score
+        "technical": 0,                     // number: 0-100 score
+        "behavioral": 0,                    // number: 0-100 score
+        "communication": 0                  // number: 0-100 score
+      },
+      "benchmarks": {
+        "industry": "",                   // string: Industry comparison
+        "role": "",                       // string: Role comparison
+        "level": ""                       // string: Level assessment
+      }
+    },
+
+    "developmentPlan": {
+      "immediate": {
+        "priorities": [                     // Array<{area: string, importance: string, action: string}>
+          {
+            "area": "",                   // Focus area
+            "importance": "",             // high/medium/low
+            "action": ""                  // Specific action
+          }
+        ],
+        "exercises": [                      // Array<{type: string, description: string, goal: string}>
+          {
+            "type": "",                   // Exercise type
+            "description": "",            // Exercise details
+            "goal": ""                    // Expected outcome
+          }
+        ],
+        "resources": [                      // Array<{type: string, description: string, link?: string}>
+          {
+            "type": "",                   // Resource type
+            "description": "",            // Resource details
+            "link": ""                    // Optional resource link
+          }
+        ]
+      },
+      "shortTerm": {
+        "goals": [                          // Array<{timeline: string, objective: string, success_criteria: string}>
+          {
+            "timeline": "",               // 30/60/90 days
+            "objective": "",              // Specific goal
+            "success_criteria": ""        // Measurement criteria
+          }
+        ],
+        "skills": [                         // Array<{skill: string, current_level: string, target_level: string, timeline: string}>
+          {
+            "skill": "",                  // Skill to develop
+            "current_level": "",          // Current proficiency
+            "target_level": "",           // Target proficiency
+            "timeline": ""                // Development timeline
+          }
+        ],
+        "actions": []                       // string[]: Specific steps
+      },
+      "preparation": {
+        "questions": [                      // Array<{question: string, category: string, preparation_tips: string[]}>
+          {
+            "question": "",               // Practice question
+            "category": "",               // Question type
+            "preparation_tips": []          // Preparation guidance
+          }
+        ],
+        "responses": {},                    // Record<string, {template: string, key_points: string[], pitfalls: string[]}>
+        "scenarios": [                      // Array<{situation: string, expected_response: string, evaluation_criteria: string[]}>
+          {
+            "situation": "",              // Practice scenario
+            "expected_response": "",      // Ideal response
+            "evaluation_criteria": []       // Assessment criteria
+          }
+        ]
+      }
+    }
+  }
+
+  Analysis Guidelines:
+  1. Evaluate against industry standards and role requirements
+  2. Identify patterns in communication and problem-solving
+  3. Assess both explicit and implicit competencies
+  4. Consider company culture and team dynamics
+  5. Project future potential and growth trajectory
+  6. Analyze response effectiveness and impact
+  7. Evaluate leadership and advancement potential
+  8. Consider market positioning and competitive advantage
+  9. Identify unique value propositions
+  10. Assess cultural fit and adaptability
+
+  Response Requirements:
+  - Provide specific examples from the conversation
+  - Include measurable metrics and benchmarks
+  - Offer detailed, actionable feedback
+  - Suggest concrete improvement strategies
+  - Include industry-specific insights
+  - Reference relevant best practices
+  - Provide timeline-based development plans
+  - Include practice scenarios and exercises
+  - Offer resource recommendations
+  - Suggest follow-up strategies
+
+  The analysis should be:
+  - Comprehensive yet focused
+  - Data-driven yet practical
+  - Critical yet constructive
+  - Forward-looking yet immediately applicable
+  - Detailed yet clear
+  - Professional yet empathetic
+  - Strategic yet tactical
+  - Theoretical yet implementable
+  - Analytical yet intuitive
+  - Thorough yet prioritized
+  - Exhaustively detailed (minimum 2-3 sentences per text field)
+
+  IMPORTANT INSTRUCTIONS:
+  1. You MUST provide detailed content for EVERY field in the JSON structure. No field should be left empty.
+  2. For string fields, provide at least 2-3 sentences of detailed analysis.
+  3. For array fields, include at least 3-5 detailed items.
+  4. All feedback must reference specific examples from the conversation or resume.
+  5. When suggesting improvements, be extremely specific with actionable steps.
 `;
 };
 

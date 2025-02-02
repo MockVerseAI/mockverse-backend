@@ -255,8 +255,6 @@ const getOrGenerateReport = asyncHandler(async (req, res) => {
     conversation: JSON.stringify(formattedMessages),
   });
 
-  console.log(aiPrompt);
-
   const aiMessages = [
     {
       role: "system",
@@ -267,15 +265,20 @@ const getOrGenerateReport = asyncHandler(async (req, res) => {
   const aiResponse = await generateAIResponse({
     messages: aiMessages,
     jsonMode: true,
+    max_completion_tokens: 4096,
   });
 
   const parsedResponse = JSON.parse(aiResponse);
 
+  logger.info("Interview report AI response", parsedResponse);
+
   const interviewReport = await InterviewReport.create({
-    areasOfImprovement: parsedResponse.areasOfImprovement,
-    strengths: parsedResponse.strengths,
-    overallFeel: parsedResponse.overallFeel,
-    interviewScore: parsedResponse.interviewScore,
+    technicalAssessment: parsedResponse.technicalAssessment,
+    behavioralAnalysis: parsedResponse.behavioralAnalysis,
+    responseQuality: parsedResponse.responseQuality,
+    roleAlignment: parsedResponse.roleAlignment,
+    performanceMetrics: parsedResponse.performanceMetrics,
+    developmentPlan: parsedResponse.developmentPlan,
     userId: req.user._id,
     interviewId,
   });

@@ -10,6 +10,7 @@ const applicationFeedbackSchema = new Schema(
     keyword_optimization: {
       missing_critical_terms: [
         {
+          _id: false,
           keyword: { type: String, required: true },
           importance_level: {
             type: String,
@@ -23,6 +24,7 @@ const applicationFeedbackSchema = new Schema(
       ],
       terms_to_strengthen: [
         {
+          _id: false,
           existing_term: { type: String, required: true },
           current_usage: { type: String, required: true },
           improved_phrasing: { type: String, required: true },
@@ -33,6 +35,7 @@ const applicationFeedbackSchema = new Schema(
     experience_enhancement: {
       achievements_optimization: [
         {
+          _id: false,
           current_bullet: { type: String, required: true },
           enhanced_version: { type: String, required: true },
           improvements_made: { type: [String], required: true },
@@ -41,6 +44,7 @@ const applicationFeedbackSchema = new Schema(
       ],
       missing_experiences: [
         {
+          _id: false,
           required_experience: { type: String, required: true },
           relevant_existing_experience: { type: String, required: true },
           reframing_suggestion: { type: String, required: true },
@@ -53,6 +57,7 @@ const applicationFeedbackSchema = new Schema(
         skills_to_emphasize: { type: [String], required: true, default: [] },
         skills_to_reframe: [
           {
+            _id: false,
             current: { type: String, required: true },
             suggested: { type: String, required: true },
             strategic_reason: { type: String, required: true },
@@ -63,6 +68,7 @@ const applicationFeedbackSchema = new Schema(
         missing_critical: { type: [String], required: true, default: [] },
         enhancement_suggestions: [
           {
+            _id: false,
             skill: { type: String, required: true },
             demonstration_suggestion: { type: String, required: true },
           },
@@ -72,6 +78,7 @@ const applicationFeedbackSchema = new Schema(
     impact_metrics: {
       additions_needed: [
         {
+          _id: false,
           achievement: { type: String, required: true },
           suggested_metrics: { type: [String], required: true },
           data_points_to_gather: { type: [String], required: true },
@@ -79,6 +86,7 @@ const applicationFeedbackSchema = new Schema(
       ],
       metrics_to_enhance: [
         {
+          _id: false,
           current_metric: { type: String, required: true },
           enhanced_version: { type: String, required: true },
           improvement_rationale: { type: String, required: true },
@@ -93,6 +101,7 @@ const applicationFeedbackSchema = new Schema(
       },
       story_strengthening: [
         {
+          _id: false,
           career_element: { type: String, required: true },
           current_presentation: { type: String, required: true },
           suggested_narrative: { type: String, required: true },
@@ -104,6 +113,7 @@ const applicationFeedbackSchema = new Schema(
       unique_selling_points: { type: [String], required: true, default: [] },
       differentiation_opportunities: [
         {
+          _id: false,
           area: { type: String, required: true },
           current_state: { type: String, required: true },
           enhancement_suggestion: { type: String, required: true },
