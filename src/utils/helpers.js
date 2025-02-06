@@ -1,7 +1,8 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from "fs";
 import Groq from "groq-sdk";
-import { ApiError } from "../utils/ApiError.js";
 import logger from "../logger/winston.logger.js";
+import { ApiError } from "../utils/ApiError.js";
 
 /**
  *
@@ -231,6 +232,51 @@ export const generateAIResponse = async ({
         {
           service: "LLM",
           model,
+          error: error.response?.data || error.message,
+        },
+      ]
+    );
+  }
+};
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+const model = genAI.getGenerativeModel({
+  model: "gemini-2.0-flash-lite-preview-02-05",
+});
+/**
+ * Generates AI content from a PDF buffer using Google's Generative AI
+ * @param {Buffer} pdfBuffer - The PDF file buffer to analyze
+ * @param {string} prompt - The prompt to send to the AI
+ * @returns {Promise<string>} The generated content
+ */
+export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
+  try {
+    const result = await model.generateContent([
+      {
+        inlineData: {
+          data: Buffer.from(pdfBuffer).toString("base64"),
+          mimeType: "application/pdf",
+        },
+      },
+      prompt,
+    ]);
+
+    return result.response.text();
+  } catch (error) {
+    logger.error("PDF AI Content Generation Error:", {
+      error: error.message,
+      details: error.response?.data,
+      promptLength: prompt.length,
+    });
+
+    throw new ApiError(
+      error.response?.status || 500,
+      `AI PDF Service Error: ${error.response?.data?.error || error.message}`,
+      [
+        {
+          service: "Google Generative AI",
+          model: "gemini-2.0-flash-lite-preview-02-05",
           error: error.response?.data || error.message,
         },
       ]
