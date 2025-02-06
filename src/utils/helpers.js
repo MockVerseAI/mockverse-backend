@@ -1,4 +1,5 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { google } from "@ai-sdk/google";
+import { generateText } from "ai";
 import fs from "fs";
 import Groq from "groq-sdk";
 import logger from "../logger/winston.logger.js";
@@ -239,11 +240,6 @@ export const generateAIResponse = async ({
   }
 };
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-const model = genAI.getGenerativeModel({
-  model: "gemini-2.0-flash-lite-preview-02-05",
-});
 /**
  * Generates AI content from a PDF buffer using Google's Generative AI
  * @param {Buffer} pdfBuffer - The PDF file buffer to analyze
@@ -252,17 +248,29 @@ const model = genAI.getGenerativeModel({
  */
 export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
   try {
-    const result = await model.generateContent([
-      {
-        inlineData: {
-          data: Buffer.from(pdfBuffer).toString("base64"),
-          mimeType: "application/pdf",
-        },
-      },
-      prompt,
-    ]);
+    const model = google("gemini-2.0-flash-lite-preview-02-05");
 
-    return result.response.text();
+    const result = await generateText({
+      model,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "file",
+              data: pdfBuffer,
+              mimeType: "application/pdf",
+            },
+            {
+              type: "text",
+              text: prompt,
+            },
+          ],
+        },
+      ],
+    });
+
+    return result.text;
   } catch (error) {
     logger.error("PDF AI Content Generation Error:", {
       error: error.message,
