@@ -1,12 +1,11 @@
 import fs from "fs";
-import PdfParse from "pdf-parse/lib/pdf-parse.js";
 import logger from "../logger/winston.logger.js";
 import { Resume } from "../models/resume.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js ";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {
-  generateAIResponse,
+  generateAIContentFromPDF,
   getLocalPath,
   removeLocalFile,
 } from "../utils/helpers.js";
@@ -20,8 +19,7 @@ const createResume = asyncHandler(async (req, res) => {
   const localPath = getLocalPath(file?.filename);
   const pdfBuffer = fs.readFileSync(localPath);
 
-  const { text: resumeContent } = await PdfParse(pdfBuffer);
-  const hash = getHash(`${resumeContent}-${req?.user?._id}`);
+  const hash = getHash(`${pdfBuffer}-${req?.user?._id}`);
 
   const existingResume = await Resume.findOne({ hash });
 
@@ -41,20 +39,9 @@ const createResume = asyncHandler(async (req, res) => {
 
   const fileKey = `resume/${Date.now()}-${file.originalname}`;
 
-  const messages = [
-    {
-      role: "system",
-      content: resumeParsePrompt,
-    },
-    {
-      role: "user",
-      content: `Here is the resume text: ${resumeContent}`,
-    },
-  ];
-
   const [fileUrl, parsedContent] = await Promise.all([
     upload(file, fileKey),
-    generateAIResponse({ messages }),
+    generateAIContentFromPDF(pdfBuffer, resumeParsePrompt),
   ]);
 
   logger.info("LLM called");
@@ -62,7 +49,6 @@ const createResume = asyncHandler(async (req, res) => {
   const newResume = await Resume.create({
     fileName: file?.originalname,
     url: fileUrl,
-    content: resumeContent,
     hash,
     parsedContent,
     userId: req?.user?._id,
@@ -73,7 +59,7 @@ const createResume = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        { ...newResume, alreadyExists: false },
+        { ...newResume.toObject(), alreadyExists: false },
         "Resume successfully created"
       )
     );
