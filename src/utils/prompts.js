@@ -349,7 +349,15 @@ export const applicationFeedbackPrompt = ({
   Job Description: ${jobDescription}
   Resume: ${parsedResume}
 
-  Analyze the resume against the job requirements and provide detailed feedback in this JSON structure:
+  IMPORTANT: You must return a complete JSON response that includes ALL fields defined in the structure below. Do not skip any required fields. If a field has no relevant data, provide a meaningful default value instead of leaving it empty.
+
+  Required Field Defaults:
+  - For string fields: Use "Not provided" or a relevant placeholder
+  - For numeric scores: Use 0
+  - For arrays: Use empty array []
+  - For nested objects: Include all required fields with default values
+
+  Your response MUST strictly follow this JSON structure with all fields present:
 
   {
     "core_alignment_analysis": {
