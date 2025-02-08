@@ -200,7 +200,7 @@ const groq = new Groq({
  */
 export const generateAIResponse = async ({
   messages,
-  model = "deepseek-r1-distill-llama-70b",
+  model = "llama-3.3-70b-versatile",
   jsonMode = false,
   ...params
 }) => {

@@ -93,6 +93,8 @@ const getOrGenerateApplicationFeedback = asyncHandler(async (req, res) => {
 
   const parsedResponse = JSON.parse(aiResponse);
 
+  console.log(parsedResponse);
+
   const applicationFeedback = await ApplicationFeedback.create({
     core_alignment_analysis: parsedResponse.core_alignment_analysis,
     keyword_optimization: parsedResponse.keyword_optimization,

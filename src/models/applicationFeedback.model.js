@@ -95,7 +95,7 @@ const applicationFeedbackSchema = new Schema(
     },
     professional_narrative: {
       summary_optimization: {
-        current: { type: String, required: true },
+        current: { type: String, default: "Not provided" },
         enhanced_version: { type: String, required: true },
         key_improvements: { type: [String], required: true },
       },
