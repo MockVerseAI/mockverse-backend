@@ -21,7 +21,7 @@ const createResume = asyncHandler(async (req, res) => {
 
   const hash = getHash(`${pdfBuffer}-${req?.user?._id}`);
 
-  const existingResume = await Resume.findOne({ hash });
+  const existingResume = await Resume.findOne({ hash, isDeleted: false });
 
   if (existingResume) {
     removeLocalFile(localPath);
@@ -68,10 +68,14 @@ const createResume = asyncHandler(async (req, res) => {
 const deleteResume = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  const resume = await Resume.findOneAndDelete({
-    _id: id,
-    userId: req.user?.id,
-  });
+  const resume = await Resume.findByIdAndUpdate(
+    {
+      _id: id,
+      userId: req.user?.id,
+      isDeleted: false,
+    },
+    { isDeleted: true }
+  );
 
   if (!resume) {
     throw new ApiError(404, "Resume does not exist");
@@ -85,6 +89,7 @@ const deleteResume = asyncHandler(async (req, res) => {
 const getResumes = asyncHandler(async (req, res) => {
   const resumes = await Resume.find({
     userId: req.user?.id,
+    isDeleted: false,
   }).sort({ createdAt: -1 });
 
   return res
