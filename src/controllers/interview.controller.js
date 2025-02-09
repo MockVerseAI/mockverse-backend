@@ -19,6 +19,7 @@ const setupInterview = asyncHandler(async (req, res) => {
   const existingResume = await Resume.find({
     _id: resumeId,
     userId: req?.user?._id,
+    isDeleted: false,
   });
 
   if (!existingResume) {
