@@ -1,7 +1,12 @@
 import { google } from "@ai-sdk/google";
-import { generateText } from "ai";
+import { groq } from "@ai-sdk/groq";
+import {
+  extractReasoningMiddleware,
+  generateObject,
+  generateText,
+  wrapLanguageModel,
+} from "ai";
 import fs from "fs";
-import Groq from "groq-sdk";
 import logger from "../logger/winston.logger.js";
 import { ApiError } from "../utils/ApiError.js";
 
@@ -190,32 +195,46 @@ export const getRandomNumber = (max) => {
   return Math.floor(Math.random() * max);
 };
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
-
 /**
- * Generates a response from the AI using the Groq API.
- * @returns {Promise<string>} A promise that resolves to the AI-generated response as a string.
+ * Generates a natural language response from the AI using the Groq API with optional reasoning extraction.
+ *
+ * @param {Object} options - The configuration options for the AI response generation
+ * @param {Array<{role: string, content: string}>} [options.messages=[]] - Array of message objects containing the conversation history
+ * @param {string} [options.model="deepseek-r1-distill-llama-70b"] - The AI model identifier to use
+ * @param {string} [options.systemPrompt] - System prompt to guide the AI's behavior
+ * @param {Object} [options.params] - Additional parameters to pass to the model
+ * @returns {Promise<string>} A promise that resolves to the AI-generated response text
+ * @throws {ApiError} When the AI service fails to generate a response
  */
 export const generateAIResponse = async ({
-  messages,
-  model = "llama-3.3-70b-versatile",
-  jsonMode = false,
+  messages = [],
+  model = "deepseek-r1-distill-llama-70b",
+  systemPrompt,
   ...params
 }) => {
   try {
-    const groqResponse = await groq.chat.completions.create({
+    const _model = groq(model);
+
+    const enhancedModel = wrapLanguageModel({
+      model: _model,
+      middleware: extractReasoningMiddleware({ tagName: "think" }),
+    });
+
+    const { text, usage, warnings } = await generateText({
+      model: enhancedModel,
+      maxTokens: 1024,
+      system: systemPrompt,
       messages,
-      model,
-      response_format: {
-        type: jsonMode ? "json_object" : "text",
-      },
-      temperature: 0,
       ...params,
     });
 
-    return groqResponse.choices[0].message.content;
+    logger.info("AI Response Generation Usage:", usage);
+
+    if (warnings) {
+      logger.warn("AI Response Generation Warnings:", warnings);
+    }
+
+    return text;
   } catch (error) {
     logger.error("AI Response Generation Error:", {
       error: error.message,
@@ -224,6 +243,63 @@ export const generateAIResponse = async ({
         role: m.role,
         contentLength: m.content.length,
       })),
+    });
+
+    throw new ApiError(
+      error.response?.status || 500,
+      `AI Service Error: ${error.response?.data?.error || error.message}`,
+      [
+        {
+          service: "LLM",
+          model,
+          error: error.response?.data || error.message,
+        },
+      ]
+    );
+  }
+};
+
+/**
+ * Generates a structured object response from the AI using the Groq API based on a provided schema.
+ *
+ * @param {Object} options - The configuration options for the structured AI response
+ * @param {Object} options.schema - JSON schema defining the structure of the desired output
+ * @param {string} options.prompt - The prompt to send to the AI model
+ * @param {string} [options.model="llama-3.3-70b-versatile"] - The AI model identifier to use
+ * @param {number} [options.maxTokens=1024] - Maximum number of tokens in the response
+ * @param {Object} [options.params] - Additional parameters to pass to the model
+ * @returns {Promise<Object>} A promise that resolves to the structured object matching the provided schema
+ * @throws {ApiError} When the AI service fails to generate a structured response
+ */
+export const generateAIStructuredResponse = async ({
+  schema,
+  prompt,
+  model = "llama-3.3-70b-versatile",
+  maxTokens = 1024,
+  ...params
+}) => {
+  try {
+    const _model = groq(model);
+
+    const { object, usage, warnings } = await generateObject({
+      model: _model,
+      schema,
+      prompt,
+      maxTokens,
+      ...params,
+    });
+
+    logger.info("AI Object Generation Usage:", usage);
+
+    if (warnings) {
+      logger.warn("AI Object Generation Warnings:", warnings);
+    }
+
+    return object;
+  } catch (error) {
+    logger.error("AI Response Generation Error:", {
+      error: error.message,
+      details: error.response?.data,
     });
 
     throw new ApiError(

@@ -6,15 +6,19 @@ import { Resume } from "../models/resume.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js ";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { generateAIResponse } from "../utils/helpers.js";
+import {
+  generateAIResponse,
+  generateAIStructuredResponse,
+} from "../utils/helpers.js";
 import {
   initialInterviewPrompt,
   interviewReportGeneratePrompt,
 } from "../utils/prompts.js";
 import { InterviewReport } from "../models/interviewReport.model.js";
+import { interviewReportSchema } from "../utils/schemas.js";
 
 const setupInterview = asyncHandler(async (req, res) => {
-  const { jobRole, jobDescription, resumeId } = req.body;
+  const { companyName, jobRole, jobDescription, resumeId } = req.body;
 
   const existingResume = await Resume.find({
     _id: resumeId,
@@ -27,6 +31,7 @@ const setupInterview = asyncHandler(async (req, res) => {
   }
 
   const interview = await Interview.create({
+    companyName,
     jobRole,
     jobDescription,
     resumeId,
@@ -75,15 +80,8 @@ const chat = asyncHandler(async (req, res) => {
           );
       }
 
-      const initialMessages = [
-        {
-          role: "system",
-          content: aiPrompt,
-        },
-      ];
-
       const aiResponse = await generateAIResponse({
-        messages: initialMessages,
+        systemPrompt: aiPrompt,
       });
 
       await Message.create(
@@ -118,7 +116,6 @@ const chat = asyncHandler(async (req, res) => {
     }));
 
     const allMessages = [
-      { content: aiPrompt, role: "system" },
       ...formattedMessages,
       { content: message, role: "user" },
     ];
@@ -135,7 +132,10 @@ const chat = asyncHandler(async (req, res) => {
       { session }
     );
 
-    const aiResponse = await generateAIResponse({ messages: allMessages });
+    const aiResponse = await generateAIResponse({
+      systemPrompt: aiPrompt,
+      messages: allMessages,
+    });
 
     await Message.create(
       [
@@ -256,30 +256,19 @@ const getOrGenerateReport = asyncHandler(async (req, res) => {
     conversation: JSON.stringify(formattedMessages),
   });
 
-  const aiMessages = [
-    {
-      role: "system",
-      content: aiPrompt,
-    },
-  ];
-
-  const aiResponse = await generateAIResponse({
-    messages: aiMessages,
-    jsonMode: true,
-    max_completion_tokens: 4096,
+  const aiResponse = await generateAIStructuredResponse({
+    prompt: aiPrompt,
+    schema: interviewReportSchema,
+    maxTokens: 4096,
   });
 
-  const parsedResponse = JSON.parse(aiResponse);
-
-  logger.info("Interview report AI response", parsedResponse);
-
   const interviewReport = await InterviewReport.create({
-    technicalAssessment: parsedResponse.technicalAssessment,
-    behavioralAnalysis: parsedResponse.behavioralAnalysis,
-    responseQuality: parsedResponse.responseQuality,
-    roleAlignment: parsedResponse.roleAlignment,
-    performanceMetrics: parsedResponse.performanceMetrics,
-    developmentPlan: parsedResponse.developmentPlan,
+    technicalAssessment: aiResponse.technicalAssessment,
+    behavioralAnalysis: aiResponse.behavioralAnalysis,
+    responseQuality: aiResponse.responseQuality,
+    roleAlignment: aiResponse.roleAlignment,
+    performanceMetrics: aiResponse.performanceMetrics,
+    developmentPlan: aiResponse.developmentPlan,
     userId: req.user._id,
     interviewId,
   });
