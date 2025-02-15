@@ -1,5 +1,6 @@
 import { google } from "@ai-sdk/google";
 import { groq } from "@ai-sdk/groq";
+import { PollyClient, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
 import {
   extractReasoningMiddleware,
   generateObject,
@@ -326,7 +327,7 @@ export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
   try {
     const model = google("gemini-2.0-flash-lite-preview-02-05");
 
-    const result = await generateText({
+    const { text, usage, warnings } = await generateText({
       model,
       messages: [
         {
@@ -346,7 +347,13 @@ export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
       ],
     });
 
-    return result.text;
+    logger.info("AI PDF Content Generation Usage:", usage);
+
+    if (warnings) {
+      logger.warn("AI PDF Content Generation Warnings:", warnings);
+    }
+
+    return text;
   } catch (error) {
     logger.error("PDF AI Content Generation Error:", {
       error: error.message,
@@ -365,5 +372,50 @@ export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
         },
       ]
     );
+  }
+};
+
+// Initialize the Polly client
+const pollyClient = new PollyClient({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
+
+/**
+ * Convert text to speech and return audio buffer
+ * @param {string} text - Text to convert to speech
+ * @param {string} voiceId - Voice ID to use (default: Joanna)
+ * @param {string} engine - Engine to use (default: neural)
+ * @returns {Promise<Buffer>} Audio buffer
+ */
+export const generateSpeech = async (
+  text,
+  voiceId = "Aditi",
+  engine = "standard"
+) => {
+  const params = {
+    Engine: engine,
+    OutputFormat: "mp3",
+    Text: text,
+    VoiceId: voiceId,
+    TextType: "text",
+  };
+
+  try {
+    const command = new SynthesizeSpeechCommand(params);
+    const response = await pollyClient.send(command);
+
+    // Convert audio stream to buffer
+    const chunks = [];
+    for await (const chunk of response.AudioStream) {
+      chunks.push(chunk);
+    }
+    return Buffer.concat(chunks);
+  } catch (error) {
+    console.log(error);
+    logger.error("Speech Generation Error:", error);
   }
 };
