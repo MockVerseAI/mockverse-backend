@@ -4,6 +4,7 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import passport from "passport";
+import "newrelic";
 
 import connectDB from "./db/index.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
