@@ -2,6 +2,11 @@ import mongoose, { Schema } from "mongoose";
 
 const interviewSchema = new Schema(
   {
+    companyName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     jobRole: {
       type: String,
       required: true,

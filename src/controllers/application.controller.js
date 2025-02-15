@@ -4,8 +4,9 @@ import { Resume } from "../models/resume.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js ";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { generateAIResponse } from "../utils/helpers.js";
+import { generateAIStructuredResponse } from "../utils/helpers.js";
 import { applicationFeedbackPrompt } from "../utils/prompts.js";
+import { applicationFeedbackSchema } from "../utils/schemas.js";
 
 const getAllApplications = asyncHandler(async (req, res) => {
   const userId = req.user._id;
@@ -79,33 +80,22 @@ const getOrGenerateApplicationFeedback = asyncHandler(async (req, res) => {
     parsedResume: application.resumeId.parsedContent,
   });
 
-  const messages = [
-    {
-      role: "system",
-      content: aiPrompt,
-    },
-  ];
-
-  const aiResponse = await generateAIResponse({
-    messages,
-    jsonMode: true,
-    max_completion_tokens: 4096,
+  const aiResponse = await generateAIStructuredResponse({
+    schema: applicationFeedbackSchema,
+    prompt: aiPrompt,
+    maxTokens: 4096,
   });
 
-  const parsedResponse = JSON.parse(aiResponse);
-
-  console.log(parsedResponse);
-
   const applicationFeedback = await ApplicationFeedback.create({
-    core_alignment_analysis: parsedResponse.core_alignment_analysis,
-    keyword_optimization: parsedResponse.keyword_optimization,
-    experience_enhancement: parsedResponse.experience_enhancement,
-    skills_optimization: parsedResponse.skills_optimization,
-    impact_metrics: parsedResponse.impact_metrics,
-    professional_narrative: parsedResponse.professional_narrative,
-    competitive_advantages: parsedResponse.competitive_advantages,
-    industry_alignment: parsedResponse.industry_alignment,
-    action_priorities: parsedResponse.action_priorities,
+    core_alignment_analysis: aiResponse.core_alignment_analysis,
+    keyword_optimization: aiResponse.keyword_optimization,
+    experience_enhancement: aiResponse.experience_enhancement,
+    skills_optimization: aiResponse.skills_optimization,
+    impact_metrics: aiResponse.impact_metrics,
+    professional_narrative: aiResponse.professional_narrative,
+    competitive_advantages: aiResponse.competitive_advantages,
+    industry_alignment: aiResponse.industry_alignment,
+    action_priorities: aiResponse.action_priorities,
     userId: req.user._id,
     applicationId,
   });

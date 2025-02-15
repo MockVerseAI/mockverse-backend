@@ -1,20 +1,25 @@
 import mongoose from "mongoose";
 import logger from "../logger/winston.logger.js";
 import { Interview } from "../models/interview.model.js";
+import { InterviewReport } from "../models/interviewReport.model.js";
 import { Message } from "../models/message.model.js";
 import { Resume } from "../models/resume.model.js";
 import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponse.js ";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { generateAIResponse } from "../utils/helpers.js";
+import {
+  generateAIResponse,
+  generateAIStructuredResponse,
+  generateSpeech,
+} from "../utils/helpers.js";
 import {
   initialInterviewPrompt,
   interviewReportGeneratePrompt,
 } from "../utils/prompts.js";
-import { InterviewReport } from "../models/interviewReport.model.js";
+import { interviewReportSchema } from "../utils/schemas.js";
 
 const setupInterview = asyncHandler(async (req, res) => {
-  const { jobRole, jobDescription, resumeId } = req.body;
+  const { companyName, jobRole, jobDescription, resumeId } = req.body;
 
   const existingResume = await Resume.find({
     _id: resumeId,
@@ -27,6 +32,7 @@ const setupInterview = asyncHandler(async (req, res) => {
   }
 
   const interview = await Interview.create({
+    companyName,
     jobRole,
     jobDescription,
     resumeId,
@@ -63,11 +69,11 @@ const chat = asyncHandler(async (req, res) => {
   session.startTransaction();
 
   try {
+    let aiResponse, statusCode, responseMessage;
+
     if (isFirst) {
       if (messages.length > 0) {
         await session.commitTransaction();
-        session.endSession();
-
         return res
           .status(200)
           .json(
@@ -75,15 +81,8 @@ const chat = asyncHandler(async (req, res) => {
           );
       }
 
-      const initialMessages = [
-        {
-          role: "system",
-          content: aiPrompt,
-        },
-      ];
-
-      const aiResponse = await generateAIResponse({
-        messages: initialMessages,
+      aiResponse = await generateAIResponse({
+        systemPrompt: aiPrompt,
       });
 
       await Message.create(
@@ -98,78 +97,74 @@ const chat = asyncHandler(async (req, res) => {
         { session }
       );
 
-      await session.commitTransaction();
-      session.endSession();
+      statusCode = 201;
+      responseMessage = "Interview setup successfully";
+    } else {
+      const formattedMessages = messages.map((item) => ({
+        role: item.role,
+        content: item.content,
+      }));
 
-      return res
-        .status(201)
-        .json(
-          new ApiResponse(
-            201,
-            { content: aiResponse, role: "assistant" },
-            "Interview setup successfully"
-          )
-        );
+      const allMessages = [
+        ...formattedMessages,
+        { content: message, role: "user" },
+      ];
+
+      await Message.create(
+        [
+          {
+            content: message,
+            interviewId,
+            role: "user",
+            userId: req?.user?._id,
+          },
+        ],
+        { session }
+      );
+
+      aiResponse = await generateAIResponse({
+        systemPrompt: aiPrompt,
+        messages: allMessages,
+      });
+
+      await Message.create(
+        [
+          {
+            content: aiResponse,
+            interviewId,
+            role: "assistant",
+            userId: req?.user?._id,
+          },
+        ],
+        { session }
+      );
+
+      statusCode = 201;
+      responseMessage = "Message processed successfully";
     }
 
-    const formattedMessages = messages.map((item) => ({
-      role: item.role,
-      content: item.content,
-    }));
-
-    const allMessages = [
-      { content: aiPrompt, role: "system" },
-      ...formattedMessages,
-      { content: message, role: "user" },
-    ];
-
-    await Message.create(
-      [
-        {
-          content: message,
-          interviewId,
-          role: "user",
-          userId: req?.user?._id,
-        },
-      ],
-      { session }
-    );
-
-    const aiResponse = await generateAIResponse({ messages: allMessages });
-
-    await Message.create(
-      [
-        {
-          content: aiResponse,
-          interviewId,
-          role: "assistant",
-          userId: req?.user?._id,
-        },
-      ],
-      { session }
-    );
+    const speechBuffer = await generateSpeech(aiResponse);
+    const audio = speechBuffer ? speechBuffer.toString("base64") : null;
 
     await session.commitTransaction();
-    session.endSession();
 
     return res
-      .status(201)
+      .status(statusCode)
       .json(
         new ApiResponse(
-          201,
-          { content: aiResponse, role: "assistant" },
-          "Message processed successfully"
+          statusCode,
+          { content: aiResponse, audio, role: "assistant" },
+          responseMessage
         )
       );
   } catch (error) {
     await session.abortTransaction();
-    session.endSession();
-
     logger.error("Error in chat controller:", error);
-
     return res
       .status(500)
       .json(new ApiResponse(500, null, "Internal server error"));
+  } finally {
+    session.endSession();
   }
 });
 
@@ -256,30 +251,19 @@ const getOrGenerateReport = asyncHandler(async (req, res) => {
     conversation: JSON.stringify(formattedMessages),
   });
 
-  const aiMessages = [
-    {
-      role: "system",
-      content: aiPrompt,
-    },
-  ];
-
-  const aiResponse = await generateAIResponse({
-    messages: aiMessages,
-    jsonMode: true,
-    max_completion_tokens: 4096,
+  const aiResponse = await generateAIStructuredResponse({
+    prompt: aiPrompt,
+    schema: interviewReportSchema,
+    maxTokens: 4096,
   });
 
-  const parsedResponse = JSON.parse(aiResponse);
-
-  logger.info("Interview report AI response", parsedResponse);
-
   const interviewReport = await InterviewReport.create({
-    technicalAssessment: parsedResponse.technicalAssessment,
-    behavioralAnalysis: parsedResponse.behavioralAnalysis,
-    responseQuality: parsedResponse.responseQuality,
-    roleAlignment: parsedResponse.roleAlignment,
-    performanceMetrics: parsedResponse.performanceMetrics,
-    developmentPlan: parsedResponse.developmentPlan,
+    technicalAssessment: aiResponse.technicalAssessment,
+    behavioralAnalysis: aiResponse.behavioralAnalysis,
+    responseQuality: aiResponse.responseQuality,
+    roleAlignment: aiResponse.roleAlignment,
+    performanceMetrics: aiResponse.performanceMetrics,
+    developmentPlan: aiResponse.developmentPlan,
     userId: req.user._id,
     interviewId,
   });
@@ -297,8 +281,8 @@ const getOrGenerateReport = asyncHandler(async (req, res) => {
 
 export {
   chat,
-  setupInterview,
-  getAllInterviews,
   endInterview,
+  getAllInterviews,
   getOrGenerateReport,
+  setupInterview,
 };

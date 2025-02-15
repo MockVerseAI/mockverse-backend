@@ -39,10 +39,20 @@ const format = winston.format.combine(
   winston.format.timestamp({ format: "DD MMM, YYYY - HH:mm:ss:ms" }),
   // Tell Winston that the logs must be colored
   winston.format.colorize({ all: true }),
+  // Handle object logging
+  winston.format.json(),
   // Define the format of the message showing the timestamp, the level and the message
-  winston.format.printf(
-    (info) => `[${info.timestamp}] ${info.level}: ${info.message}`
-  )
+  winston.format.printf((info) => {
+    const { timestamp, level, message, ...args } = info;
+    const objArgs = Object.keys(args).length
+      ? JSON.stringify(args, null, 2)
+      : "";
+
+    if (typeof message === "object") {
+      return `[${timestamp}] ${level}: ${JSON.stringify(message, null, 2)} ${objArgs}`;
+    }
+    return `[${timestamp}] ${level}: ${message} ${objArgs}`;
+  })
 );
 
 // Define which transports the logger must use to print out messages.
