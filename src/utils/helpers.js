@@ -415,7 +415,6 @@ export const generateSpeech = async (
     }
     return Buffer.concat(chunks);
   } catch (error) {
-    console.log(error);
     logger.error("Speech Generation Error:", error);
   }
 };
