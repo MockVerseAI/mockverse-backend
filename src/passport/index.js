@@ -39,7 +39,10 @@ try {
         const user = await User.findOne({ email: profile._json.email });
         if (user) {
           // if user exists, check if user has registered with the GOOGLE SSO
-          if (user.loginType !== UserLoginType.GOOGLE) {
+          if (
+            user.loginType !== UserLoginType.GOOGLE &&
+            user.isEmailVerified === false
+          ) {
             // If user is registered with some other method, we will ask him/her to use the same method as registered.
             // TODO: We can redirect user to appropriate frontend urls which will show users what went wrong instead of sending response from the backend
             next(
@@ -88,7 +91,10 @@ try {
       async (_, __, profile, next) => {
         const user = await User.findOne({ email: profile._json.email });
         if (user) {
-          if (user.loginType !== UserLoginType.GITHUB) {
+          if (
+            user.loginType !== UserLoginType.GITHUB &&
+            user.isEmailVerified === false
+          ) {
             // TODO: We can redirect user to appropriate frontend urls which will show users what went wrong instead of sending response from the backend
             next(
               new ApiError(
