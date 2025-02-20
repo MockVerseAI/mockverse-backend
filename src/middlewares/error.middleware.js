@@ -13,7 +13,8 @@ import logger from "../logger/winston.logger.js";
  *
  * @description This middleware is responsible to catch the errors from any request handler wrapped inside the {@link asyncHandler}
  */
-const errorHandler = (err, req, res) => {
+// eslint-disable-next-line no-unused-vars
+const errorHandler = (err, req, res, next) => {
   let error = err;
 
   // Check if the error is an instance of an ApiError class which extends native Error class

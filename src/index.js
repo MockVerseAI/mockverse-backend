@@ -4,7 +4,11 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import passport from "passport";
-import "newrelic";
+
+// Only load New Relic in non-development environments
+if (process.env.NODE_ENV !== "development") {
+  import("newrelic");
+}
 
 import connectDB from "./db/index.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
