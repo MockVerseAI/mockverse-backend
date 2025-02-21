@@ -222,6 +222,12 @@ export const generateAIResponse = async ({
         google("gemini-2.0-flash-lite-preview-02-05"),
         groq("llama-3.3-70b-versatile"),
       ],
+      onError: (error, modelId) => {
+        logger.error(
+          `Error with AI Response Generation model ${modelId}:`,
+          error
+        );
+      },
     });
 
     const enhancedModel = wrapLanguageModel({
@@ -229,7 +235,7 @@ export const generateAIResponse = async ({
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
 
-    const { text, usage, warnings } = await generateText({
+    const { text, usage, warnings, response } = await generateText({
       model: enhancedModel,
       maxTokens: 1024,
       system: systemPrompt,
@@ -238,7 +244,10 @@ export const generateAIResponse = async ({
       ...params,
     });
 
-    logger.info("AI Response Generation Usage:", usage);
+    logger.info("AI Response Generated:", {
+      model: response?.modelId,
+      usage,
+    });
 
     if (warnings) {
       logger.warn("AI Response Generation Warnings:", warnings);
@@ -246,25 +255,9 @@ export const generateAIResponse = async ({
 
     return text;
   } catch (error) {
-    logger.error("AI Response Generation Error:", {
-      error: error.message,
-      details: error.response?.data,
-      messages: messages.map((m) => ({
-        role: m.role,
-        contentLength: m.content.length,
-      })),
-    });
+    logger.error("AI Response Generation Error:", error);
 
-    throw new ApiError(
-      error.response?.status || 500,
-      `AI Service Error: ${error.response?.data?.error || error.message}`,
-      [
-        {
-          service: "LLM-Chat",
-          error: error.response?.data || error.message,
-        },
-      ]
-    );
+    throw new ApiError(500, `AI Response Generation Error`);
   }
 };
 
@@ -292,11 +285,14 @@ export const generateAIStructuredResponse = async ({
         groq("llama-3.3-70b-versatile"),
       ],
       onError: (error, modelId) => {
-        logger.error(`Error with model ${modelId}:`, error);
+        logger.error(
+          `Error with AI Structured Object Generation model ${modelId}:`,
+          error
+        );
       },
     });
 
-    const { object, usage, warnings } = await generateObject({
+    const { object, usage, warnings, response } = await generateObject({
       model,
       schema,
       prompt,
@@ -304,7 +300,10 @@ export const generateAIStructuredResponse = async ({
       ...params,
     });
 
-    logger.info("AI Object Generation Usage:", usage);
+    logger.info("AI Object Generated:", {
+      model: response?.modelId,
+      usage,
+    });
 
     if (warnings) {
       logger.warn("AI Object Generation Warnings:", warnings);
@@ -312,21 +311,9 @@ export const generateAIStructuredResponse = async ({
 
     return object;
   } catch (error) {
-    logger.error("AI Response Generation Error:", {
-      error: error.message,
-      details: error.response?.data,
-    });
+    logger.error("AI Object Generation Error:", error);
 
-    throw new ApiError(
-      error.response?.status || 500,
-      `AI Service Error: ${error.response?.data?.error || error.message}`,
-      [
-        {
-          service: "LLM-Structured_Response",
-          error: error.response?.data || error.message,
-        },
-      ]
-    );
+    throw new ApiError(500, `AI Object Generation Error`);
   }
 };
 
@@ -340,7 +327,7 @@ export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
   try {
     const resumeModel = google("gemini-2.0-flash-lite-preview-02-05");
 
-    const { text, usage, warnings } = await generateText({
+    const { text, usage, warnings, response } = await generateText({
       model: resumeModel,
       messages: [
         {
@@ -360,7 +347,10 @@ export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
       ],
     });
 
-    logger.info("AI PDF Content Generation Usage:", usage);
+    logger.info("AI PDF Content Generated:", {
+      model: response?.modelId,
+      usage,
+    });
 
     if (warnings) {
       logger.warn("AI PDF Content Generation Warnings:", warnings);
@@ -368,23 +358,8 @@ export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
 
     return text;
   } catch (error) {
-    logger.error("PDF AI Content Generation Error:", {
-      error: error.message,
-      details: error.response?.data,
-      promptLength: prompt.length,
-    });
-
-    throw new ApiError(
-      error.response?.status || 500,
-      `AI PDF Service Error: ${error.response?.data?.error || error.message}`,
-      [
-        {
-          service: "PDF-Parser",
-          model: "gemini-2.0-flash-lite-preview-02-05",
-          error: error.response?.data || error.message,
-        },
-      ]
-    );
+    logger.error("PDF AI Content Generation Error:", error);
+    throw new ApiError(500, `AI PDF Service Error`);
   }
 };
 
