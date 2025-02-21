@@ -83,7 +83,7 @@ const getOrGenerateApplicationFeedback = asyncHandler(async (req, res) => {
   const aiResponse = await generateAIStructuredResponse({
     schema: applicationFeedbackSchema,
     prompt: aiPrompt,
-    maxTokens: 4096,
+    maxTokens: 10000,
   });
 
   const applicationFeedback = await ApplicationFeedback.create({

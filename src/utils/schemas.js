@@ -550,8 +550,10 @@ export const interviewReportSchema = z
                   notes: z.string(),
                 })
               )
-              .describe("Skills match assessment"),
+              .describe("Skills match assessment")
+              .optional(),
           })
+          .partial()
           .describe("Job requirements alignment"),
         potential: z
           .object({
@@ -680,7 +682,8 @@ export const interviewReportSchema = z
                   pitfalls: z.array(z.string()),
                 })
               )
-              .describe("Response templates and guidance"),
+              .describe("Response templates and guidance")
+              .optional(),
             scenarios: z.array(
               z.object({
                 situation: z.string().min(1).describe("Practice scenario"),
@@ -691,6 +694,7 @@ export const interviewReportSchema = z
               })
             ),
           })
+          .partial()
           .describe("Interview preparation guidance"),
       })
       .describe("Comprehensive development and preparation plan"),
