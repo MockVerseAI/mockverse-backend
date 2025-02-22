@@ -365,7 +365,7 @@ export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
 
 // Initialize the Polly client
 const pollyClient = new PollyClient({
-  region: process.env.AWS_REGION,
+  region: process.env.AWS_S3_REGION,
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -381,8 +381,8 @@ const pollyClient = new PollyClient({
  */
 export const generateSpeech = async (
   text,
-  voiceId = "Aditi",
-  engine = "standard"
+  voiceId = "Kajal",
+  engine = "neural"
 ) => {
   const params = {
     Engine: engine,
