@@ -1,5 +1,6 @@
 import { google } from "@ai-sdk/google";
 import { groq } from "@ai-sdk/groq";
+import { togetherai } from "@ai-sdk/togetherai";
 import { PollyClient, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
 import {
   extractReasoningMiddleware,
@@ -7,6 +8,7 @@ import {
   generateText,
   wrapLanguageModel,
 } from "ai";
+import { createFallback } from "ai-fallback";
 import fs from "fs";
 import logger from "../logger/winston.logger.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -201,7 +203,6 @@ export const getRandomNumber = (max) => {
  *
  * @param {Object} options - The configuration options for the AI response generation
  * @param {Array<{role: string, content: string}>} [options.messages=[]] - Array of message objects containing the conversation history
- * @param {string} [options.model="deepseek-r1-distill-llama-70b"] - The AI model identifier to use
  * @param {string} [options.systemPrompt] - System prompt to guide the AI's behavior
  * @param {Object} [options.params] - Additional parameters to pass to the model
  * @returns {Promise<string>} A promise that resolves to the AI-generated response text
@@ -209,27 +210,44 @@ export const getRandomNumber = (max) => {
  */
 export const generateAIResponse = async ({
   messages = [],
-  model = "deepseek-r1-distill-llama-70b",
   systemPrompt,
   ...params
 }) => {
   try {
-    const _model = groq(model);
+    const model = createFallback({
+      models: [
+        togetherai("meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"),
+        groq("deepseek-r1-distill-llama-70b"),
+        togetherai("deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"),
+        google("gemini-2.0-flash-lite-preview-02-05"),
+        groq("llama-3.3-70b-versatile"),
+      ],
+      onError: (error, modelId) => {
+        logger.error(
+          `Error with AI Response Generation model ${modelId}:`,
+          error
+        );
+      },
+    });
 
     const enhancedModel = wrapLanguageModel({
-      model: _model,
+      model,
       middleware: extractReasoningMiddleware({ tagName: "think" }),
     });
 
-    const { text, usage, warnings } = await generateText({
+    const { text, usage, warnings, response } = await generateText({
       model: enhancedModel,
       maxTokens: 1024,
       system: systemPrompt,
       messages,
+      temperature: 0.6,
       ...params,
     });
 
-    logger.info("AI Response Generation Usage:", usage);
+    logger.info("AI Response Generated:", {
+      model: response?.modelId,
+      usage,
+    });
 
     if (warnings) {
       logger.warn("AI Response Generation Warnings:", warnings);
@@ -237,26 +255,9 @@ export const generateAIResponse = async ({
 
     return text;
   } catch (error) {
-    logger.error("AI Response Generation Error:", {
-      error: error.message,
-      details: error.response?.data,
-      messages: messages.map((m) => ({
-        role: m.role,
-        contentLength: m.content.length,
-      })),
-    });
+    logger.error("AI Response Generation Error:", error);
 
-    throw new ApiError(
-      error.response?.status || 500,
-      `AI Service Error: ${error.response?.data?.error || error.message}`,
-      [
-        {
-          service: "LLM",
-          model,
-          error: error.response?.data || error.message,
-        },
-      ]
-    );
+    throw new ApiError(500, `AI Response Generation Error`);
   }
 };
 
@@ -266,7 +267,6 @@ export const generateAIResponse = async ({
  * @param {Object} options - The configuration options for the structured AI response
  * @param {Object} options.schema - JSON schema defining the structure of the desired output
  * @param {string} options.prompt - The prompt to send to the AI model
- * @param {string} [options.model="llama-3.3-70b-versatile"] - The AI model identifier to use
  * @param {number} [options.maxTokens=1024] - Maximum number of tokens in the response
  * @param {Object} [options.params] - Additional parameters to pass to the model
  * @returns {Promise<Object>} A promise that resolves to the structured object matching the provided schema
@@ -275,22 +275,35 @@ export const generateAIResponse = async ({
 export const generateAIStructuredResponse = async ({
   schema,
   prompt,
-  model = "llama-3.3-70b-versatile",
   maxTokens = 1024,
   ...params
 }) => {
   try {
-    const _model = groq(model);
+    const model = createFallback({
+      models: [
+        google("gemini-2.0-flash-lite-preview-02-05"),
+        groq("llama-3.3-70b-versatile"),
+      ],
+      onError: (error, modelId) => {
+        logger.error(
+          `Error with AI Structured Object Generation model ${modelId}:`,
+          error
+        );
+      },
+    });
 
-    const { object, usage, warnings } = await generateObject({
-      model: _model,
+    const { object, usage, warnings, response } = await generateObject({
+      model,
       schema,
       prompt,
       maxTokens,
       ...params,
     });
 
-    logger.info("AI Object Generation Usage:", usage);
+    logger.info("AI Object Generated:", {
+      model: response?.modelId,
+      usage,
+    });
 
     if (warnings) {
       logger.warn("AI Object Generation Warnings:", warnings);
@@ -298,22 +311,9 @@ export const generateAIStructuredResponse = async ({
 
     return object;
   } catch (error) {
-    logger.error("AI Response Generation Error:", {
-      error: error.message,
-      details: error.response?.data,
-    });
+    logger.error("AI Object Generation Error:", error);
 
-    throw new ApiError(
-      error.response?.status || 500,
-      `AI Service Error: ${error.response?.data?.error || error.message}`,
-      [
-        {
-          service: "LLM",
-          model,
-          error: error.response?.data || error.message,
-        },
-      ]
-    );
+    throw new ApiError(500, `AI Object Generation Error`);
   }
 };
 
@@ -325,10 +325,10 @@ export const generateAIStructuredResponse = async ({
  */
 export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
   try {
-    const model = google("gemini-2.0-flash-lite-preview-02-05");
+    const resumeModel = google("gemini-2.0-flash-lite-preview-02-05");
 
-    const { text, usage, warnings } = await generateText({
-      model,
+    const { text, usage, warnings, response } = await generateText({
+      model: resumeModel,
       messages: [
         {
           role: "user",
@@ -347,7 +347,10 @@ export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
       ],
     });
 
-    logger.info("AI PDF Content Generation Usage:", usage);
+    logger.info("AI PDF Content Generated:", {
+      model: response?.modelId,
+      usage,
+    });
 
     if (warnings) {
       logger.warn("AI PDF Content Generation Warnings:", warnings);
@@ -355,23 +358,8 @@ export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
 
     return text;
   } catch (error) {
-    logger.error("PDF AI Content Generation Error:", {
-      error: error.message,
-      details: error.response?.data,
-      promptLength: prompt.length,
-    });
-
-    throw new ApiError(
-      error.response?.status || 500,
-      `AI PDF Service Error: ${error.response?.data?.error || error.message}`,
-      [
-        {
-          service: "Google Generative AI",
-          model: "gemini-2.0-flash-lite-preview-02-05",
-          error: error.response?.data || error.message,
-        },
-      ]
-    );
+    logger.error("PDF AI Content Generation Error:", error);
+    throw new ApiError(500, `AI PDF Service Error`);
   }
 };
 

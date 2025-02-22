@@ -254,7 +254,7 @@ const getOrGenerateReport = asyncHandler(async (req, res) => {
   const aiResponse = await generateAIStructuredResponse({
     prompt: aiPrompt,
     schema: interviewReportSchema,
-    maxTokens: 4096,
+    maxTokens: 10000,
   });
 
   const interviewReport = await InterviewReport.create({
