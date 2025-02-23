@@ -51,6 +51,16 @@ export const resumeParsePrompt = `
         - Any other relevant details not covered in the sections above.
 `;
 
+export const resumeSummaryPrompt = `
+  You are an experienced talent acquisition specialist who analyzes and summarizes resumes. Please provide a concise yet thorough summary of the resume that highlights:
+    - Professional experience with key achievements and responsibilities
+    - Educational background and relevant certifications
+    - Core technical and soft skills
+    - Notable projects or accomplishments
+    - Industry-relevant keywords and qualifications
+  Format the summary in clear sections with a focus on quantifiable achievements and leadership experiences. Highlight elements that would be most relevant to hiring managers and recruiters, while maintaining chronological clarity and emphasizing career progression.
+  Please review this resume and provide a summary that would give an interviewer a quick yet comprehensive understanding of the candidate's qualifications and potential.`;
+
 export const initialInterviewPrompt = ({
   jobRole,
   jobDescription,
