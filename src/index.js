@@ -22,6 +22,7 @@ import heathcheckRouter from "./routes/healthcheck.routes.js";
 import interviewRouter from "./routes/interview.routes.js";
 import resumeRouter from "./routes/resume.routes.js";
 import userRouter from "./routes/user.routes.js";
+import positionsRouter from "./routes/positions.routes.js";
 import { ApiError } from "./utils/ApiError.js";
 
 const app = express();
@@ -76,6 +77,7 @@ app.use("/api/v1/user", userRouter);
 app.use("/api/v1/interview", interviewRouter);
 app.use("/api/v1/resume", resumeRouter);
 app.use("/api/v1/application", applicationRouter);
+app.use("/api/v1/positions", positionsRouter);
 
 app.use(errorHandler);
 
