@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-push-deploy:
+  build-push-deploy-stg:
     runs-on: ubuntu-latest
     environment: shared
     

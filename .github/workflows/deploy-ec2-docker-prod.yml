@@ -5,7 +5,7 @@ on:
     branches: [ "prod" ]
 
 jobs:
-  build-push-deploy:
+  build-push-deploy-prod:
     runs-on: ubuntu-latest
     environment: shared
     
