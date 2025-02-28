@@ -1,6 +1,17 @@
+import SES from "@aws-sdk/client-ses";
+import { defaultProvider } from "@aws-sdk/credential-provider-node";
 import Mailgen from "mailgen";
 import nodemailer from "nodemailer";
 import logger from "../logger/winston.logger.js";
+
+const ses = new SES.SES({
+  region: process.env.AWS_S3_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+  defaultProvider,
+});
 
 /**
  *
@@ -12,7 +23,7 @@ const sendEmail = async (options) => {
     theme: "default",
     product: {
       name: "MockVerse",
-      link: "https://mockverse.app",
+      link: "https://mockverse.me",
     },
   });
 
@@ -25,16 +36,11 @@ const sendEmail = async (options) => {
 
   // Create a nodemailer transporter instance which is responsible to send a mail
   const transporter = nodemailer.createTransport({
-    host: process.env.MAILTRAP_SMTP_HOST,
-    port: process.env.MAILTRAP_SMTP_PORT,
-    auth: {
-      user: process.env.MAILTRAP_SMTP_USER,
-      pass: process.env.MAILTRAP_SMTP_PASS,
-    },
+    SES: { ses, aws: SES },
   });
 
   const mail = {
-    from: "mail.freeapi@gmail.com", // We can name this anything. The mail will go to your Mailtrap inbox
+    from: "admin@info.mockverse.me", // We can name this anything. The mail will go to your Mailtrap inbox
     to: options.email, // receiver's mail
     subject: options.subject, // mail subject
     text: emailTextual, // mailgen content textual variant
@@ -47,7 +53,7 @@ const sendEmail = async (options) => {
     // As sending email is not strongly coupled to the business logic it is not worth to raise an error when email sending fails
     // So it's better to fail silently rather than breaking the app
     logger.error(
-      "Email service failed silently. Make sure you have provided your MAILTRAP credentials in the .env file"
+      "Email service failed silently. Make sure you have provided your credentials in the .env file"
     );
     logger.error("Error: ", error);
   }
@@ -108,7 +114,7 @@ const forgotPasswordMailgenContent = (username, passwordResetUrl) => {
 };
 
 export {
-  sendEmail,
   emailVerificationMailgenContent,
   forgotPasswordMailgenContent,
+  sendEmail,
 };
