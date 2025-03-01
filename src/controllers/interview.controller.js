@@ -171,7 +171,9 @@ const chat = asyncHandler(async (req, res) => {
 const getAllInterviews = asyncHandler(async (req, res) => {
   const userId = req.user._id;
 
-  const interviews = await Interview.find({ userId });
+  const interviews = await Interview.find({ userId }).sort({
+    createdAt: -1,
+  });
 
   return res
     .status(200)

@@ -11,7 +11,9 @@ import { applicationFeedbackSchema } from "../utils/schemas.js";
 const getAllApplications = asyncHandler(async (req, res) => {
   const userId = req.user._id;
 
-  const applications = await Application.find({ userId });
+  const applications = await Application.find({ userId }).sort({
+    createdAt: -1,
+  });
 
   return res
     .status(200)
