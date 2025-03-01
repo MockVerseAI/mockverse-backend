@@ -25,6 +25,11 @@ const getAllPositions = asyncHandler(async (req, res) => {
         jobDescription: 1,
       },
     },
+    {
+      $sort: {
+        createdAt: -1,
+      },
+    },
   ];
 
   const [interviews, applications] = await Promise.all([
