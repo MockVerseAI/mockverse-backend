@@ -7,7 +7,7 @@ import passport from "passport";
 
 // Only load New Relic in non-development environments
 if (process.env.NODE_ENV !== "development") {
-  import("newrelic");
+  // import("newrelic");
 }
 
 import connectDB from "./db/index.js";
