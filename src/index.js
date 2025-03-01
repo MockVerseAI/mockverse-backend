@@ -10,6 +10,7 @@ import("newrelic");
 
 import connectDB from "./db/index.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
+import { requestLogger } from "./middlewares/request.logger.middleware.js";
 
 // routers
 import cookieParser from "cookie-parser";
@@ -69,6 +70,9 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 
+// Add request logger middleware
+app.use(requestLogger);
+
 // routes
 app.use("/api/v1/healthcheck", heathcheckRouter);
 app.use("/api/v1/user", userRouter);
@@ -79,11 +83,36 @@ app.use("/api/v1/positions", positionsRouter);
 
 app.use(errorHandler);
 
+// Log application startup events
 const startServer = async () => {
-  await connectDB();
-  app.listen(process.env.PORT, () => {
-    console.log(`🚀 Server is listening on port ${process.env.PORT}...`);
-  });
+  try {
+    await connectDB();
+    const server = app.listen(process.env.PORT, () => {
+      logger.info(`🚀 Server is listening on port ${process.env.PORT}...`);
+    });
+
+    // Handle server shutdown gracefully
+    const gracefulShutdown = () => {
+      logger.info("Received shutdown signal, closing server gracefully...");
+      server.close(() => {
+        logger.info("Server closed successfully");
+        process.exit(0);
+      });
+
+      // Force close after 10s if server hasn't closed gracefully
+      setTimeout(() => {
+        logger.error("Server shutdown timed out, forcing exit");
+        process.exit(1);
+      }, 10000);
+    };
+
+    // Listen for termination signals
+    process.on("SIGTERM", gracefulShutdown);
+    process.on("SIGINT", gracefulShutdown);
+  } catch (error) {
+    logger.error("Failed to start server:", error);
+    process.exit(1);
+  }
 };
 
 startServer();
