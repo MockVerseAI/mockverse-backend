@@ -6,11 +6,12 @@ import { ApiResponse } from "../utils/ApiResponse.js ";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {
   generateAIContentFromPDF,
+  generateAIResponse,
   getLocalPath,
   removeLocalFile,
 } from "../utils/helpers.js";
 import { getHash } from "../utils/lib.js";
-import { resumeParsePrompt } from "../utils/prompts.js";
+import { resumeParsePrompt, resumeSummaryPrompt } from "../utils/prompts.js";
 import { upload } from "../utils/upload.js";
 
 const createResume = asyncHandler(async (req, res) => {
@@ -44,6 +45,16 @@ const createResume = asyncHandler(async (req, res) => {
     generateAIContentFromPDF(pdfBuffer, resumeParsePrompt),
   ]);
 
+  const summary = await generateAIResponse({
+    systemPrompt: resumeSummaryPrompt,
+    messages: [
+      {
+        role: "user",
+        content: parsedContent,
+      },
+    ],
+  });
+
   logger.info("LLM called");
 
   const newResume = await Resume.create({
@@ -51,6 +62,7 @@ const createResume = asyncHandler(async (req, res) => {
     url: fileUrl,
     hash,
     parsedContent,
+    summary,
     userId: req?.user?._id,
   });
 
