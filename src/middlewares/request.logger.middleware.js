@@ -29,9 +29,7 @@ export const requestLogger = (req, res, next) => {
 
     const statusCode = res.statusCode;
 
-    const logLevel = statusCode >= 400 ? "error" : "info";
-
-    logger[logLevel](`[${method}] ${originalUrl} ${statusCode}`, {
+    logger.info(`[${method}] ${originalUrl} ${statusCode}`, {
       requestId,
       duration,
       ip,

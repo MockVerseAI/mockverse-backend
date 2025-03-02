@@ -281,6 +281,8 @@ export const generateAIStructuredResponse = async ({
   try {
     const model = createFallback({
       models: [
+        google("gemini-2.0-pro-exp-02-05"),
+        google("gemini-2.0-flash"),
         google("gemini-2.0-flash-lite-preview-02-05"),
         groq("llama-3.3-70b-versatile"),
       ],
