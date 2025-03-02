@@ -12,12 +12,9 @@ const levels = {
 
 // This method set the current severity based on
 // the current NODE_ENV: show all the log levels
-// if the server was run in development mode; otherwise,
-// if it was run in production, show only warn and error messages.
+// regardless of environment (development, staging, or production)
 const level = () => {
-  const env = process.env.NODE_ENV || "development";
-  const isDevelopment = env === "development";
-  return isDevelopment ? "debug" : "warn";
+  return "debug"; // Always return debug to show all logs in all environments
 };
 
 // Define different colors for each level.
