@@ -1,6 +1,7 @@
 import Mailgen from "mailgen";
 import nodemailer from "nodemailer";
 import logger from "../logger/winston.logger.js";
+import { ApiError } from "./ApiError.js";
 
 /**
  *
@@ -48,9 +49,10 @@ const sendEmail = async (options) => {
     // As sending email is not strongly coupled to the business logic it is not worth to raise an error when email sending fails
     // So it's better to fail silently rather than breaking the app
     logger.error(
-      "Email service failed silently. Make sure you have provided your credentials in the .env file"
+      "Email service failed silently. Make sure you have provided your credentials in the .env file",
+      error
     );
-    logger.error("Error: ", error);
+    throw new ApiError(500, "Failed to send email");
   }
 };
 
