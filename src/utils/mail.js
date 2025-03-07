@@ -1,17 +1,6 @@
-import SES from "@aws-sdk/client-ses";
-import { defaultProvider } from "@aws-sdk/credential-provider-node";
 import Mailgen from "mailgen";
 import nodemailer from "nodemailer";
 import logger from "../logger/winston.logger.js";
-
-const ses = new SES.SES({
-  region: process.env.AWS_S3_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-  defaultProvider,
-});
 
 /**
  *
@@ -36,11 +25,17 @@ const sendEmail = async (options) => {
 
   // Create a nodemailer transporter instance which is responsible to send a mail
   const transporter = nodemailer.createTransport({
-    SES: { ses, aws: SES },
+    host: "smtp.resend.com",
+    secure: true,
+    port: 465,
+    auth: {
+      user: "resend",
+      pass: process.env.RESEND_API_KEY,
+    },
   });
 
   const mail = {
-    from: "admin@info.mockverse.me", // We can name this anything. The mail will go to your Mailtrap inbox
+    from: "MockVerse <admin@info.mockverse.me>",
     to: options.email, // receiver's mail
     subject: options.subject, // mail subject
     text: emailTextual, // mailgen content textual variant
