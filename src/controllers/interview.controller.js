@@ -60,6 +60,7 @@ const chat = asyncHandler(async (req, res) => {
   }
 
   const aiPrompt = initialInterviewPrompt({
+    companyName: interview.companyName,
     jobRole: interview.jobRole,
     jobDescription: interview.jobDescription,
     parsedResume: interview.resumeId.parsedContent,
