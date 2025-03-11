@@ -72,10 +72,11 @@ export const initialInterviewPrompt = ({
     3. Listen to each answer and formulate the next question that logically follows
     4. Progress through different question categories as the interview develops
     5. Track conversation context and avoid repeating topics already covered
-    6. End the interview only after all categories have been explored (approximately 15 minutes)
+    6. End the interview only after all categories have been explored (approximately 20 minutes)
 
     - Question Categories to Cover (spread throughout the conversation):
     - Technical skills questions relevant to ${jobRole} (3-4 questions)
+    - Tech stack questions to gauge depth of knowledge in techs required for the job (4-5 questions)
     - Experience questions based on resume details (2-3 questions)
     - Behavioral questions about teamwork, problem-solving, etc. (2-3 questions)
     - Culture fit questions about work style and values (1-2 questions)
