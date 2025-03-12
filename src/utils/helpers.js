@@ -214,13 +214,16 @@ export const generateAIResponse = async ({
   ...params
 }) => {
   try {
+    const start = performance.now();
+
     const model = createFallback({
       models: [
-        togetherai("meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"),
-        groq("deepseek-r1-distill-llama-70b"),
-        togetherai("deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"),
-        google("gemini-2.0-flash-lite-preview-02-05"),
         groq("llama-3.3-70b-versatile"),
+        groq("llama-3.3-70b-specdec"),
+        groq("deepseek-r1-distill-llama-70b"),
+        google("gemini-2.0-flash-lite-preview-02-05"),
+        togetherai("meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"),
+        togetherai("deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"),
       ],
       onError: (error, modelId) => {
         logger.error(
@@ -244,9 +247,12 @@ export const generateAIResponse = async ({
       ...params,
     });
 
+    const end = performance.now();
+
     logger.info("AI Response Generated:", {
       model: response?.modelId,
       usage,
+      timeTaken: end - start,
     });
 
     if (warnings) {
@@ -279,6 +285,8 @@ export const generateAIStructuredResponse = async ({
   ...params
 }) => {
   try {
+    const start = performance.now();
+
     const model = createFallback({
       models: [
         google("gemini-2.0-pro-exp-02-05"),
@@ -302,9 +310,12 @@ export const generateAIStructuredResponse = async ({
       ...params,
     });
 
+    const end = performance.now();
+
     logger.info("AI Object Generated:", {
       model: response?.modelId,
       usage,
+      timeTaken: end - start,
     });
 
     if (warnings) {
@@ -327,6 +338,8 @@ export const generateAIStructuredResponse = async ({
  */
 export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
   try {
+    const start = performance.now();
+
     const resumeModel = google("gemini-2.0-flash-lite-preview-02-05");
 
     const { text, usage, warnings, response } = await generateText({
@@ -349,9 +362,12 @@ export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
       ],
     });
 
+    const end = performance.now();
+
     logger.info("AI PDF Content Generated:", {
       model: response?.modelId,
       usage,
+      timeTaken: end - start,
     });
 
     if (warnings) {
@@ -386,6 +402,8 @@ export const generateSpeech = async (
   voiceId = "Kajal",
   engine = "neural"
 ) => {
+  const start = performance.now();
+
   const params = {
     Engine: engine,
     OutputFormat: "mp3",
@@ -403,7 +421,18 @@ export const generateSpeech = async (
     for await (const chunk of response.AudioStream) {
       chunks.push(chunk);
     }
-    return Buffer.concat(chunks);
+    const audioBuffer = Buffer.concat(chunks);
+
+    const end = performance.now();
+
+    logger.info("Speech Generation:", {
+      voiceId,
+      engine,
+      textLength: text.length,
+      timeTaken: end - start,
+    });
+
+    return audioBuffer;
   } catch (error) {
     logger.error("Speech Generation Error:", error);
   }
