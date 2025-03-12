@@ -10,7 +10,7 @@ import logger from "../logger/winston.logger.js";
  * @param {import("express").NextFunction} next - Express next function
  */
 export const requestLogger = (req, res, next) => {
-  const start = Date.now();
+  const start = performance.now();
   const { method, originalUrl, ip } = req;
 
   const requestId = uuidv4();
@@ -25,7 +25,7 @@ export const requestLogger = (req, res, next) => {
   res.end = function (...args) {
     res.end = originalEnd;
 
-    const duration = Date.now() - start;
+    const duration = performance.now() - start;
 
     const statusCode = res.statusCode;
 
