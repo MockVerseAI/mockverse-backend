@@ -20,14 +20,12 @@ export const upload = async (file, key) => {
       Bucket: process.env.AWS_S3_BUCKET_NAME,
       Key: key,
       ContentType: file.mimetype,
-      ACL: "public-read",
       Body: await readFile(localPath),
     });
 
     await s3Client.send(command);
 
-    // ${process.env.CLOUDFRONT_DOMAIN}/${key}
-    const publicLink = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/${key}`;
+    const publicLink = `${process.env.CLOUDFRONT_DOMAIN}/${key}`;
 
     removeLocalFile(localPath);
 
