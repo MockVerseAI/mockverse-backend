@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import logger from "../logger/winston.logger.js";
 import { Interview } from "../models/interview.model.js";
 import { InterviewReport } from "../models/interviewReport.model.js";
+import { InterviewTemplate } from "../models/interviewTemplate.model.js";
+import { InterviewWorkspace } from "../models/interviewWorkspace.model.js";
 import { Message } from "../models/message.model.js";
 import { Resume } from "../models/resume.model.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -13,30 +15,53 @@ import {
   generateSpeech,
 } from "../utils/helpers.js";
 import {
-  initialInterviewPrompt,
+  baseInterviewPrompt,
   interviewReportGeneratePrompt,
 } from "../utils/prompts.js";
 import { interviewReportSchema } from "../utils/schemas.js";
 
 const setupInterview = asyncHandler(async (req, res) => {
-  const { companyName, jobRole, jobDescription, resumeId } = req.body;
+  const { interviewWorkspaceId } = req.params;
+  const { resumeId, interviewTemplateId } = req.body;
 
-  const existingResume = await Resume.find({
-    _id: resumeId,
-    userId: req?.user?._id,
-    isDeleted: false,
-  });
+  const [
+    existingResume,
+    existingInterviewTemplate,
+    existingInterviewWorkspace,
+  ] = await Promise.all([
+    Resume.find({
+      _id: resumeId,
+      userId: req?.user?._id,
+      isDeleted: false,
+    }),
+    InterviewTemplate.find({
+      _id: interviewTemplateId,
+      isDeleted: false,
+    }),
+    InterviewWorkspace.find({
+      _id: interviewWorkspaceId,
+      userId: req?.user?._id,
+      isDeleted: false,
+    }),
+  ]);
 
   if (!existingResume) {
     throw new ApiError(400, "Resume provided is invalid");
   }
 
+  if (!existingInterviewTemplate) {
+    throw new ApiError(400, "Interview template provided is invalid");
+  }
+
+  if (!existingInterviewWorkspace) {
+    throw new ApiError(400, "Interview workspace provided is invalid");
+  }
+
   const interview = await Interview.create({
-    companyName,
-    jobRole,
-    jobDescription,
     resumeId,
     userId: req.user?._id,
+    interviewWorkspaceId,
+    interviewTemplateId,
   });
 
   return res
@@ -52,18 +77,23 @@ const chat = asyncHandler(async (req, res) => {
     Message.find({ interviewId })
       .select("content role createdAt -_id")
       .sort({ createdAt: 1 }),
-    Interview.findById(interviewId).populate("resumeId"),
+    Interview.findById(interviewId)
+      .populate("resumeId")
+      .populate("interviewWorkspaceId")
+      .populate("interviewTemplateId"),
   ]);
 
   if (!interview) {
     throw new ApiError(404, "Interview not found");
   }
 
-  const aiPrompt = initialInterviewPrompt({
-    companyName: interview.companyName,
-    jobRole: interview.jobRole,
-    jobDescription: interview.jobDescription,
+  const aiPrompt = baseInterviewPrompt(interview.interviewTemplateId, {
+    companyName: interview.interviewWorkspaceId.companyName,
+    jobRole: interview.interviewTemplateId.jobRole,
+    jobDescription: interview.interviewTemplateId.jobDescription,
     parsedResume: interview.resumeId.parsedContent,
+    duration: interview.duration,
+    difficulty: interview.difficulty,
   });
 
   const session = await mongoose.startSession();
@@ -170,9 +200,13 @@ const chat = asyncHandler(async (req, res) => {
 });
 
 const getAllInterviews = asyncHandler(async (req, res) => {
+  const { interviewWorkspaceId } = req.params;
   const userId = req.user._id;
 
-  const interviews = await Interview.find({ userId }).sort({
+  const interviews = await Interview.find({
+    userId,
+    interviewWorkspaceId,
+  }).sort({
     createdAt: -1,
   });
 
@@ -216,7 +250,10 @@ const getOrGenerateReport = asyncHandler(async (req, res) => {
     Message.find({ interviewId })
       .select("content role createdAt -_id")
       .sort({ createdAt: 1 }),
-    Interview.findById(interviewId).populate("resumeId"),
+    Interview.findById(interviewId)
+      .populate("resumeId")
+      .populate("interviewWorkspaceId")
+      .populate("interviewTemplateId"),
   ]);
 
   if (!interview) throw new ApiError(404, "Interview not found");

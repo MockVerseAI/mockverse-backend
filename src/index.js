@@ -18,6 +18,8 @@ import session from "express-session";
 import logger from "./logger/winston.logger.js";
 import applicationRouter from "./routes/application.routes.js";
 import heathcheckRouter from "./routes/healthcheck.routes.js";
+import interviewTemplateRouter from "./routes/interviewTemplate.routes.js";
+import interviewWorkspacesRouter from "./routes/interviewWorkspaces.routes.js";
 import interviewRouter from "./routes/interview.routes.js";
 import resumeRouter from "./routes/resume.routes.js";
 import userRouter from "./routes/user.routes.js";
@@ -77,6 +79,8 @@ app.use(requestLogger);
 // routes
 app.use("/api/v1/healthcheck", heathcheckRouter);
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/interview-workspace", interviewWorkspacesRouter);
+app.use("/api/v1/interview-template", interviewTemplateRouter);
 app.use("/api/v1/interview", interviewRouter);
 app.use("/api/v1/resume", resumeRouter);
 app.use("/api/v1/application", applicationRouter);

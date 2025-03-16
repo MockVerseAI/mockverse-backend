@@ -2,16 +2,25 @@ import { body } from "express-validator";
 
 const setupInterviewValidator = () => {
   return [
-    body("companyName")
-      .trim()
-      .notEmpty()
-      .withMessage("companyName is required"),
-    body("jobRole").trim().notEmpty().withMessage("jobRole is required"),
-    body("jobDescription")
-      .trim()
-      .notEmpty()
-      .withMessage("jobDescription is required"),
     body("resumeId").trim().notEmpty().withMessage("resumeId is required"),
+    body("interviewTemplateId")
+      .trim()
+      .notEmpty()
+      .withMessage("interviewTemplateId is required"),
+    body("duration")
+      .trim()
+      .notEmpty()
+      .withMessage("duration is required")
+      .isIn([15, 30, 45, 60])
+      .withMessage("duration must be one of: 15, 30, 45, 60"),
+    body("difficulty")
+      .trim()
+      .notEmpty()
+      .withMessage("difficulty is required")
+      .isIn(["beginner", "intermediate", "advanced", "expert"])
+      .withMessage(
+        "difficulty must be one of: beginner, intermediate, advanced, expert"
+      ),
   ];
 };
 
