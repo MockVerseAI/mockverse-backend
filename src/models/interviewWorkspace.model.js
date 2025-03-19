@@ -22,6 +22,10 @@ const interviewWorkspaceSchema = new Schema(
       ref: "User",
       required: true,
     },
+    embedding: {
+      type: [Number],
+      default: null,
+    },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -31,6 +35,8 @@ const interviewWorkspaceSchema = new Schema(
     timestamps: true,
   }
 );
+
+interviewWorkspaceSchema.index({ userId: 1 });
 
 export const InterviewWorkspace = mongoose.model(
   "InterviewWorkspace",

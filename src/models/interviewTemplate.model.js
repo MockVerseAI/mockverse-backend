@@ -16,7 +16,18 @@ const interviewTemplateSchema = new Schema(
     category: {
       type: String,
       required: true,
-      enum: ["technical", "behavioral", "system-design", "hr", "mixed"],
+      enum: [
+        "technical",
+        "behavioral",
+        "system-design",
+        "hr",
+        "mixed",
+        "leadership",
+        "product",
+        "management",
+        "ux",
+        "non-technical",
+      ],
       default: "technical",
     },
     promptInsertions: {
@@ -143,6 +154,10 @@ const interviewTemplateSchema = new Schema(
         },
       },
     },
+    embedding: {
+      type: [Number],
+      default: null,
+    },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -150,6 +165,11 @@ const interviewTemplateSchema = new Schema(
   },
   { timestamps: true }
 );
+
+interviewTemplateSchema.index({ name: 1 });
+interviewTemplateSchema.index({ category: 1 });
+interviewTemplateSchema.index({ createdAt: -1 });
+interviewTemplateSchema.index({ isDeleted: 1 });
 
 export const InterviewTemplate = mongoose.model(
   "InterviewTemplate",

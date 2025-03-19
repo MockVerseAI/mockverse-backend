@@ -2,15 +2,19 @@ import { InterviewWorkspace } from "../models/interviewWorkspace.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { getEmbedding } from "../utils/helpers.js";
 
 const createInterviewWorkspace = asyncHandler(async (req, res) => {
   const { companyName, jobRole, jobDescription } = req.body;
+
+  const embedding = await getEmbedding(`${jobRole} ${jobDescription}`);
 
   const interviewWorkspace = await InterviewWorkspace.create({
     companyName,
     jobRole,
     jobDescription,
     userId: req.user?._id,
+    embedding,
   });
 
   return res
@@ -27,9 +31,9 @@ const createInterviewWorkspace = asyncHandler(async (req, res) => {
 const getAllInterviewWorkspaces = asyncHandler(async (req, res) => {
   const userId = req.user._id;
 
-  const interviewWorkspaces = await InterviewWorkspace.find({ userId }).sort({
-    createdAt: -1,
-  });
+  const interviewWorkspaces = await InterviewWorkspace.find({ userId })
+    .sort({ createdAt: -1 })
+    .select("-embedding");
 
   return res
     .status(200)
@@ -45,8 +49,11 @@ const getAllInterviewWorkspaces = asyncHandler(async (req, res) => {
 const deleteInterviewWorkspace = asyncHandler(async (req, res) => {
   const { interviewWorkspaceId } = req.params;
 
-  const interviewWorkspace =
-    await InterviewWorkspace.findById(interviewWorkspaceId);
+  const interviewWorkspace = await InterviewWorkspace.findOne({
+    _id: interviewWorkspaceId,
+    userId: req.user._id,
+    isDeleted: false,
+  });
 
   if (!interviewWorkspace) {
     throw new ApiError(404, "Interview workspace not found");

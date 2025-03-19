@@ -2,12 +2,14 @@ import { Router } from "express";
 import {
   createInterviewTemplate,
   deleteInterviewTemplate,
+  findRelevantTemplate,
   getInterviewTemplates,
   updateInterviewTemplate,
 } from "../controllers/interviewTemplate.controller.js";
-import { verifyApiKey } from "../middlewares/auth.middleware.js";
+import { verifyApiKey, verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   createInterviewTemplateValidator,
+  findRelevantTemplateValidator,
   getInterviewTemplatesValidator,
   updateInterviewTemplateValidator,
 } from "../validators/interviewTemplate.validator.js";
@@ -17,7 +19,12 @@ const router = Router();
 
 router
   .route("/")
-  .get(verifyApiKey, getInterviewTemplatesValidator, getInterviewTemplates);
+  .get(
+    verifyJWT,
+    getInterviewTemplatesValidator(),
+    validate,
+    getInterviewTemplates
+  );
 
 router
   .route("/")
@@ -36,6 +43,15 @@ router
     updateInterviewTemplateValidator(),
     validate,
     updateInterviewTemplate
+  );
+
+router
+  .route("/relevant/:interviewWorkspaceId")
+  .get(
+    verifyJWT,
+    findRelevantTemplateValidator(),
+    validate,
+    findRelevantTemplate
   );
 
 export default router;

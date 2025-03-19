@@ -1,5 +1,4 @@
-import { query } from "express";
-import { body } from "express-validator";
+import { body, query, param } from "express-validator";
 
 const getInterviewTemplatesValidator = () => {
   return [
@@ -357,8 +356,17 @@ const updateInterviewTemplateValidator = () => {
   ];
 };
 
+const findRelevantTemplateValidator = () => {
+  return [
+    param("interviewWorkspaceId")
+      .isMongoId()
+      .withMessage("Invalid interview workspace ID format"),
+  ];
+};
+
 export {
   getInterviewTemplatesValidator,
   createInterviewTemplateValidator,
   updateInterviewTemplateValidator,
+  findRelevantTemplateValidator,
 };
