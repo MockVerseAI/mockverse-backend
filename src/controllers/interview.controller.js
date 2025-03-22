@@ -22,7 +22,7 @@ import { interviewReportSchema } from "../utils/schemas.js";
 
 const setupInterview = asyncHandler(async (req, res) => {
   const { interviewWorkspaceId } = req.params;
-  const { resumeId, interviewTemplateId } = req.body;
+  const { resumeId, interviewTemplateId, difficulty, duration } = req.body;
 
   const [
     existingResume,
@@ -62,6 +62,8 @@ const setupInterview = asyncHandler(async (req, res) => {
     userId: req.user?._id,
     interviewWorkspaceId,
     interviewTemplateId,
+    difficulty,
+    duration,
   });
 
   return res
