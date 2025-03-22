@@ -94,7 +94,7 @@ const chat = asyncHandler(async (req, res) => {
     jobRole: interview.interviewTemplateId.jobRole,
     jobDescription: interview.interviewTemplateId.jobDescription,
     parsedResume: interview.resumeId.parsedContent,
-    duration: interview.duration,
+    duration: interview.duration.toString(),
     difficulty: interview.difficulty,
   });
 
@@ -208,9 +208,11 @@ const getAllInterviews = asyncHandler(async (req, res) => {
   const interviews = await Interview.find({
     userId,
     interviewWorkspaceId,
-  }).sort({
-    createdAt: -1,
-  });
+  })
+    .sort({
+      createdAt: -1,
+    })
+    .populate("interviewTemplateId", "name category description");
 
   return res
     .status(200)

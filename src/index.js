@@ -25,6 +25,7 @@ import resumeRouter from "./routes/resume.routes.js";
 import userRouter from "./routes/user.routes.js";
 import positionsRouter from "./routes/positions.routes.js";
 import deepgramRouter from "./routes/deepgram.routes.js";
+import llmRouter from "./routes/llm.routes.js";
 import { ApiError } from "./utils/ApiError.js";
 
 const app = express();
@@ -86,6 +87,7 @@ app.use("/api/v1/resume", resumeRouter);
 app.use("/api/v1/application", applicationRouter);
 app.use("/api/v1/positions", positionsRouter);
 app.use("/api/v1/deepgram", deepgramRouter);
+app.use("/api/v1/llm", llmRouter);
 
 app.use(errorHandler);
 

@@ -52,33 +52,39 @@ export const resumeParsePrompt = `
 `;
 
 export const baseInterviewPrompt = (template, params) => {
+  const {
+    duration,
+    difficulty,
+    companyName,
+    jobRole,
+    jobDescription,
+    parsedResume,
+  } = params;
   const processDurationAdjustments = (text) => {
     return text.replace(
       /\{\{duration_adjusted:([^}]+)\}\}/g,
       (match, options) => {
         const values = options.split("|");
-        const durationIndex = [15, 30, 45, 60].indexOf(
-          parseInt(params.duration)
-        );
+        const durationIndex = ["15", "30", "45", "60"].indexOf(duration);
         return values[durationIndex] || values[1];
       }
     );
   };
 
   const questionCategories = template.promptInsertions.questionCategories[
-    params.difficulty
+    difficulty
   ].map((category) => processDurationAdjustments(category));
 
   return `
     "You are an AI interview conductor for ${params.companyName}, creating a conversational interview experience for the ${params.jobRole} position. You will engage in a realistic back-and-forth conversation, asking ONE question at a time and waiting for the candidate's response before continuing.
 
     - Essential Context:  
-    - Company: ${params.companyName}
-    - Position: ${params.jobRole}
-    - Job Description: ${params.jobDescription}
-    - Candidate Resume: ${params.parsedResume}
-    - Interview Type: ${template.promptInsertions.introduction[params.difficulty]}
-    - Interview Structure: ${template.promptInsertions.interviewStructure.get(params.duration.toString())}
+    - Company: ${companyName}
+    - Position: ${jobRole}
+    - Job Description: ${jobDescription}
+    - Candidate Resume: ${parsedResume}
+    - Interview Type: ${template.promptInsertions.introduction[difficulty]}
+    - Interview Structure: ${template.promptInsertions.interviewStructure[duration]}
 
     - Conversation Guidelines:
     1. First greeting: Introduce yourself as a team member from ${params.companyName} and explain the interview process briefly
@@ -98,7 +104,7 @@ export const baseInterviewPrompt = (template, params) => {
     ${template.promptInsertions.behavioralFocus[params.difficulty]}
 
     - Follow-up Approach:
-    ${template.promptInsertions.followUpStrategy.get(params.duration.toString())}
+    ${template.promptInsertions.followUpStrategy[duration]}
 
     - Speech Optimization Requirements:
     - Use natural, conversational language with appropriate contractions (you've, we're)
