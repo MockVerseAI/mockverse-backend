@@ -3,6 +3,7 @@ import { groq } from "@ai-sdk/groq";
 import { togetherai } from "@ai-sdk/togetherai";
 import { PollyClient, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
 import {
+  embed,
   extractReasoningMiddleware,
   generateObject,
   generateText,
@@ -435,5 +436,38 @@ export const generateSpeech = async (
     return audioBuffer;
   } catch (error) {
     logger.error("Speech Generation Error:", error);
+  }
+};
+
+/**
+ * Generates an embedding for a given text using Google's Generative AI
+ * @param {string} text - The text to generate an embedding for
+ * @returns {Promise<Array<number>>} The embedding for the text
+ */
+export const getEmbedding = async (text) => {
+  try {
+    const start = performance.now();
+
+    const embeddingModel = google.textEmbeddingModel(
+      "gemini-embedding-exp-03-07"
+    );
+
+    const { embedding, usage } = await embed({
+      model: embeddingModel,
+      value: text,
+    });
+
+    const end = performance.now();
+
+    logger.info("Embedding:", {
+      model: embeddingModel.modelId,
+      usage,
+      timeTaken: end - start,
+    });
+
+    return embedding;
+  } catch (error) {
+    logger.error("Embedding Error:", error);
+    throw new ApiError(500, `Embedding Error`);
   }
 };

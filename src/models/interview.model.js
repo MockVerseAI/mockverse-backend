@@ -2,20 +2,25 @@ import mongoose, { Schema } from "mongoose";
 
 const interviewSchema = new Schema(
   {
-    companyName: {
-      type: String,
+    duration: {
+      type: Number,
+      enum: [15, 30, 45, 60],
       required: true,
-      trim: true,
     },
-    jobRole: {
+    difficulty: {
       type: String,
+      enum: ["beginner", "intermediate", "advanced", "expert"],
       required: true,
-      trim: true,
     },
-    jobDescription: {
-      type: String,
+    interviewWorkspaceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InterviewWorkspace",
       required: true,
-      trim: true,
+    },
+    interviewTemplateId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InterviewTemplate",
+      required: true,
     },
     resumeId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -28,6 +33,10 @@ const interviewSchema = new Schema(
       required: true,
     },
     isCompleted: {
+      type: Boolean,
+      default: false,
+    },
+    isDeleted: {
       type: Boolean,
       default: false,
     },

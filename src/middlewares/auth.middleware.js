@@ -68,3 +68,19 @@ export const avoidInProduction = asyncHandler(async (req, res, next) => {
     );
   }
 });
+
+/**
+ *
+ * @description Middleware to verify the API key for the request.
+ *
+ */
+export const verifyApiKey = asyncHandler(async (req, res, next) => {
+  const token = req.header("x-api-key");
+  if (!token) {
+    throw new ApiError(401, "Unauthorized request");
+  }
+  if (token !== process.env.API_KEY) {
+    throw new ApiError(401, "Invalid API key");
+  }
+  next();
+});

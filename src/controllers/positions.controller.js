@@ -1,6 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { Interview } from "../models/interview.model.js";
+import { InterviewWorkspace } from "../models/interviewWorkspace.model.js";
 import { Application } from "../models/application.model.js";
 
 const getAllPositions = asyncHandler(async (req, res) => {
@@ -32,12 +32,12 @@ const getAllPositions = asyncHandler(async (req, res) => {
     },
   ];
 
-  const [interviews, applications] = await Promise.all([
-    Interview.aggregate(query),
+  const [interviewWorkspaces, applications] = await Promise.all([
+    InterviewWorkspace.aggregate(query),
     Application.aggregate(query),
   ]);
 
-  const uniquePositions = new Set([...interviews, ...applications]);
+  const uniquePositions = new Set([...interviewWorkspaces, ...applications]);
 
   const positions = Array.from(uniquePositions);
 
