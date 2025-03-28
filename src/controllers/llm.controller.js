@@ -11,8 +11,6 @@ import { groq } from "@ai-sdk/groq";
  */
 export const chatCompletion = async (req, res) => {
   try {
-    console.log(req.body);
-
     const {
       messages,
       stream = false,

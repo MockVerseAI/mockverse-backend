@@ -1,6 +1,4 @@
 import { Router } from "express";
-import { chatCompletion } from "../controllers/llm.controller.js";
-import { verifyApiKey } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -9,6 +7,6 @@ const router = Router();
  * @description Route for Vapi custom LLM integration
  * @access Public
  */
-router.post("/openai-sse/chat/completions", verifyApiKey, chatCompletion);
+// router.post("/openai-sse/chat/completions", chatCompletion);
 
 export default router;
