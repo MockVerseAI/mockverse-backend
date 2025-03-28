@@ -13,7 +13,7 @@ const router = Router();
 router.route("/").get(verifyJWT, getAllApplications);
 router
   .route("/")
-  .post(createApplicationValidator(), validate, verifyJWT, createApplication);
+  .post(verifyJWT, createApplicationValidator(), validate, createApplication);
 router
   .route("/report/:applicationId")
   .get(verifyJWT, getOrGenerateApplicationFeedback);

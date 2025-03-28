@@ -15,13 +15,13 @@ import { validate } from "../validators/validate.js";
 
 const router = Router();
 
-router.route("/").get(verifyJWT, getAllInterviews);
+router.route("/:interviewWorkspaceId").get(verifyJWT, getAllInterviews);
 router
-  .route("/setup")
-  .post(setupInterviewValidator(), validate, verifyJWT, setupInterview);
+  .route("/:interviewWorkspaceId/setup")
+  .post(verifyJWT, setupInterviewValidator(), validate, setupInterview);
 router
   .route("/chat/:interviewId")
-  .post(chatValidator(), validate, verifyJWT, chat);
+  .post(verifyJWT, chatValidator(), validate, chat);
 router.route("/end/:interviewId").post(verifyJWT, endInterview);
 router.route("/report/:interviewId").get(verifyJWT, getOrGenerateReport);
 
