@@ -18,11 +18,14 @@ import session from "express-session";
 import logger from "./logger/winston.logger.js";
 import applicationRouter from "./routes/application.routes.js";
 import heathcheckRouter from "./routes/healthcheck.routes.js";
+import interviewTemplateRouter from "./routes/interviewTemplate.routes.js";
+import interviewWorkspacesRouter from "./routes/interviewWorkspaces.routes.js";
 import interviewRouter from "./routes/interview.routes.js";
 import resumeRouter from "./routes/resume.routes.js";
 import userRouter from "./routes/user.routes.js";
 import positionsRouter from "./routes/positions.routes.js";
 import deepgramRouter from "./routes/deepgram.routes.js";
+import llmRouter from "./routes/llm.routes.js";
 import { ApiError } from "./utils/ApiError.js";
 
 const app = express();
@@ -55,8 +58,11 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-app.use(express.json({ limit: "16kb" }));
-app.use(express.urlencoded({ extended: true, limit: "16kb" }));
+// Set trust proxy for correct client IP detection behind load balancers
+app.set("trust proxy", 1);
+
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(express.static("public"));
 app.use(cookieParser());
 
@@ -77,11 +83,14 @@ app.use(requestLogger);
 // routes
 app.use("/api/v1/healthcheck", heathcheckRouter);
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/interview-workspace", interviewWorkspacesRouter);
+app.use("/api/v1/interview-template", interviewTemplateRouter);
 app.use("/api/v1/interview", interviewRouter);
 app.use("/api/v1/resume", resumeRouter);
 app.use("/api/v1/application", applicationRouter);
 app.use("/api/v1/positions", positionsRouter);
 app.use("/api/v1/deepgram", deepgramRouter);
+app.use("/api/v1/llm", llmRouter);
 
 app.use(errorHandler);
 
