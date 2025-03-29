@@ -231,6 +231,21 @@ const getAllInterviews = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, interviews, "Interviews fetched successfully"));
 });
 
+const getInterviewById = asyncHandler(async (req, res) => {
+  const { interviewId } = req.params;
+
+  const interview = await Interview.findById(interviewId)
+    .populate("resumeId")
+    .populate("interviewWorkspaceId")
+    .populate("interviewTemplateId");
+
+  if (!interview) throw new ApiError(404, "Interview not found");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, interview, "Interview fetched successfully"));
+});
+
 const endInterview = asyncHandler(async (req, res) => {
   const { interviewId } = req.params;
 
@@ -488,4 +503,5 @@ export {
   getInterviewAgentId,
   getOrGenerateReport,
   setupInterview,
+  getInterviewById,
 };

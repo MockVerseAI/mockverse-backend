@@ -6,6 +6,7 @@ import {
   endInterview,
   getAllInterviews,
   getInterviewAgentId,
+  getInterviewById,
   getOrGenerateReport,
   setupInterview,
 } from "../controllers/interview.controller.js";
@@ -25,6 +26,7 @@ router.route("/:interviewWorkspaceId").get(verifyJWT, getAllInterviews);
 router
   .route("/:interviewWorkspaceId/setup")
   .post(verifyJWT, setupInterviewValidator(), validate, setupInterview);
+router.route("/get/:interviewId").get(verifyJWT, getInterviewById);
 router
   .route("/chat/:interviewId")
   .post(verifyJWT, chatValidator(), validate, chat);
