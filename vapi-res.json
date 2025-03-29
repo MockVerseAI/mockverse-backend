@@ -502,7 +502,7 @@
       "server": {
         "url": "https://perch-heroic-midge.ngrok-free.app/api/v1/interview/agent-end",
         "headers": {
-          "x-api-key": "5afa10d90a76d1bdc1f7f6611a687ecea280419d9d761f78e33c41ea16616cbd"
+          "x-api-key": ""
         }
       }
     }
