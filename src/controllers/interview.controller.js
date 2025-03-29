@@ -1,4 +1,7 @@
+import { VapiClient } from "@vapi-ai/server-sdk";
+import fs from "fs/promises";
 import mongoose from "mongoose";
+import path from "path";
 import logger from "../logger/winston.logger.js";
 import { Interview } from "../models/interview.model.js";
 import { InterviewReport } from "../models/interviewReport.model.js";
@@ -20,9 +23,12 @@ import {
 } from "../utils/prompts.js";
 import { interviewReportSchema } from "../utils/schemas.js";
 
+const vapiClient = new VapiClient({ token: process.env.VAPI_API_KEY });
+
 const setupInterview = asyncHandler(async (req, res) => {
   const { interviewWorkspaceId } = req.params;
-  const { resumeId, interviewTemplateId, difficulty, duration } = req.body;
+  const { resumeId, interviewTemplateId, difficulty, duration, isAgentMode } =
+    req.body;
 
   const [
     existingResume,
@@ -64,6 +70,7 @@ const setupInterview = asyncHandler(async (req, res) => {
     interviewTemplateId,
     difficulty,
     duration,
+    isAgentMode,
   });
 
   return res
@@ -87,6 +94,10 @@ const chat = asyncHandler(async (req, res) => {
 
   if (!interview) {
     throw new ApiError(404, "Interview not found");
+  }
+
+  if (interview.isAgentMode) {
+    throw new ApiError(404, "Interview is in agent mode");
   }
 
   const aiPrompt = baseInterviewPrompt(interview.interviewTemplateId, {
@@ -208,6 +219,7 @@ const getAllInterviews = asyncHandler(async (req, res) => {
   const interviews = await Interview.find({
     userId,
     interviewWorkspaceId,
+    isDeleted: false,
   })
     .sort({
       createdAt: -1,
@@ -241,6 +253,40 @@ const endInterview = asyncHandler(async (req, res) => {
   await Interview.findByIdAndUpdate(interviewId, {
     isCompleted: true,
   });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, interview, "Interview ended successfully"));
+});
+
+const endAgentInterview = asyncHandler(async (req, res) => {
+  const { interviewId } = req.params;
+  const { messages } = req.body;
+
+  const interview = await Interview.findById(interviewId);
+
+  if (!interview) throw new ApiError(404, "Interview not found");
+
+  if (!interview.isAgentMode)
+    throw new ApiError(404, "Interview is not in agent mode");
+
+  if (interview.isCompleted)
+    throw new ApiError(400, "Interview has already ended");
+
+  const messageDocuments = messages.map((message, index) => ({
+    content: message.content,
+    role: message.role,
+    interviewId,
+    userId: req.user._id,
+    createdAt: new Date(Date.now() + index),
+  }));
+
+  await Promise.all([
+    Message.insertMany(messageDocuments),
+    Interview.findByIdAndUpdate(interviewId, {
+      isCompleted: true,
+    }),
+  ]);
 
   return res
     .status(200)
@@ -288,11 +334,15 @@ const getOrGenerateReport = asyncHandler(async (req, res) => {
     );
   }
 
+  const conversation = formattedMessages
+    .map((item) => `-${item.role}: ${item.content}\n`)
+    .join("");
+
   const aiPrompt = interviewReportGeneratePrompt({
-    jobRole: interview.jobRole,
-    jobDescription: interview.jobDescription,
+    jobRole: interview.interviewWorkspaceId.jobRole,
+    jobDescription: interview.interviewWorkspaceId.jobDescription,
     parsedResume: interview.resumeId.parsedContent,
-    conversation: JSON.stringify(formattedMessages),
+    conversation,
   });
 
   const aiResponse = await generateAIStructuredResponse({
@@ -323,10 +373,119 @@ const getOrGenerateReport = asyncHandler(async (req, res) => {
     );
 });
 
+const getInterviewAgentId = asyncHandler(async (req, res) => {
+  const { interviewId } = req.params;
+
+  const interview = await Interview.findById(interviewId)
+    .populate("resumeId")
+    .populate("interviewWorkspaceId")
+    .populate("interviewTemplateId");
+
+  if (!interview) {
+    throw new ApiError(404, "Interview not found");
+  }
+
+  if (!interview.isAgentMode) {
+    throw new ApiError(404, "Interview is not in agent mode");
+  }
+
+  const aiPrompt = baseInterviewPrompt(interview.interviewTemplateId, {
+    companyName: interview.interviewWorkspaceId.companyName,
+    jobRole: interview.interviewTemplateId.jobRole,
+    jobDescription: interview.interviewTemplateId.jobDescription,
+    parsedResume: interview.resumeId.parsedContent,
+    duration: interview.duration.toString(),
+    difficulty: interview.difficulty,
+  });
+
+  const assistant = await vapiClient.assistants.create({
+    transcriber: {
+      provider: "deepgram",
+      model: "nova-2",
+      language: "en",
+      smartFormat: true,
+    },
+    model: {
+      provider: "groq",
+      model: "llama3-8b-8192",
+      emotionRecognitionEnabled: true,
+      messages: [
+        {
+          role: "system",
+          content: aiPrompt,
+        },
+      ],
+    },
+    voice: {
+      provider: "deepgram",
+      voiceId: "asteria",
+    },
+    firstMessageMode: "assistant-speaks-first-with-model-generated-message",
+    startSpeakingPlan: {
+      smartEndpointingEnabled: true,
+    },
+    artifactPlan: {
+      recordingEnabled: true,
+      transcriptPlan: {
+        enabled: true,
+        assistantName: "Interviewer",
+        userName: "Candidate",
+      },
+    },
+    server: {
+      url: `${process.env.VAPI_WEBHOOK_URL}/v1/interview/agent-end-callback/${interviewId}`,
+      secret: process.env.VAPI_WEBHOOK_SECRET,
+    },
+    serverMessages: ["end-of-call-report"],
+  });
+
+  await Interview.findByIdAndUpdate(interviewId, {
+    assistantId: assistant.id,
+  });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { assistantId: assistant.id },
+        "Interview agent id fetched successfully"
+      )
+    );
+});
+
+const agentEndCallback = asyncHandler(async (req, res) => {
+  console.log(req.body);
+
+  try {
+    // Create a timestamped filename
+    const timestamp = new Date().toISOString().replace(/:/g, "-");
+    const filename = `agent-data-${timestamp}.json`;
+    const filePath = path.join(process.cwd(), "logs", filename);
+
+    // Ensure directory exists
+    await fs.mkdir(path.join(process.cwd(), "logs"), { recursive: true });
+
+    // Write the data to a JSON file
+    await fs.writeFile(filePath, JSON.stringify(req.body, null, 2), "utf8");
+
+    console.log(`Request body saved to ${filePath}`);
+  } catch (error) {
+    console.error("Error saving request body to JSON:", error);
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Interview agent id fetched successfully"));
+});
+
 export {
+  agentEndCallback,
   chat,
+  endAgentInterview,
   endInterview,
   getAllInterviews,
+  getInterviewAgentId,
   getOrGenerateReport,
   setupInterview,
 };

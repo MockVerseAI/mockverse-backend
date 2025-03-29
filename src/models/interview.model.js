@@ -40,6 +40,14 @@ const interviewSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    isAgentMode: {
+      type: Boolean,
+      default: false,
+    },
+    assistantId: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,
