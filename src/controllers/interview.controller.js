@@ -404,6 +404,10 @@ const getInterviewAgentId = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Interview is not in agent mode");
   }
 
+  if (interview.isCompleted) {
+    throw new ApiError(400, "Interview has already ended");
+  }
+
   const aiPrompt = baseInterviewPrompt(interview.interviewTemplateId, {
     companyName: interview.interviewWorkspaceId.companyName,
     jobRole: interview.interviewTemplateId.jobRole,
@@ -414,15 +418,16 @@ const getInterviewAgentId = asyncHandler(async (req, res) => {
   });
 
   const assistant = await vapiClient.assistants.create({
+    name: "MockSage",
     transcriber: {
       provider: "deepgram",
-      model: "nova-2",
+      model: "nova-3",
       language: "en",
       smartFormat: true,
     },
     model: {
-      provider: "groq",
-      model: "llama3-8b-8192",
+      provider: "openai",
+      model: "gpt-4o-mini",
       emotionRecognitionEnabled: true,
       messages: [
         {
@@ -430,10 +435,15 @@ const getInterviewAgentId = asyncHandler(async (req, res) => {
           content: aiPrompt,
         },
       ],
+      tools: [
+        {
+          type: "endCall",
+        },
+      ],
     },
     voice: {
-      provider: "deepgram",
-      voiceId: "asteria",
+      provider: "vapi",
+      voiceId: "Neha",
     },
     firstMessageMode: "assistant-speaks-first-with-model-generated-message",
     startSpeakingPlan: {
@@ -452,8 +462,8 @@ const getInterviewAgentId = asyncHandler(async (req, res) => {
       secret: process.env.VAPI_WEBHOOK_SECRET,
     },
     serverMessages: ["end-of-call-report"],
+    endCallPhrases: ["that concludes our interview"],
   });
-
   await Interview.findByIdAndUpdate(interviewId, {
     assistantId: assistant.id,
   });
