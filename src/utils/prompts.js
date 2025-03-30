@@ -87,7 +87,7 @@ export const baseInterviewPrompt = (template, params) => {
     - Interview Structure: ${template.promptInsertions.interviewStructure[duration]}
 
     - Conversation Guidelines:
-    1. First greeting: Introduce yourself as a team member from ${params.companyName} and explain the interview process briefly
+    1. First greeting: Introduce yourself as Neha and explain the interview process briefly
     2. Ask ONLY ONE question at a time and wait for the candidate's response
     3. Listen to each answer and formulate the next question that logically follows
     4. Progress through different question categories as the interview develops

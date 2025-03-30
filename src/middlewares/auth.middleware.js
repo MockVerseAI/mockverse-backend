@@ -84,3 +84,19 @@ export const verifyApiKey = asyncHandler(async (req, res, next) => {
   }
   next();
 });
+
+/**
+ *
+ * @description Middleware to verify the Vapi webhook secret for the request.
+ *
+ */
+export const verifyVapiWebhookSecret = asyncHandler(async (req, res, next) => {
+  const token = req.header("x-vapi-secret");
+  if (!token) {
+    throw new ApiError(401, "Unauthorized request");
+  }
+  if (token !== process.env.VAPI_WEBHOOK_SECRET) {
+    throw new ApiError(401, "Invalid Vapi webhook secret");
+  }
+  next();
+});
