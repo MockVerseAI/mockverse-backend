@@ -1,7 +1,5 @@
 import { VapiClient } from "@vapi-ai/server-sdk";
-import fs from "fs/promises";
 import mongoose from "mongoose";
-import path from "path";
 import logger from "../logger/winston.logger.js";
 import { Interview } from "../models/interview.model.js";
 import { InterviewReport } from "../models/interviewReport.model.js";
@@ -480,23 +478,17 @@ const getInterviewAgentId = asyncHandler(async (req, res) => {
 });
 
 const agentEndCallback = asyncHandler(async (req, res) => {
-  console.log(req.body);
+  const { interviewId } = req.params;
+  const { message } = req.body;
 
-  try {
-    // Create a timestamped filename
-    const timestamp = new Date().toISOString().replace(/:/g, "-");
-    const filename = `agent-data-${timestamp}.json`;
-    const filePath = path.join(process.cwd(), "logs", filename);
+  if (message.type === "end-of-call-report") {
+    const voiceRecording = message.artifacts.recording_url;
 
-    // Ensure directory exists
-    await fs.mkdir(path.join(process.cwd(), "logs"), { recursive: true });
-
-    // Write the data to a JSON file
-    await fs.writeFile(filePath, JSON.stringify(req.body, null, 2), "utf8");
-
-    console.log(`Request body saved to ${filePath}`);
-  } catch (error) {
-    console.error("Error saving request body to JSON:", error);
+    await Interview.findByIdAndUpdate(interviewId, {
+      recordings: {
+        voice: voiceRecording,
+      },
+    });
   }
 
   return res
@@ -511,7 +503,7 @@ export {
   endInterview,
   getAllInterviews,
   getInterviewAgentId,
+  getInterviewById,
   getOrGenerateReport,
   setupInterview,
-  getInterviewById,
 };
