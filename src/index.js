@@ -27,6 +27,7 @@ import positionsRouter from "./routes/positions.routes.js";
 import deepgramRouter from "./routes/deepgram.routes.js";
 import llmRouter from "./routes/llm.routes.js";
 import { ApiError } from "./utils/ApiError.js";
+import sanitizeBody from "./middlewares/sanitize.middleware.js";
 
 const app = express();
 
@@ -65,6 +66,8 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(express.static("public"));
 app.use(cookieParser());
+
+app.use(sanitizeBody);
 
 // required for passport
 app.use(
