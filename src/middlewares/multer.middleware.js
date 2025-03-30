@@ -1,4 +1,5 @@
 import multer from "multer";
+import { ApiError } from "../utils/ApiError";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -33,6 +34,26 @@ const storage = multer.diskStorage({
 export const upload = multer({
   storage,
   limits: {
-    fileSize: 1 * 1000 * 1000,
+    fileSize: 10 * 1000 * 1000,
+  },
+  fileFilter: (req, file, cb) => {
+    // Define allowed mime types
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "application/pdf",
+    ];
+
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(
+        new ApiError(
+          415,
+          "Unsupported file type. Only images and PDFs are allowed"
+        )
+      );
+    }
   },
 });

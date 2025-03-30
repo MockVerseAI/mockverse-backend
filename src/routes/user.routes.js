@@ -33,12 +33,24 @@ router.route("/login").post(userLoginValidator(), validate, loginUser);
 router.route("/refresh-token").post(refreshAccessToken);
 router.route("/verify-email/:verificationToken").get(verifyEmail);
 
+const passwordResetLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 requests per IP per 15 minutes
+  message: "Too many password reset requests, please try again later",
+});
+
 router
   .route("/forgot-password")
-  .post(userForgotPasswordValidator(), validate, forgotPasswordRequest);
+  .post(
+    passwordResetLimiter,
+    userForgotPasswordValidator(),
+    validate,
+    forgotPasswordRequest
+  );
 router
   .route("/reset-password/:resetToken")
   .post(
+    passwordResetLimiter,
     userResetForgottenPasswordValidator(),
     validate,
     resetForgottenPassword
@@ -62,6 +74,7 @@ router
   .route("/resend-email-verification/:userId")
   .post(resendEmailVerification);
 
+import rateLimit from "express-rate-limit";
 import "../passport/index.js"; // Importing passport configuration
 
 // SSO routes
