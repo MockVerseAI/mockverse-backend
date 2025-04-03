@@ -27,6 +27,7 @@ import positionsRouter from "./routes/positions.routes.js";
 import deepgramRouter from "./routes/deepgram.routes.js";
 import llmRouter from "./routes/llm.routes.js";
 import { ApiError } from "./utils/ApiError.js";
+import sanitizeBody from "./middlewares/sanitize.middleware.js";
 
 const app = express();
 
@@ -61,10 +62,12 @@ app.use(limiter);
 // Set trust proxy for correct client IP detection behind load balancers
 app.set("trust proxy", 1);
 
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(express.static("public"));
 app.use(cookieParser());
+
+app.use(sanitizeBody);
 
 // required for passport
 app.use(
@@ -130,10 +133,8 @@ startServer();
 
 process.on("uncaughtException", (error) => {
   logger.error("Uncaught Exception:", error);
-  process.exit(1);
 });
 
 process.on("unhandledRejection", (error) => {
   logger.error("Unhandled Rejection:", error);
-  process.exit(1);
 });
