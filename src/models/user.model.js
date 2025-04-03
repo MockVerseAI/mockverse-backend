@@ -80,7 +80,7 @@ userSchema.methods.generateAccessToken = function () {
       role: this.role,
     },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY, algorithm: "HS256" }
   );
 };
 
@@ -90,7 +90,7 @@ userSchema.methods.generateRefreshToken = function () {
       _id: this._id,
     },
     process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY, algorithm: "HS256" }
   );
 };
 
