@@ -481,3 +481,36 @@ export const applicationFeedbackPrompt = ({
 
   Focus on transformative changes that will make the resume stand out while maintaining authenticity and accuracy. Emphasize modifications that demonstrate the candidate's ability to deliver value in the target role.`;
 };
+
+export const interviewTemplateSelectionPrompt = ({
+  jobRole,
+  jobDescription,
+  interviewTemplates,
+}) => {
+  return `Task: Select the most appropriate interview template and difficulty level based on a job role and description.
+
+      Input Data:
+      1. Job Role: ${jobRole}
+      2. Job Description: 
+      ${jobDescription}
+
+      Available Templates:
+      ${JSON.stringify(interviewTemplates, null, 2)}
+
+      Requirements:
+      1. Analyze the job role and description carefully
+      2. Select the most relevant template based on:
+        - Template category alignment with job role
+        - Template content relevance to job requirements
+        - Required skills and experience level
+      3. Determine appropriate difficulty level
+
+      Please provide:
+      1. templates_id: Select the most relevant template's _id from the available templates
+      2. difficulty_level: Recommend one of these levels: [beginner, intermediate, advanced, expert]
+        Base this on:
+        - Job requirements complexity
+        - Required years of experience
+        - Technical skill requirements
+        - Role seniority level`;
+};

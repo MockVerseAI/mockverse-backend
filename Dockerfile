@@ -9,4 +9,4 @@ COPY . .
 
 EXPOSE 8080
 
-CMD ["node", "index.js"]
+CMD ["node", "--experimental-loader=newrelic/esm-loader.mjs", "index.js"]

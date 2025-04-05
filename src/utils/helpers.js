@@ -221,8 +221,8 @@ export const generateAIResponse = async ({
       models: [
         groq("llama-3.3-70b-versatile"),
         groq("llama-3.3-70b-specdec"),
+        google("gemini-2.0-flash-lite"),
         groq("deepseek-r1-distill-llama-70b"),
-        google("gemini-2.0-flash-lite-preview-02-05"),
         togetherai("meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"),
         togetherai("deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"),
       ],
@@ -283,16 +283,17 @@ export const generateAIStructuredResponse = async ({
   schema,
   prompt,
   maxTokens = 1024,
+  model,
   ...params
 }) => {
   try {
     const start = performance.now();
 
-    const model = createFallback({
+    const _model = createFallback({
       models: [
-        google("gemini-2.0-pro-exp-02-05"),
+        google("gemini-2.5-pro-preview-03-25"),
         google("gemini-2.0-flash"),
-        google("gemini-2.0-flash-lite-preview-02-05"),
+        google("gemini-2.0-flash-lite"),
         groq("llama-3.3-70b-versatile"),
       ],
       onError: (error, modelId) => {
@@ -304,7 +305,7 @@ export const generateAIStructuredResponse = async ({
     });
 
     const { object, usage, warnings, response } = await generateObject({
-      model,
+      model: model ? model : _model,
       schema,
       prompt,
       maxTokens,
