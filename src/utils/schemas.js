@@ -700,3 +700,10 @@ export const interviewReportSchema = z
       .describe("Comprehensive development and preparation plan"),
   })
   .describe("Complete interview assessment and development report");
+
+export const interviewTemplateSelectionSchema = z.object({
+  templates_id: z.string().describe("The _id of the selected template"),
+  difficulty_level: z
+    .enum(["beginner", "intermediate", "advanced", "expert"])
+    .describe("The recommended difficulty level"),
+});
