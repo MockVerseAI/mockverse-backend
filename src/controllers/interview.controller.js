@@ -454,14 +454,16 @@ const getInterviewAgentId = asyncHandler(async (req, res) => {
         assistantName: "Interviewer",
         userName: "Candidate",
       },
+      videoRecordingEnabled: interview.isVideoEnabled,
     },
     server: {
-      url: `${process.env.VAPI_WEBHOOK_URL}/v1/interview/agent-end-callback/${interviewId}`,
+      url: `${process.env.VAPI_WEBHOOK_URL}/api/v1/interview/agent-end-callback/${interviewId}`,
       secret: process.env.VAPI_WEBHOOK_SECRET,
     },
     serverMessages: ["end-of-call-report"],
     endCallPhrases: ["that concludes our interview"],
   });
+
   await Interview.findByIdAndUpdate(interviewId, {
     assistantId: assistant.id,
   });
@@ -482,18 +484,40 @@ const agentEndCallback = asyncHandler(async (req, res) => {
   const { message } = req.body;
 
   if (message.type === "end-of-call-report") {
-    const voiceRecording = message.artifacts.recording_url;
+    const voiceRecording = message?.artifact?.recording?.mono;
+    const videoRecording = message?.artifact?.video_recording_url;
 
-    await Interview.findByIdAndUpdate(interviewId, {
-      recordings: {
-        voice: voiceRecording,
+    const updatedInterview = await Interview.findByIdAndUpdate(
+      interviewId,
+      {
+        recordings: {
+          voice: {
+            combined: voiceRecording?.combined_url,
+            assistant: voiceRecording?.assistant_url,
+            user: voiceRecording?.customer_url,
+          },
+          video: videoRecording,
+        },
       },
-    });
+      { new: true }
+    );
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          updatedInterview,
+          "Interview recordings fetched successfully"
+        )
+      );
   }
 
   return res
-    .status(200)
-    .json(new ApiResponse(200, {}, "Interview agent id fetched successfully"));
+    .status(400)
+    .json(
+      new ApiResponse(400, {}, "Invalid Interview agent callback received")
+    );
 });
 
 export {

@@ -44,14 +44,28 @@ const interviewSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    isVideoEnabled: {
+      type: Boolean,
+      default: false,
+    },
     assistantId: {
       type: String,
       default: null,
     },
     recordings: {
       voice: {
-        type: String,
-        default: null,
+        combined: {
+          type: String,
+          default: null,
+        },
+        assistant: {
+          type: String,
+          default: null,
+        },
+        user: {
+          type: String,
+          default: null,
+        },
       },
       video: {
         type: String,
