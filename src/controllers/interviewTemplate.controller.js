@@ -143,7 +143,6 @@ const findRelevantTemplate = asyncHandler(async (req, res) => {
   }
 
   if (interviewTemplateRecommendation) {
-    console.log(interviewTemplateRecommendation);
     const interviewTemplate = await InterviewTemplate.findById(
       interviewTemplateRecommendation.interviewTemplateId
     );

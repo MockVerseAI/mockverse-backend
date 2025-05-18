@@ -25,8 +25,14 @@ const vapiClient = new VapiClient({ token: process.env.VAPI_API_KEY });
 
 const setupInterview = asyncHandler(async (req, res) => {
   const { interviewWorkspaceId } = req.params;
-  const { resumeId, interviewTemplateId, difficulty, duration, isAgentMode } =
-    req.body;
+  const {
+    resumeId,
+    interviewTemplateId,
+    difficulty,
+    duration,
+    isAgentMode,
+    isVideoEnabled,
+  } = req.body;
 
   const [
     existingResume,
@@ -69,6 +75,7 @@ const setupInterview = asyncHandler(async (req, res) => {
     difficulty,
     duration,
     isAgentMode,
+    isVideoEnabled,
   });
 
   return res
@@ -485,16 +492,16 @@ const agentEndCallback = asyncHandler(async (req, res) => {
 
   if (message.type === "end-of-call-report") {
     const voiceRecording = message?.artifact?.recording?.mono;
-    const videoRecording = message?.artifact?.video_recording_url;
+    const videoRecording = message?.artifact?.videoRecordingUrl;
 
     const updatedInterview = await Interview.findByIdAndUpdate(
       interviewId,
       {
         recordings: {
           voice: {
-            combined: voiceRecording?.combined_url,
-            assistant: voiceRecording?.assistant_url,
-            user: voiceRecording?.customer_url,
+            combined: voiceRecording?.combinedUrl,
+            assistant: voiceRecording?.assistantUrl,
+            user: voiceRecording?.customerUrl,
           },
           video: videoRecording,
         },
@@ -508,7 +515,7 @@ const agentEndCallback = asyncHandler(async (req, res) => {
         new ApiResponse(
           200,
           updatedInterview,
-          "Interview recordings fetched successfully"
+          "Interview recordings updated successfully"
         )
       );
   }
