@@ -11,6 +11,8 @@ import("newrelic");
 import connectDB from "./db/index.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import { requestLogger } from "./middlewares/request.logger.middleware.js";
+import { closeRedisConnection } from "./config/redis.js";
+import videoAnalysisWorker from "./workers/videoAnalysis.worker.js";
 
 // routers
 import cookieParser from "cookie-parser";
@@ -26,6 +28,8 @@ import userRouter from "./routes/user.routes.js";
 import positionsRouter from "./routes/positions.routes.js";
 import deepgramRouter from "./routes/deepgram.routes.js";
 import llmRouter from "./routes/llm.routes.js";
+import queueRouter from "./routes/queue.routes.js";
+import videoAnalysisRouter from "./routes/videoAnalysis.routes.js";
 import { ApiError } from "./utils/ApiError.js";
 import sanitizeBody from "./middlewares/sanitize.middleware.js";
 
@@ -94,6 +98,8 @@ app.use("/api/v1/application", applicationRouter);
 app.use("/api/v1/positions", positionsRouter);
 app.use("/api/v1/deepgram", deepgramRouter);
 app.use("/api/v1/llm", llmRouter);
+app.use("/api/v1/queue", queueRouter);
+app.use("/api/v1/video-analysis", videoAnalysisRouter);
 
 app.use(errorHandler);
 
@@ -101,13 +107,56 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     await connectDB();
+
+    // Start video analysis worker by default (unless explicitly disabled)
+    if (process.env.START_WORKER === "false") {
+      logger.info(
+        "📴 Video Analysis Worker disabled by configuration (START_WORKER=false)"
+      );
+    } else {
+      try {
+        await videoAnalysisWorker.start();
+        logger.info("📹 Video Analysis Worker started with main server");
+      } catch (error) {
+        logger.error(
+          "⚠️  Failed to start Video Analysis Worker:",
+          error.message
+        );
+        logger.warn("🚀 Server will continue without video analysis worker");
+        logger.info("💡 To enable video analysis:");
+        logger.info("   1. Start Redis server: redis-server");
+        logger.info("   2. Restart the application");
+        logger.info(
+          "   3. Or set START_WORKER=false to disable video analysis"
+        );
+      }
+    }
+
     const server = app.listen(process.env.PORT, () => {
       logger.info(`🚀 Server is listening on port ${process.env.PORT}...`);
     });
 
     // Handle server shutdown gracefully
-    const gracefulShutdown = () => {
+    const gracefulShutdown = async () => {
       logger.info("Received shutdown signal, closing server gracefully...");
+
+      // Close worker if it was started
+      if (process.env.START_WORKER !== "false") {
+        try {
+          await videoAnalysisWorker.shutdown();
+          logger.info("Video Analysis Worker shutdown completed");
+        } catch (error) {
+          logger.error("Error shutting down worker:", error);
+        }
+      }
+
+      // Close Redis connection
+      try {
+        await closeRedisConnection();
+      } catch (error) {
+        logger.error("Error closing Redis connection:", error);
+      }
+
       server.close(() => {
         logger.info("Server closed successfully");
         process.exit(0);
