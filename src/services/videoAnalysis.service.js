@@ -102,7 +102,7 @@ export const uploadToGoogleFiles = async (videoBuffer, fileName) => {
     logger.info(`Uploading video to Google Files API: ${fileName}`);
 
     const genAI = getGenAIClient();
-    const uploadResult = await genAI.files.upload({
+    let file = await genAI.files.upload({
       file: new Blob([videoBuffer], { type: "video/mp4" }),
       config: {
         mimeType: "video/mp4",
@@ -110,10 +110,8 @@ export const uploadToGoogleFiles = async (videoBuffer, fileName) => {
       },
     });
 
-    logger.info(`Video uploaded with ID: ${uploadResult.file}`);
+    logger.info(`Video uploaded with ID: ${file}`);
 
-    // Wait for processing to complete
-    let file = uploadResult.file;
     while (file.state === "PROCESSING") {
       logger.info("Waiting for video to be processed by Google...");
       await new Promise((resolve) => setTimeout(resolve, 5000));
