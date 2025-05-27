@@ -2,6 +2,7 @@ import { Worker } from "bullmq";
 import logger from "../logger/winston.logger.js";
 import { processVideoAnalysis } from "../services/videoAnalysis.service.js";
 import { VIDEO_ANALYSIS_QUEUE } from "../queues/videoAnalysis.queue.js";
+import { redisConnectionConfig } from "../config/redis.js";
 
 let worker = null;
 let isShuttingDown = false;
@@ -135,12 +136,7 @@ export const startWorker = async () => {
 
     // Create worker with Redis connection configuration
     worker = new Worker(VIDEO_ANALYSIS_QUEUE, processJob, {
-      connection: {
-        host: process.env.REDIS_HOST || "localhost",
-        port: process.env.REDIS_PORT || 6379,
-        password: process.env.REDIS_PASSWORD || undefined,
-        db: process.env.REDIS_DB || 0,
-      },
+      connection: redisConnectionConfig,
       concurrency: parseInt(process.env.VIDEO_WORKER_CONCURRENCY) || 2,
       maxStalledCount: 1,
       stalledInterval: 30000,

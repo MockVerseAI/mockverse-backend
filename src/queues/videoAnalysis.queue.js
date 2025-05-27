@@ -1,5 +1,6 @@
 import { Queue } from "bullmq";
 import logger from "../logger/winston.logger.js";
+import { redisConnectionConfig } from "../config/redis.js";
 
 /**
  * Video Analysis Queue Configuration
@@ -11,12 +12,7 @@ export const VIDEO_ANALYSIS_QUEUE = "video-analysis";
  * Queue options for video analysis jobs
  */
 const queueOptions = {
-  connection: {
-    host: process.env.REDIS_HOST || "localhost",
-    port: process.env.REDIS_PORT || 6379,
-    password: process.env.REDIS_PASSWORD || undefined,
-    db: process.env.REDIS_DB || 0,
-  },
+  connection: redisConnectionConfig,
   defaultJobOptions: {
     attempts: 3,
     backoff: {

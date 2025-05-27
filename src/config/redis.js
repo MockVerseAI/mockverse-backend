@@ -1,34 +1,11 @@
 import Redis from "ioredis";
 import logger from "../logger/winston.logger.js";
 
-/**
- * Redis connection configuration for BullMQ
- * Includes production-ready settings for reconnection, retries, and error handling
- */
-const redisConfig = {
+const redisConnectionConfig = {
   host: process.env.REDIS_HOST || "localhost",
   port: process.env.REDIS_PORT || 6379,
   password: process.env.REDIS_PASSWORD || undefined,
-  db: process.env.REDIS_DB || 0,
-  retryDelayOnFailover: 100,
-  enableReadyCheck: false,
-  maxRetriesPerRequest: 3, // Limit retries instead of null
-  lazyConnect: true,
-  // Connection pool settings for production
-  family: 4,
-  keepAlive: 30000,
-  connectTimeout: 10000,
-  commandTimeout: 10000, // Increased from 5000 to 10000
-  // Retry strategy
-  retryStrategy: (times) => {
-    if (times > 20) {
-      logger.error(`Redis retry limit exceeded after ${times} attempts`);
-      return null; // Stop retrying
-    }
-    const delay = Math.min(times * 50, 2000);
-    logger.warn(`Redis connection retry attempt ${times}, waiting ${delay}ms`);
-    return delay;
-  },
+  tls: {},
 };
 
 /**
@@ -44,7 +21,7 @@ let redisConnection = null;
 export const getRedisConnection = () => {
   if (!redisConnection) {
     logger.info("Creating shared Redis connection...");
-    redisConnection = new Redis(redisConfig);
+    redisConnection = new Redis(redisConnectionConfig);
 
     // Setup event listeners
     redisConnection.on("connect", () => {
@@ -81,14 +58,9 @@ export const getRedisConnection = () => {
  * @param {number} timeout - Timeout in milliseconds (default: 5000)
  * @returns {Promise<boolean>} True if Redis is available, false otherwise
  */
-export const isRedisAvailable = async (timeout = 5000) => {
+export const isRedisAvailable = async () => {
   try {
-    const testConnection = new Redis({
-      ...redisConfig,
-      connectTimeout: timeout,
-      lazyConnect: false,
-      retryStrategy: null, // Don't retry for availability check
-    });
+    const testConnection = new Redis(redisConnectionConfig);
 
     await testConnection.ping();
     await testConnection.quit();
@@ -112,5 +84,4 @@ export const closeRedisConnection = async () => {
   }
 };
 
-export { redisConfig };
-export default redisConfig;
+export { redisConnectionConfig };
