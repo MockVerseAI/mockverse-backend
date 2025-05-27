@@ -224,6 +224,36 @@ const interviewReportSchema = new Schema(
       ref: "User",
       required: true,
     },
+    videoAnalysis: {
+      analysis: {
+        type: String,
+        default: null,
+      },
+      googleFileUri: {
+        type: String,
+        default: null,
+      },
+      googleFileName: {
+        type: String,
+        default: null,
+      },
+      analyzedAt: {
+        type: Date,
+        default: null,
+      },
+      fileSize: {
+        type: Number,
+        default: null,
+      },
+      error: {
+        type: String,
+        default: null,
+      },
+      failedAt: {
+        type: Date,
+        default: null,
+      },
+    },
   },
   {
     timestamps: true,
