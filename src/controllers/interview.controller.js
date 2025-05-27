@@ -7,6 +7,7 @@ import { InterviewTemplate } from "../models/interviewTemplate.model.js";
 import { InterviewWorkspace } from "../models/interviewWorkspace.model.js";
 import { Message } from "../models/message.model.js";
 import { Resume } from "../models/resume.model.js";
+import { queueVideoAnalysis } from "./videoAnalysis.controller.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -270,9 +271,15 @@ const endInterview = asyncHandler(async (req, res) => {
   if (interview.isCompleted)
     throw new ApiError(400, "Interview has already ended");
 
-  await Interview.findByIdAndUpdate(interviewId, {
-    isCompleted: true,
-  });
+  await Promise.all([
+    Interview.findByIdAndUpdate(interviewId, {
+      isCompleted: true,
+    }),
+    InterviewReport.create({
+      interviewId,
+      userId: req.user._id,
+    }),
+  ]);
 
   return res
     .status(200)
@@ -305,6 +312,10 @@ const endAgentInterview = asyncHandler(async (req, res) => {
     Message.insertMany(messageDocuments),
     Interview.findByIdAndUpdate(interviewId, {
       isCompleted: true,
+    }),
+    InterviewReport.create({
+      interviewId,
+      userId: req.user._id,
     }),
   ]);
 
@@ -371,16 +382,18 @@ const getOrGenerateReport = asyncHandler(async (req, res) => {
     maxTokens: 10000,
   });
 
-  const interviewReport = await InterviewReport.create({
-    technicalAssessment: aiResponse.technicalAssessment,
-    behavioralAnalysis: aiResponse.behavioralAnalysis,
-    responseQuality: aiResponse.responseQuality,
-    roleAlignment: aiResponse.roleAlignment,
-    performanceMetrics: aiResponse.performanceMetrics,
-    developmentPlan: aiResponse.developmentPlan,
-    userId: req.user._id,
+  const interviewReport = await InterviewReport.findByIdAndUpdate(
     interviewId,
-  });
+    {
+      technicalAssessment: aiResponse.technicalAssessment,
+      behavioralAnalysis: aiResponse.behavioralAnalysis,
+      responseQuality: aiResponse.responseQuality,
+      roleAlignment: aiResponse.roleAlignment,
+      performanceMetrics: aiResponse.performanceMetrics,
+      developmentPlan: aiResponse.developmentPlan,
+    },
+    { new: true }
+  );
 
   return res
     .status(201)
@@ -507,7 +520,29 @@ const agentEndCallback = asyncHandler(async (req, res) => {
         },
       },
       { new: true }
-    );
+    ).populate("userId", "_id");
+
+    // Trigger video analysis job if video recording is available
+    if (videoRecording) {
+      try {
+        await queueVideoAnalysis({ interviewId });
+        logger.info(
+          `✅ Video analysis job queued for interview: ${interviewId}`
+        );
+      } catch (error) {
+        if (error.statusCode === 503) {
+          logger.warn(
+            `⚠️ Video analysis service unavailable for interview ${interviewId}: ${error.message}`
+          );
+        } else {
+          logger.error(
+            `❌ Failed to queue video analysis job for interview ${interviewId}:`,
+            error
+          );
+        }
+        // Don't fail the callback, just log the error
+      }
+    }
 
     return res
       .status(200)
