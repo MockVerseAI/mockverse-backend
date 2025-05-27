@@ -77,38 +77,6 @@ export const getRedisConnection = () => {
 };
 
 /**
- * Create a new Redis connection for BullMQ
- * BullMQ requires its own dedicated connection instances
- * @returns {Redis} New Redis connection instance
- */
-export const createBullMQConnection = () => {
-  logger.info("Creating dedicated BullMQ Redis connection...");
-  const connection = new Redis(redisConfig);
-
-  connection.on("connect", () => {
-    logger.debug("📡 BullMQ Redis connected");
-  });
-
-  connection.on("ready", () => {
-    logger.debug("✅ BullMQ Redis ready");
-  });
-
-  connection.on("error", (error) => {
-    logger.error("❌ BullMQ Redis error:", error);
-  });
-
-  connection.on("close", () => {
-    logger.warn("🔌 BullMQ Redis connection closed");
-  });
-
-  connection.on("reconnecting", () => {
-    logger.info("🔄 BullMQ Redis reconnecting...");
-  });
-
-  return connection;
-};
-
-/**
  * Check if Redis is available and accessible
  * @param {number} timeout - Timeout in milliseconds (default: 5000)
  * @returns {Promise<boolean>} True if Redis is available, false otherwise
@@ -142,17 +110,6 @@ export const closeRedisConnection = async () => {
     redisConnection = null;
     logger.info("Redis connection closed successfully");
   }
-};
-
-/**
- * Legacy function for backward compatibility
- * @deprecated Use getRedisConnection() instead
- */
-export const createRedisConnection = () => {
-  logger.warn(
-    "createRedisConnection() is deprecated. Use getRedisConnection() instead."
-  );
-  return getRedisConnection();
 };
 
 export { redisConfig };
