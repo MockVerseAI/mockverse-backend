@@ -514,3 +514,25 @@ export const interviewTemplateSelectionPrompt = ({
         - Technical skill requirements
         - Role seniority level`;
 };
+
+export const videoAnalysisPrompt = () => {
+  return `
+      You are an expert interview analyst. Please analyze this interview video and provide a comprehensive assessment.
+
+      Focus on the following areas:
+      1. **Communication Skills**: Clarity, articulation, pace, and confidence
+      2. **Body Language**: Posture, eye contact, gestures, and overall presence
+      3. **Technical Content**: If applicable, assess technical knowledge and explanations
+      4. **Interview Performance**: Overall professionalism, engagement, and interview readiness
+      5. **Areas for Improvement**: Specific feedback and recommendations
+
+      Please provide:
+      - A summary of the interview performance
+      - Key strengths observed
+      - Areas that need improvement
+      - Specific actionable recommendations
+      - A confidence/readiness score out of 10
+
+      Format your response in a structured manner with clear sections and bullet points where appropriate.
+    `;
+};

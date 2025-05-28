@@ -1,12 +1,13 @@
 import {
   GoogleGenAI,
-  createUserContent,
   createPartFromUri,
+  createUserContent,
 } from "@google/genai";
 import logger from "../logger/winston.logger.js";
 import { Interview } from "../models/interview.model.js";
 import { InterviewReport } from "../models/interviewReport.model.js";
 import { ApiError } from "../utils/ApiError.js";
+import { videoAnalysisPrompt } from "../utils/prompts.js";
 
 /**
  * Singleton Google Generative AI client instance
@@ -151,25 +152,7 @@ export const analyzeVideoWithLLM = async (file, interviewId) => {
 
     const genAI = getGenAIClient();
 
-    const prompt = `
-      You are an expert interview analyst. Please analyze this interview video and provide a comprehensive assessment.
-
-      Focus on the following areas:
-      1. **Communication Skills**: Clarity, articulation, pace, and confidence
-      2. **Body Language**: Posture, eye contact, gestures, and overall presence
-      3. **Technical Content**: If applicable, assess technical knowledge and explanations
-      4. **Interview Performance**: Overall professionalism, engagement, and interview readiness
-      5. **Areas for Improvement**: Specific feedback and recommendations
-
-      Please provide:
-      - A summary of the interview performance
-      - Key strengths observed
-      - Areas that need improvement
-      - Specific actionable recommendations
-      - A confidence/readiness score out of 10
-
-      Format your response in a structured manner with clear sections and bullet points where appropriate.
-    `;
+    const prompt = videoAnalysisPrompt();
 
     const result = await genAI.models.generateContent({
       model: "gemini-2.0-flash-lite",
