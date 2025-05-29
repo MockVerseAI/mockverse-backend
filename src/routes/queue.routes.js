@@ -8,7 +8,7 @@ import {
   resumeQueue,
   retryFailedJob,
 } from "../controllers/queue.controller.js";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { verifyApiKey } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -16,7 +16,7 @@ const router = Router();
 router.route("/health").get(getQueueHealthStatus);
 
 // Protected routes - require authentication
-router.use(verifyJWT);
+router.use(verifyApiKey);
 
 // Queue statistics and monitoring
 router.route("/stats").get(getQueueStats);

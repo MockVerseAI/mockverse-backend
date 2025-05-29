@@ -8,6 +8,7 @@ import { Interview } from "../models/interview.model.js";
 import { InterviewReport } from "../models/interviewReport.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { videoAnalysisPrompt } from "../utils/prompts.js";
+import { emitToRoom, EVENTS } from "./websocket.service.js";
 
 /**
  * Singleton Google Generative AI client instance
@@ -249,13 +250,20 @@ export const cleanupGoogleFile = async (fileName) => {
  * @returns {Promise<Object>} Processing result
  */
 export const processVideoAnalysis = async (jobData) => {
-  const { interviewId } = jobData;
+  const { interviewId, userId } = jobData;
   let googleFile = null;
 
   try {
     logger.info(
       `Starting video analysis process for interview: ${interviewId}`
     );
+
+    // Notify user that analysis has started
+    emitToRoom(userId, EVENTS.ANALYSIS_STARTED, {
+      interviewId,
+      message: "Video analysis has started",
+      status: "processing",
+    });
 
     // Step 1: Get video URL from interview
     const interview = await Interview.findById(interviewId);
@@ -288,6 +296,18 @@ export const processVideoAnalysis = async (jobData) => {
       `Video analysis completed successfully for interview: ${interviewId}`
     );
 
+    // Notify user that analysis is completed
+    emitToRoom(userId, EVENTS.ANALYSIS_COMPLETED, {
+      interviewId,
+      message: "Video analysis completed successfully",
+      status: "completed",
+      analysis: {
+        summary: analysis.substring(0, 200) + "...", // Send summary for notification
+        analyzedAt: new Date().toISOString(),
+        fileSize: googleFile.sizeBytes,
+      },
+    });
+
     return {
       success: true,
       interviewId,
@@ -297,6 +317,16 @@ export const processVideoAnalysis = async (jobData) => {
     };
   } catch (error) {
     logger.error(`Video analysis failed for interview ${interviewId}:`, error);
+
+    // Notify user that analysis failed
+    emitToRoom(userId, EVENTS.ANALYSIS_FAILED, {
+      interviewId,
+      message: "Video analysis failed",
+      status: "failed",
+      error: error.message,
+      retryable: !error.message.includes("not found"), // Don't retry if interview/video not found
+      failedAt: new Date().toISOString(),
+    });
 
     // Cleanup uploaded file on error
     if (googleFile?.name) {

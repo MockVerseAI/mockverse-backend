@@ -4,6 +4,7 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import passport from "passport";
+import { createServer } from "http";
 
 // Only load New Relic in non-development environments
 import("newrelic");
@@ -13,6 +14,10 @@ import { errorHandler } from "./middlewares/error.middleware.js";
 import { requestLogger } from "./middlewares/request.logger.middleware.js";
 import { closeRedisConnection } from "./config/redis.js";
 import videoAnalysisWorker from "./workers/videoAnalysis.worker.js";
+import {
+  initializeWebSocket,
+  shutdownWebSocket,
+} from "./services/websocket.service.js";
 
 // routers
 import cookieParser from "cookie-parser";
@@ -30,10 +35,14 @@ import deepgramRouter from "./routes/deepgram.routes.js";
 import llmRouter from "./routes/llm.routes.js";
 import queueRouter from "./routes/queue.routes.js";
 import videoAnalysisRouter from "./routes/videoAnalysis.routes.js";
+import websocketRouter from "./routes/websocket.routes.js";
 import { ApiError } from "./utils/ApiError.js";
 import sanitizeBody from "./middlewares/sanitize.middleware.js";
 
 const app = express();
+
+// Create HTTP server
+const httpServer = createServer(app);
 
 // global middlewares
 app.use(
@@ -100,6 +109,7 @@ app.use("/api/v1/deepgram", deepgramRouter);
 app.use("/api/v1/llm", llmRouter);
 app.use("/api/v1/queue", queueRouter);
 app.use("/api/v1/video-analysis", videoAnalysisRouter);
+app.use("/api/v1/websocket", websocketRouter);
 
 app.use(errorHandler);
 
@@ -107,6 +117,18 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     await connectDB();
+
+    // Initialize WebSocket server
+    try {
+      await initializeWebSocket(httpServer);
+      logger.info("🔌 WebSocket server initialized successfully");
+    } catch (wsError) {
+      logger.error(
+        "❌ Failed to initialize WebSocket server:",
+        wsError.message
+      );
+      logger.warn("🚀 Server will continue without WebSocket functionality");
+    }
 
     // Start video analysis worker by default (unless explicitly disabled)
     if (process.env.START_WORKER === "false") {
@@ -132,13 +154,21 @@ const startServer = async () => {
       }
     }
 
-    const server = app.listen(process.env.PORT, () => {
+    const server = httpServer.listen(process.env.PORT, () => {
       logger.info(`🚀 Server is listening on port ${process.env.PORT}...`);
+      logger.info(`🔌 WebSocket is available on port ${process.env.PORT}...`);
     });
 
     // Handle server shutdown gracefully
     const gracefulShutdown = async () => {
       logger.info("Received shutdown signal, closing server gracefully...");
+
+      // Shutdown WebSocket first to notify clients
+      try {
+        await shutdownWebSocket();
+      } catch (error) {
+        logger.error("Error shutting down WebSocket:", error);
+      }
 
       // Close worker if it was started
       if (process.env.START_WORKER !== "false") {
