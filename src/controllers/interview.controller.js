@@ -7,7 +7,6 @@ import { InterviewTemplate } from "../models/interviewTemplate.model.js";
 import { InterviewWorkspace } from "../models/interviewWorkspace.model.js";
 import { Message } from "../models/message.model.js";
 import { Resume } from "../models/resume.model.js";
-import { queueVideoAnalysis } from "./videoAnalysis.controller.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -21,6 +20,7 @@ import {
   interviewReportGeneratePrompt,
 } from "../utils/prompts.js";
 import { interviewReportSchema } from "../utils/schemas.js";
+import { queueVideoAnalysis } from "./videoAnalysis.controller.js";
 
 const vapiClient = new VapiClient({ token: process.env.VAPI_API_KEY });
 
