@@ -20,7 +20,7 @@ import {
   interviewReportGeneratePrompt,
 } from "../utils/prompts.js";
 import { interviewReportSchema } from "../utils/schemas.js";
-import { queueVideoAnalysis } from "./videoAnalysis.controller.js";
+import { queueMediaAnalysis } from "./mediaAnalysis.controller.js";
 
 const vapiClient = new VapiClient({ token: process.env.VAPI_API_KEY });
 
@@ -522,21 +522,21 @@ const agentEndCallback = asyncHandler(async (req, res) => {
       { new: true }
     ).populate("userId", "_id");
 
-    // Trigger video analysis job if video recording is available
-    if (videoRecording) {
+    // Trigger media analysis job if media recording is available
+    if (videoRecording || voiceRecording?.combinedUrl) {
       try {
-        await queueVideoAnalysis({ interviewId });
+        await queueMediaAnalysis({ interviewId });
         logger.info(
-          `✅ Video analysis job queued for interview: ${interviewId}`
+          `✅ Media analysis job queued for interview: ${interviewId}`
         );
       } catch (error) {
         if (error.statusCode === 503) {
           logger.warn(
-            `⚠️ Video analysis service unavailable for interview ${interviewId}: ${error.message}`
+            `⚠️ Media analysis service unavailable for interview ${interviewId}: ${error.message}`
           );
         } else {
           logger.error(
-            `❌ Failed to queue video analysis job for interview ${interviewId}:`,
+            `❌ Failed to queue media analysis job for interview ${interviewId}:`,
             error
           );
         }

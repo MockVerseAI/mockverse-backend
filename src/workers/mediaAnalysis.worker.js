@@ -1,7 +1,7 @@
 import { Worker } from "bullmq";
 import logger from "../logger/winston.logger.js";
-import { processVideoAnalysis } from "../services/videoAnalysis.service.js";
-import { VIDEO_ANALYSIS_QUEUE } from "../queues/videoAnalysis.queue.js";
+import { processMediaAnalysis } from "../services/mediaAnalysis.service.js";
+import { MEDIA_ANALYSIS_QUEUE } from "../queues/mediaAnalysis.queue.js";
 import { redisConnectionConfig } from "../config/redis.js";
 
 let worker = null;
@@ -18,7 +18,7 @@ const processJob = async (job) => {
 
   try {
     logger.info(
-      `Processing video analysis job ${job.id} for interview ${interviewId}`
+      `Processing media analysis job ${job.id} for interview ${interviewId}`
     );
 
     // Update job progress
@@ -31,15 +31,15 @@ const processJob = async (job) => {
 
     await job.updateProgress(20);
 
-    // Process video analysis
-    const result = await processVideoAnalysis(data);
+    // Process media analysis
+    const result = await processMediaAnalysis(data);
 
     await job.updateProgress(100);
 
-    logger.info(`Video analysis job ${job.id} completed successfully`);
+    logger.info(`Media analysis job ${job.id} completed successfully`);
     return result;
   } catch (error) {
-    logger.error(`Video analysis job ${job.id} failed:`, error);
+    logger.error(`Media analysis job ${job.id} failed:`, error);
 
     // Add error context to job
     job.data.error = {
@@ -57,11 +57,11 @@ const processJob = async (job) => {
  */
 const setupEventListeners = (workerInstance) => {
   workerInstance.on("ready", () => {
-    logger.info("Video Analysis Worker is ready");
+    logger.info("Media Analysis Worker is ready");
   });
 
   workerInstance.on("error", (error) => {
-    logger.error("❌ Video Analysis Worker error:", error);
+    logger.error("❌ Media Analysis Worker error:", error);
 
     // Handle specific Redis errors
     if (error.message?.includes("Command timed out")) {
@@ -74,7 +74,7 @@ const setupEventListeners = (workerInstance) => {
   });
 
   workerInstance.on("failed", (job, error) => {
-    logger.error(`Video analysis job ${job?.id} failed:`, {
+    logger.error(`Media analysis job ${job?.id} failed:`, {
       jobId: job?.id,
       interviewId: job?.data?.interviewId,
       error: error.message,
@@ -85,7 +85,7 @@ const setupEventListeners = (workerInstance) => {
   });
 
   workerInstance.on("completed", (job, result) => {
-    logger.info(`Video analysis job ${job.id} completed:`, {
+    logger.info(`Media analysis job ${job.id} completed:`, {
       jobId: job.id,
       interviewId: job.data?.interviewId,
       processingTime: Date.now() - job.processedOn,
@@ -94,15 +94,15 @@ const setupEventListeners = (workerInstance) => {
   });
 
   workerInstance.on("progress", (job, progress) => {
-    logger.debug(`Video analysis job ${job.id} progress: ${progress}%`);
+    logger.debug(`Media analysis job ${job.id} progress: ${progress}%`);
   });
 
   workerInstance.on("stalled", (jobId) => {
-    logger.warn(`Video analysis job ${jobId} stalled`);
+    logger.warn(`Media analysis job ${jobId} stalled`);
   });
 
   workerInstance.on("active", (job) => {
-    logger.info(`Video analysis job ${job.id} started processing`);
+    logger.info(`Media analysis job ${job.id} started processing`);
   });
 };
 
@@ -135,9 +135,9 @@ export const startWorker = async () => {
     }
 
     // Create worker with Redis connection configuration
-    worker = new Worker(VIDEO_ANALYSIS_QUEUE, processJob, {
+    worker = new Worker(MEDIA_ANALYSIS_QUEUE, processJob, {
       connection: redisConnectionConfig,
-      concurrency: parseInt(process.env.VIDEO_WORKER_CONCURRENCY) || 2,
+      concurrency: parseInt(process.env.MEDIA_WORKER_CONCURRENCY) || 2,
       maxStalledCount: 1,
       stalledInterval: 30000,
       settings: {
@@ -149,12 +149,12 @@ export const startWorker = async () => {
     // Setup event listeners
     setupEventListeners(worker);
 
-    logger.info("✅ Video Analysis Worker started successfully");
+    logger.info("✅ Media Analysis Worker started successfully");
     logger.info(
-      `🔧 Worker concurrency: ${parseInt(process.env.VIDEO_WORKER_CONCURRENCY) || 2}`
+      `🔧 Worker concurrency: ${parseInt(process.env.MEDIA_WORKER_CONCURRENCY) || 2}`
     );
   } catch (error) {
-    logger.error("❌ Failed to start Video Analysis Worker:", error);
+    logger.error("❌ Failed to start Media Analysis Worker:", error);
     throw error;
   }
 };
@@ -191,17 +191,17 @@ export const shutdownWorker = async () => {
   }
 
   isShuttingDown = true;
-  logger.info("Initiating graceful shutdown of Video Analysis Worker...");
+  logger.info("Initiating graceful shutdown of Media Analysis Worker...");
 
   try {
     if (worker) {
       // Close the worker gracefully
       await worker.close();
       worker = null;
-      logger.info("Video Analysis Worker shutdown completed");
+      logger.info("✅ Media Analysis Worker shutdown completed");
     }
   } catch (error) {
-    logger.error("Error during worker shutdown:", error);
+    logger.error("❌ Error during worker shutdown:", error);
     throw error;
   } finally {
     isShuttingDown = false;
@@ -209,67 +209,53 @@ export const shutdownWorker = async () => {
 };
 
 /**
- * Initialize worker for standalone execution
- * Note: This is mainly for potential future use, current setup runs integrated with main server
+ * Initialize standalone worker for direct execution
+ * Useful for debugging and standalone processing
  */
 const initializeStandaloneWorker = async () => {
-  if (process.env.NODE_ENV === "test") return;
-
   try {
-    // Import dependencies for standalone mode
-    const { default: mongoose } = await import("mongoose");
-    const { default: connectDB } = await import("../db/index.js");
-    const { closeRedisConnection } = await import("../config/redis.js");
+    logger.info("🚀 Starting Media Analysis Worker in standalone mode...");
 
-    logger.info("🚀 Starting Video Analysis Worker in standalone mode...");
-
-    // Connect to database
-    await connectDB();
-    logger.info("📊 Database connected successfully");
-
-    // Start the worker
+    // Initialize worker
     await startWorker();
 
-    logger.info("✅ Video Analysis Worker is running");
-    logger.info(
-      `🔧 Worker concurrency: ${process.env.VIDEO_WORKER_CONCURRENCY || 2}`
-    );
-    logger.info(
-      `📡 Redis host: ${process.env.REDIS_HOST || "localhost"}:${process.env.REDIS_PORT || 6379}`
-    );
-
-    await logRecoveryStatus();
-
-    // Handle graceful shutdown
+    // Setup graceful shutdown handlers
     const gracefulShutdown = async (signal) => {
-      logger.info(`📥 Received ${signal}, shutting down worker gracefully...`);
+      logger.info(`📤 Received ${signal}. Starting graceful shutdown...`);
+
       try {
         await shutdownWorker();
-        await closeRedisConnection();
-        await mongoose.connection.close();
-        logger.info("✅ Worker shutdown completed successfully");
+        logger.info("👋 Worker shutdown completed. Goodbye!");
         process.exit(0);
       } catch (error) {
-        logger.error("❌ Error during graceful shutdown:", error);
+        logger.error("❌ Error during shutdown:", error);
         process.exit(1);
       }
     };
 
-    // Signal handlers
+    // Handle various shutdown signals
     process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
     process.on("SIGINT", () => gracefulShutdown("SIGINT"));
-    process.on("SIGHUP", () => gracefulShutdown("SIGHUP"));
+    process.on("SIGUSR2", () => gracefulShutdown("SIGUSR2")); // For nodemon
 
-    // Error handlers
+    // Handle uncaught exceptions
     process.on("uncaughtException", (error) => {
-      logger.error("💥 Uncaught exception in worker:", error);
-      gracefulShutdown("UNCAUGHT_EXCEPTION");
+      logger.error("❌ Uncaught Exception:", error);
+      gracefulShutdown("uncaughtException");
     });
 
     process.on("unhandledRejection", (reason, promise) => {
-      logger.error("🚫 Unhandled rejection in worker:", { reason, promise });
-      gracefulShutdown("UNHANDLED_REJECTION");
+      logger.error("❌ Unhandled Rejection at:", promise, "reason:", reason);
+      gracefulShutdown("unhandledRejection");
     });
+
+    // Keep process alive
+    process.stdin.resume();
+
+    logger.info(
+      "🎯 Media Analysis Worker is running and ready to process jobs"
+    );
+    logger.info("💡 Press Ctrl+C to stop the worker gracefully");
   } catch (error) {
     logger.error("❌ Failed to initialize standalone worker:", error);
     process.exit(1);
@@ -277,51 +263,44 @@ const initializeStandaloneWorker = async () => {
 };
 
 /**
- * Log startup recovery information
+ * Log recovery status and queue information
  */
 const logRecoveryStatus = async () => {
   try {
-    const { getQueueHealth } = await import("../queues/videoAnalysis.queue.js");
+    const { getQueueHealth } = await import("../queues/mediaAnalysis.queue.js");
     const health = await getQueueHealth();
 
-    logger.info("📊 Queue Recovery Status:");
-    logger.info(
-      `   🔄 Active jobs: ${health.active} (will be marked as stalled if interrupted)`
-    );
-    logger.info(`   ⏳ Waiting jobs: ${health.waiting} (fully persistent)`);
-    logger.info(`   ❌ Failed jobs: ${health.failed} (available for retry)`);
-    logger.info(`   ⏱️ Delayed jobs: ${health.delayed} (scheduled for later)`);
-
-    if (health.active > 0) {
-      logger.warn(
-        `⚠️ Found ${health.active} active jobs - these may have been interrupted`
-      );
-      logger.info(
-        "🔧 Stall detection will retry interrupted jobs automatically"
-      );
-    }
+    logger.info("📊 Queue Health Status:", {
+      waiting: health.waiting,
+      active: health.active,
+      completed: health.completed,
+      failed: health.failed,
+      delayed: health.delayed,
+    });
 
     if (health.failed > 0) {
-      logger.info(
-        `🛠️ ${health.failed} failed jobs available for manual retry via API`
+      logger.warn(
+        `⚠️ Found ${health.failed} failed jobs that may need attention`
       );
     }
+
+    if (health.waiting > 0) {
+      logger.info(`⏳ ${health.waiting} jobs waiting to be processed`);
+    }
   } catch (error) {
-    logger.warn("Could not fetch queue recovery status:", error.message);
+    logger.error("❌ Error checking queue health:", error);
   }
 };
 
-// Auto-initialize if this file is run directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  // Load environment variables
-  await import("dotenv/config");
-  await initializeStandaloneWorker();
+// Self-contained execution check
+if (process.argv[1] === new URL(import.meta.url).pathname) {
+  initializeStandaloneWorker();
 }
 
-// Export functions instead of class instance
 export default {
-  start: startWorker,
-  shutdown: shutdownWorker,
+  startWorker,
+  shutdownWorker,
   isRunning: isWorkerRunning,
   getHealthStatus: getWorkerHealthStatus,
+  logRecoveryStatus,
 };

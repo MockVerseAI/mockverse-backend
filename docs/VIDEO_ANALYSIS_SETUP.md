@@ -1,17 +1,17 @@
-# Video Analysis Background Job Processing
+# Video Analysis Setup Guide
 
-This document describes the production-grade video analysis system using BullMQ for background job processing.
+This guide explains how to set up and use the video analysis system in MockVerse. The system automatically analyzes interview videos using Google's Gemini AI to provide insights on candidate performance.
 
 ## Overview
 
-The video analysis system processes interview videos by:
-1. Fetching video from URL
-2. Converting to array buffer
-3. Uploading to Google Files API
-4. Analyzing with Google Gemini LLM
-5. Storing results in MongoDB
+The video analysis system processes interview recordings in the background using:
+- **BullMQ** for job queue management
+- **Redis** for queue storage and worker coordination  
+- **Google Files API** for video upload and management
+- **Google Gemini** for AI-powered video analysis
+- **WebSocket** for real-time notifications
 
-## Architecture
+### Architecture Flow
 
 ```
 Interview End → Queue Job → Worker → Google Files API → Gemini Analysis → Database
@@ -19,9 +19,9 @@ Interview End → Queue Job → Worker → Google Files API → Gemini Analysis 
 
 ### Components
 
-- **Queue**: `src/queues/videoAnalysis.queue.js` - BullMQ queue configuration
-- **Worker**: `src/workers/videoAnalysis.worker.js` - Self-contained job processor with standalone capability
-- **Service**: `src/services/videoAnalysis.service.js` - Business logic
+- **Queue**: `src/queues/mediaAnalysis.queue.js` - BullMQ queue configuration
+- **Worker**: `src/workers/mediaAnalysis.worker.js` - Self-contained job processor with standalone capability
+- **Service**: `src/services/mediaAnalysis.service.js` - Business logic
 - **Controller**: `src/controllers/queue.controller.js` - Queue management API
 - **Routes**: `src/routes/queue.routes.js` - Queue monitoring endpoints
 
@@ -38,7 +38,7 @@ REDIS_DB=0
 GOOGLE_GENERATIVE_AI_API_KEY=your_GOOGLE_GENERATIVE_AI_API_KEY
 
 # Worker Configuration
-VIDEO_WORKER_CONCURRENCY=2
+MEDIA_WORKER_CONCURRENCY=2
 ```
 
 ## Running the System
@@ -59,7 +59,7 @@ npm run dev
 npm run start
 ```
 
-#### Without Video Analysis Worker
+#### Without Media Analysis Worker
 ```bash
 # Development (explicitly disable worker)
 npm run dev:no-worker
@@ -74,37 +74,38 @@ START_WORKER=false npm run dev
 #### Standalone Worker Mode
 ```bash
 # Start worker separately (if needed)
-npm run worker:video:dev
+npm run worker:media:dev
 ```
 
 **Note:** 
 - **Worker starts by default** - no configuration needed
-- Set `START_WORKER=false` to explicitly disable video analysis
-- If Redis is not available, the server will continue without video analysis
-- Use `:no-worker` scripts for convenience when you don't want video analysis
+- Set `START_WORKER=false` to explicitly disable media analysis
+- If Redis is not available, the server will continue without media analysis
+- Use `:no-worker` scripts for convenience when you don't want media analysis
 
 ## API Endpoints
 
-### Video Analysis API
+### Media Analysis API
 
-#### Manually Trigger Video Analysis
+#### Manually Trigger Media Analysis
 ```http
-POST /api/v1/video-analysis/:interviewId/analyze
+POST /api/v1/media-analysis/:interviewId/analyze
 Authorization: Bearer <token>
 
-# No request body required - video URL is automatically fetched from interview recording
-# Returns error if no video recording exists for the interview
+# No request body required - media URL is automatically fetched from interview recording
+# Supports both video and audio recordings
+# Returns error if no video or audio recording exists for the interview
 ```
 
-#### Get Video Analysis Status
+#### Get Media Analysis Status
 ```http
-GET /api/v1/video-analysis/:interviewId/status
+GET /api/v1/media-analysis/:interviewId/status
 Authorization: Bearer <token>
 ```
 
-#### Get Video Analysis Result
+#### Get Media Analysis Result
 ```http
-GET /api/v1/video-analysis/:interviewId/result
+GET /api/v1/media-analysis/:interviewId/result
 Authorization: Bearer <token>
 ```
 
@@ -154,27 +155,63 @@ Authorization: Bearer <token>
 
 ## Database Schema
 
-The video analysis results are stored in the `InterviewReport` model:
+The media analysis results are stored in the `InterviewReport` model:
 
 ```javascript
-videoAnalysis: {
-  analysis: String,           // LLM analysis result
-  googleFileUri: String,      // Google Files API URI
-  googleFileName: String,     // Original filename
-  analyzedAt: Date,          // Analysis completion time
-  fileSize: Number,          // File size in bytes
-  error: String,             // Error message if failed
-  failedAt: Date            // Failure timestamp
+mediaAnalysis: {
+  type: String,              // Media type: "video" or "audio"
+  analysis: {                // Structured analysis object
+    communicationSkills: {
+      clarity: { score: Number, feedback: String, examples: [String] },
+      articulation: { score: Number, feedback: String, examples: [String] },
+      pace: { score: Number, feedback: String, examples: [String] },
+      confidence: { score: Number, feedback: String, examples: [String] }
+    },
+    bodyLanguage: {          // Only for video analysis
+      posture: { score: Number, feedback: String, examples: [String] },
+      eyeContact: { score: Number, feedback: String, examples: [String] },
+      gestures: { score: Number, feedback: String, examples: [String] },
+      presence: { score: Number, feedback: String, examples: [String] }
+    },
+    audioQuality: {
+      clarity: { score: Number, feedback: String },
+      volume: { score: Number, feedback: String },
+      background: { score: Number, feedback: String }
+    },
+    overallPerformance: {
+      professionalism: { score: Number, feedback: String },
+      engagement: { score: Number, feedback: String },
+      readiness: { score: Number, feedback: String }
+    },
+    recommendations: {
+      immediate: [String],
+      practice: [String],
+      resources: [String]
+    },
+    summary: {
+      strengths: [String],
+      weaknesses: [String],
+      keyInsights: [String],
+      overallScore: Number
+    }
+  },
+  googleFileUri: String,     // Google Files API URI
+  googleFileName: String,    // Original filename
+  analyzedAt: Date,         // Analysis completion time
+  fileSize: Number,         // File size in bytes
+  processingDuration: Number, // Processing time in milliseconds
+  error: String,            // Error message if failed
+  failedAt: Date           // Failure timestamp
 }
 ```
 
-**Note:** Video analysis requires that an interview report be generated first.
+**Note:** Media analysis requires that an interview report be generated first.
 
 ## Production Considerations
 
 ### Scaling
 - Run multiple worker instances for horizontal scaling
-- Adjust `VIDEO_WORKER_CONCURRENCY` based on server resources
+- Adjust `MEDIA_WORKER_CONCURRENCY` based on server resources
 - Use Redis Cluster for high availability
 
 ### Monitoring
@@ -208,7 +245,7 @@ videoAnalysis: {
    - Check worker logs for errors
 
 2. **Jobs failing consistently**
-   - Verify video URLs are accessible
+   - Verify media URLs are accessible
    - Check Google API quotas
    - Review error logs in failed jobs
 
@@ -238,14 +275,5 @@ curl http://localhost:3000/api/v1/queue/health
 ### Local Development
 1. Start Redis locally: `redis-server`
 2. Set environment variables in `.env`
-3. Run worker: `npm run worker:video:dev`
+3. Run worker: `npm run worker:media:dev`
 4. Run main app: `npm run dev`
-
-## Performance Optimization
-
-- Video files are limited to 100MB
-- 5-minute timeout for video fetching
-- Cleanup of Google Files after processing
-- **Single shared Redis connection** across all queues and workers
-- Efficient connection reuse and proper cleanup
-- Graceful worker shutdown with connection cleanup 

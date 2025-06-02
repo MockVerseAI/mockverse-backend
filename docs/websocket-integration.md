@@ -2,7 +2,7 @@
 
 ## Overview
 
-MockVerse backend provides real-time WebSocket functionality using Socket.IO for instant notifications about video analysis progress, interview updates, and system events.
+MockVerse backend provides real-time WebSocket functionality using Socket.IO for instant notifications about media analysis progress, interview updates, and system events.
 
 ## Key Features
 
@@ -80,7 +80,7 @@ class WebSocketService {
 export default new WebSocketService();
 ```
 
-### Video Analysis Events
+### Media Analysis Events
 
 ```javascript
 // Event constants (keep in sync with backend)
@@ -104,8 +104,8 @@ export const WEBSOCKET_EVENTS = {
   MAINTENANCE_MODE: "maintenance:mode",
 };
 
-// Listen for video analysis events
-class VideoAnalysisService {
+// Listen for media analysis events
+class MediaAnalysisService {
   constructor(webSocketService) {
     this.ws = webSocketService;
     this.setupAnalysisListeners();
@@ -139,7 +139,7 @@ class VideoAnalysisService {
     // setAnalysisStatus(interviewId, { status, message, timestamp: data.timestamp });
     
     // Example: Show toast notification
-    // toast.info(`Video analysis started for interview ${interviewId}`);
+    // toast.info(`Media analysis started for interview ${interviewId}`);
   }
 
   handleAnalysisCompleted(data) {
@@ -150,7 +150,7 @@ class VideoAnalysisService {
     // updateInterviewAnalysis(interviewId, analysis);
     
     // Example: Show success notification
-    // toast.success('Video analysis completed! Check your interview report.');
+    // toast.success('Media analysis completed! Check your interview report.');
     
     // Example: Refresh interview report
     // refreshInterviewReport(interviewId);
@@ -314,7 +314,7 @@ export function useWebSocket() {
 ```javascript
 {
   interviewId: "64a7b8c9d1e2f3g4h5i6j7k8",
-  message: "Video analysis has started",
+  message: "Media analysis has started",
   status: "processing",
   timestamp: "2024-01-15T10:30:00.000Z",
   server: "production"
@@ -325,7 +325,7 @@ export function useWebSocket() {
 ```javascript
 {
   interviewId: "64a7b8c9d1e2f3g4h5i6j7k8",
-  message: "Video analysis completed successfully",
+  message: "Media analysis completed successfully",
   status: "completed",
   analysis: {
     summary: "The candidate demonstrated strong technical skills...",
@@ -341,9 +341,9 @@ export function useWebSocket() {
 ```javascript
 {
   interviewId: "64a7b8c9d1e2f3g4h5i6j7k8",
-  message: "Video analysis failed",
+  message: "Media analysis failed",
   status: "failed",
-  error: "Video processing timeout",
+  error: "Media processing timeout",
   retryable: true,
   failedAt: "2024-01-15T10:35:00.000Z",
   timestamp: "2024-01-15T10:35:00.000Z",
@@ -366,7 +366,7 @@ POST /api/v1/websocket/test/emit-to-user
   "message": "Hello from backend!"
 }
 
-// Test video analysis events
+// Test media analysis events
 POST /api/v1/websocket/test/analysis-events/64a7b8c9d1e2f3g4h5i6j7k8
 {
   "interviewId": "64a7b8c9d1e2f3g4h5i6j7k8"

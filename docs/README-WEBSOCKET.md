@@ -19,7 +19,7 @@ Successfully implemented a **minimal, production-grade WebSocket system** using 
 - **Graceful initialization** and shutdown
 - **Redis adapter** for horizontal scaling
 
-### 3. Video Analysis Integration (`src/services/videoAnalysis.service.js`)
+### 3. Media Analysis Integration (`src/services/mediaAnalysis.service.js`)
 - **Real-time notifications** for analysis lifecycle:
   - `analysis:started` - When analysis begins
   - `analysis:completed` - When analysis finishes  

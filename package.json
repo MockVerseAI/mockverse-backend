@@ -9,8 +9,8 @@
     "start:no-worker": "START_WORKER=false node --experimental-loader=newrelic/esm-loader.mjs ./src/index.js",
     "dev": "nodemon ./src/index.js",
     "dev:no-worker": "START_WORKER=false nodemon ./src/index.js",
-    "worker:video": "node ./src/workers/videoAnalysis.worker.js",
-    "worker:video:dev": "nodemon ./src/workers/videoAnalysis.worker.js",
+    "worker:media": "node ./src/workers/mediaAnalysis.worker.js",
+    "worker:media:dev": "nodemon ./src/workers/mediaAnalysis.worker.js",
     "prepare": "husky",
     "lint-staged": "npx lint-staged"
   },

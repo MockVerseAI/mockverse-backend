@@ -1,8 +1,8 @@
 import logger from "../logger/winston.logger.js";
 import {
   getQueueHealth,
-  videoAnalysisQueue,
-} from "../queues/videoAnalysis.queue.js";
+  mediaAnalysisQueue,
+} from "../queues/mediaAnalysis.queue.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -18,7 +18,7 @@ const getQueueHealthStatus = asyncHandler(async (req, res) => {
       new ApiResponse(
         200,
         {
-          queue: "video-analysis",
+          queue: "media-analysis",
           status: "healthy",
           metrics: healthMetrics,
           timestamp: new Date().toISOString(),
@@ -39,16 +39,16 @@ const getQueueStats = asyncHandler(async (req, res) => {
   try {
     const [waiting, active, completed, failed, delayed, paused] =
       await Promise.all([
-        videoAnalysisQueue.getWaiting(),
-        videoAnalysisQueue.getActive(),
-        videoAnalysisQueue.getCompleted(),
-        videoAnalysisQueue.getFailed(),
-        videoAnalysisQueue.getDelayed(),
-        videoAnalysisQueue.isPaused(),
+        mediaAnalysisQueue.getWaiting(),
+        mediaAnalysisQueue.getActive(),
+        mediaAnalysisQueue.getCompleted(),
+        mediaAnalysisQueue.getFailed(),
+        mediaAnalysisQueue.getDelayed(),
+        mediaAnalysisQueue.isPaused(),
       ]);
 
     const stats = {
-      queue: "video-analysis",
+      queue: "media-analysis",
       counts: {
         waiting: waiting.length,
         active: active.length,
@@ -78,7 +78,7 @@ const getFailedJobs = asyncHandler(async (req, res) => {
   try {
     const { limit = 10, offset = 0 } = req.query;
 
-    const failedJobs = await videoAnalysisQueue.getFailed(
+    const failedJobs = await mediaAnalysisQueue.getFailed(
       parseInt(offset),
       parseInt(offset) + parseInt(limit)
     );
@@ -118,7 +118,7 @@ const retryFailedJob = asyncHandler(async (req, res) => {
   try {
     const { jobId } = req.params;
 
-    const job = await videoAnalysisQueue.getJob(jobId);
+    const job = await mediaAnalysisQueue.getJob(jobId);
     if (!job) {
       throw new ApiError(404, "Job not found");
     }
@@ -159,13 +159,13 @@ const cleanQueue = asyncHandler(async (req, res) => {
     } = req.body;
 
     const [cleanedCompleted, cleanedFailed, cleanedPaused] = await Promise.all([
-      videoAnalysisQueue.clean(
+      mediaAnalysisQueue.clean(
         parseInt(olderThan),
         parseInt(limit),
         "completed"
       ),
-      videoAnalysisQueue.clean(parseInt(olderThan), parseInt(limit), "failed"),
-      videoAnalysisQueue.clean(parseInt(olderThan), parseInt(limit), "paused"),
+      mediaAnalysisQueue.clean(parseInt(olderThan), parseInt(limit), "failed"),
+      mediaAnalysisQueue.clean(parseInt(olderThan), parseInt(limit), "paused"),
     ]);
 
     logger.info(
@@ -198,8 +198,8 @@ const cleanQueue = asyncHandler(async (req, res) => {
  */
 const pauseQueue = asyncHandler(async (req, res) => {
   try {
-    await videoAnalysisQueue.pause();
-    logger.info("Video analysis queue paused");
+    await mediaAnalysisQueue.pause();
+    logger.info("Media analysis queue paused");
 
     return res
       .status(200)
@@ -217,8 +217,8 @@ const pauseQueue = asyncHandler(async (req, res) => {
  */
 const resumeQueue = asyncHandler(async (req, res) => {
   try {
-    await videoAnalysisQueue.resume();
-    logger.info("Video analysis queue resumed");
+    await mediaAnalysisQueue.resume();
+    logger.info("Media analysis queue resumed");
 
     return res
       .status(200)

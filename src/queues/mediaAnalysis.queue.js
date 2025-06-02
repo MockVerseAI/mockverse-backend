@@ -3,13 +3,13 @@ import logger from "../logger/winston.logger.js";
 import { redisConnectionConfig } from "../config/redis.js";
 
 /**
- * Video Analysis Queue Configuration
- * Handles video processing jobs with production-ready settings
+ * Media Analysis Queue Configuration
+ * Handles media processing jobs with production-ready settings
  */
-export const VIDEO_ANALYSIS_QUEUE = "video-analysis";
+export const MEDIA_ANALYSIS_QUEUE = "media-analysis";
 
 /**
- * Queue options for video analysis jobs
+ * Queue options for media analysis jobs
  */
 const queueOptions = {
   connection: redisConnectionConfig,
@@ -30,65 +30,65 @@ const queueOptions = {
 };
 
 /**
- * Create video analysis queue instance
+ * Create media analysis queue instance
  */
-export const videoAnalysisQueue = new Queue(VIDEO_ANALYSIS_QUEUE, queueOptions);
+export const mediaAnalysisQueue = new Queue(MEDIA_ANALYSIS_QUEUE, queueOptions);
 
 /**
  * Queue event listeners for monitoring and logging
  */
-videoAnalysisQueue.on("error", (error) => {
-  logger.error("Video Analysis Queue Error:", error);
+mediaAnalysisQueue.on("error", (error) => {
+  logger.error("Media Analysis Queue Error:", error);
 });
 
-videoAnalysisQueue.on("waiting", (jobId) => {
-  logger.info(`Video analysis job ${jobId} is waiting`);
+mediaAnalysisQueue.on("waiting", (jobId) => {
+  logger.info(`Media analysis job ${jobId} is waiting`);
 });
 
-videoAnalysisQueue.on("active", (job) => {
-  logger.info(`Video analysis job ${job.id} started processing`);
+mediaAnalysisQueue.on("active", (job) => {
+  logger.info(`Media analysis job ${job.id} started processing`);
 });
 
-videoAnalysisQueue.on("completed", (job) => {
-  logger.info(`Video analysis job ${job.id} completed successfully`);
+mediaAnalysisQueue.on("completed", (job) => {
+  logger.info(`Media analysis job ${job.id} completed successfully`);
 });
 
-videoAnalysisQueue.on("failed", (job, error) => {
-  logger.error(`Video analysis job ${job?.id} failed:`, error);
+mediaAnalysisQueue.on("failed", (job, error) => {
+  logger.error(`Media analysis job ${job?.id} failed:`, error);
 });
 
-videoAnalysisQueue.on("stalled", (jobId) => {
-  logger.warn(`Video analysis job ${jobId} stalled`);
+mediaAnalysisQueue.on("stalled", (jobId) => {
+  logger.warn(`Media analysis job ${jobId} stalled`);
 });
 
 /**
- * Add video analysis job to queue
+ * Add media analysis job to queue
  * @param {Object} jobData - Job data containing interview details
  * @param {string} jobData.interviewId - Interview ID
  * @param {string} jobData.userId - User ID
  * @param {Object} options - Job options (optional)
  * @returns {Promise<Job>} The created job
  */
-export const addVideoAnalysisJob = async (jobData, options = {}) => {
+export const addMediaAnalysisJob = async (jobData, options = {}) => {
   try {
-    const job = await videoAnalysisQueue.add(
-      "analyze-video",
+    const job = await mediaAnalysisQueue.add(
+      "analyze-media",
       {
         ...jobData,
         timestamp: Date.now(),
       },
       {
         ...options,
-        jobId: `video-analysis-${jobData.interviewId}-${Date.now()}`,
+        jobId: `media-analysis-${jobData.interviewId}-${Date.now()}`,
       }
     );
 
     logger.info(
-      `Video analysis job ${job.id} added to queue for interview ${jobData.inte}`
+      `Media analysis job ${job.id} added to queue for interview ${jobData.interviewId}`
     );
     return job;
   } catch (error) {
-    logger.error("Error adding videoysis job to queue:", error);
+    logger.error("Error adding media analysis job to queue:", error);
     throw error;
   }
 };
@@ -100,11 +100,11 @@ export const addVideoAnalysisJob = async (jobData, options = {}) => {
 export const getQueueHealth = async () => {
   try {
     const [waiting, active, completed, failed, delayed] = await Promise.all([
-      videoAnalysisQueue.getWaiting(),
-      videoAnalysisQueue.getActive(),
-      videoAnalysisQueue.getCompleted(),
-      videoAnalysisQueue.getFailed(),
-      videoAnalysisQueue.getDelayed(),
+      mediaAnalysisQueue.getWaiting(),
+      mediaAnalysisQueue.getActive(),
+      mediaAnalysisQueue.getCompleted(),
+      mediaAnalysisQueue.getFailed(),
+      mediaAnalysisQueue.getDelayed(),
     ]);
 
     return {
