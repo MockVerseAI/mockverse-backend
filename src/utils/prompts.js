@@ -193,242 +193,62 @@ export const interviewReportGeneratePrompt = ({
   parsedResume,
   conversation,
 }) => {
-  return `You are an elite interview analysis system combining expertise in behavioral psychology, technical assessment, career coaching, industry best practices, and communication analysis. Your task is to generate an extraordinarily detailed and actionable interview evaluation report by analyzing:
+  return `You are an expert interview analyst specializing in comprehensive candidate evaluation. Analyze this interview conversation to provide a detailed assessment across technical, behavioral, and cultural dimensions.
 
-  Input Components:
-  Job Role: ${jobRole}
-  Job Description: ${jobDescription}
-  Parsed Resume Content: ${parsedResume}
-  Interview Conversation: ${conversation}
+INTERVIEW CONTEXT:
+Role: ${jobRole}
+Job Description: ${jobDescription}
+Candidate Resume: ${parsedResume}
+Interview Conversation: ${conversation}
 
-  Generate a comprehensive JSON response with the following structure:
+ANALYSIS FRAMEWORK:
 
- {
-    "technicalAssessment": {
-      "skillsAnalysis": {
-        "demonstrated": [                    // Array<{skill: string, level: string, evidence: string}>
-          {
-            "skill": "",                  // Technical skill name
-            "level": "",                  // beginner/intermediate/advanced/expert
-            "evidence": ""                // Demonstration from interview
-          }
-        ],
-        "required": [                       // Array<{skill: string, priority: string, level: string}>
-          {
-            "skill": "",                  // Required skill name
-            "priority": "",               // must-have/preferred
-            "level": ""                   // Required proficiency
-          }
-        ],
-        "gaps": [                           // Array<{skill: string, impact: string, recommendation: string}>
-          {
-            "skill": "",                  // Skill gap identified
-            "impact": "",                 // high/medium/low
-            "recommendation": ""          // Improvement suggestion
-          }
-        ],
-        "growthPath": [                     // Array<{skill: string, timeline: string, resources: string[]}>
-          {
-            "skill": "",                  // Skill to develop
-            "timeline": "",               // Development timeframe
-            "resources": []                 // Learning resources
-          }
-        ]
-      },
-      "problemSolving": {
-        "analytical": "",                 // string: Problem breakdown assessment
-        "design": "",                    // string: Solution approach evaluation
-        "scalability": ""                // string: Scaling considerations
-      },
-      "technicalCommunication": {
-        "clarity": "",                   // string: Technical explanation ability
-        "depth": ""                      // string: Technical discussion command
-      }
-    },
+Technical Assessment:
+- Identify demonstrated skills with specific conversation evidence
+- Extract required skills from job description and assess candidate alignment
+- Highlight critical skill gaps with impact analysis (high/medium/low)
+- Design targeted skill development paths with realistic timelines
 
-    "behavioralAnalysis": {
-      "leadership": {
-        "decisionMaking": "",            // string: Decision process evaluation
-        "teamInfluence": "",             // string: Leadership impact
-        "initiative": [                     // Array<{example: string, impact: string, context: string}>
-          {
-            "example": "",                // Initiative example
-            "impact": "",                 // Result achieved
-            "context": ""                 // Situation context
-          }
-        ]
-      },
-      "adaptability": {
-        "changeResponse": "",             // string: Change handling assessment
-        "learning": "",                   // string: Learning approach
-        "growth": ""                      // string: Growth mindset
-      },
-      "collaboration": {
-        "teamwork": "",                   // string: Team interaction style
-        "communication": "",              // string: Communication effectiveness
-        "crossTeam": []                     // string[]: Cross-team examples
-      }
-    },
+Scoring Methodology (0-100 scale):
+- Technical Score: Domain expertise (40%) + Problem-solving approach (35%) + Technical communication (25%)
+- Behavioral Score: Leadership qualities (35%) + Adaptability (35%) + Collaboration (30%)
+- Communication Score: Clarity (40%) + Structure (30%) + Professional presence (30%)
+- Overall Score: Technical (50%) + Behavioral (30%) + Communication (20%)
 
-    "responseQuality": {
-      "structure": {
-        "clarity": 0,                       // number: 0-10 score
-        "organization": "",               // string: Thought organization
-        "improvement": []                   // string[]: Areas to improve
-      },
-      "starMethod": {
-        "situation": "",                  // string: Context setting
-        "task": "",                       // string: Role definition
-        "action": "",                     // string: Action description
-        "result": "",                     // string: Outcome measurement
-        "tips": []                          // string[]: Improvement tips
-      }
-    },
+Behavioral Analysis:
+- Evaluate decision-making through specific examples from conversation
+- Assess leadership impact and team influence with concrete evidence
+- Analyze adaptability via learning approach and change management examples
+- Review collaboration through teamwork and cross-functional examples
 
-    "roleAlignment": {
-      "requirements": {
-        "essential": [                      // Array<{requirement: string, met: boolean, notes: string}>
-          {
-            "requirement": "",            // Required qualification
-            "met": true,                    // Whether requirement is met
-            "notes": ""                   // Additional context
-          }
-        ],
-        "experience": "",                 // string: Experience relevance
-        "skills": {}                        // Record<string, {match: number, notes: string}>
-      },
-      "potential": {
-        "growth": "",                     // string: Growth potential
-        "advancement": "",                // string: Promotion readiness
-        "development": []                   // string[]: Development areas
-      },
-      "cultural": {
-        "values": "",                     // string: Values alignment
-        "workStyle": "",                  // string: Work style fit
-        "fit": []                           // string[]: Cultural indicators
-      }
-    },
+Response Quality Evaluation:
+- Rate clarity on 0-10 scale based on coherence and structure
+- Evaluate STAR method usage in behavioral responses
+- Identify specific areas for response improvement
 
-    "performanceMetrics": {
-      "scores": {
-        "overall": 0,                       // number: 0-100 score
-        "technical": 0,                     // number: 0-100 score
-        "behavioral": 0,                    // number: 0-100 score
-        "communication": 0                  // number: 0-100 score
-      },
-      "benchmarks": {
-        "industry": "",                   // string: Industry comparison
-        "role": "",                       // string: Role comparison
-        "level": ""                       // string: Level assessment
-      }
-    },
+Role Alignment Assessment:
+- Map essential job requirements to candidate qualifications
+- Evaluate experience relevance with specific examples
+- Assess cultural fit through values and work style indicators
+- Project growth potential and advancement readiness
 
-    "developmentPlan": {
-      "immediate": {
-        "priorities": [                     // Array<{area: string, importance: string, action: string}>
-          {
-            "area": "",                   // Focus area
-            "importance": "",             // high/medium/low
-            "action": ""                  // Specific action
-          }
-        ],
-        "exercises": [                      // Array<{type: string, description: string, goal: string}>
-          {
-            "type": "",                   // Exercise type
-            "description": "",            // Exercise details
-            "goal": ""                    // Expected outcome
-          }
-        ],
-        "resources": [                      // Array<{type: string, description: string, link?: string}>
-          {
-            "type": "",                   // Resource type
-            "description": "",            // Resource details
-            "link": ""                    // Optional resource link
-          }
-        ]
-      },
-      "shortTerm": {
-        "goals": [                          // Array<{timeline: string, objective: string, success_criteria: string}>
-          {
-            "timeline": "",               // 30/60/90 days
-            "objective": "",              // Specific goal
-            "success_criteria": ""        // Measurement criteria
-          }
-        ],
-        "skills": [                         // Array<{skill: string, current_level: string, target_level: string, timeline: string}>
-          {
-            "skill": "",                  // Skill to develop
-            "current_level": "",          // Current proficiency
-            "target_level": "",           // Target proficiency
-            "timeline": ""                // Development timeline
-          }
-        ],
-        "actions": []                       // string[]: Specific steps
-      },
-      "preparation": {
-        "questions": [                      // Array<{question: string, category: string, preparation_tips: string[]}>
-          {
-            "question": "",               // Practice question
-            "category": "",               // Question type
-            "preparation_tips": []          // Preparation guidance
-          }
-        ],
-        "responses": {},                    // Record<string, {template: string, key_points: string[], pitfalls: string[]}>
-        "scenarios": [                      // Array<{situation: string, expected_response: string, evaluation_criteria: string[]}>
-          {
-            "situation": "",              // Practice scenario
-            "expected_response": "",      // Ideal response
-            "evaluation_criteria": []       // Assessment criteria
-          }
-        ]
-      }
-    }
-  }
+Development Planning:
+- Prioritize immediate development areas (high/medium/low importance)
+- Create specific 30/60/90-day goals with success criteria
+- Recommend targeted exercises and learning resources
+- Design practice scenarios for interview preparation
 
-  Analysis Guidelines:
-  1. Evaluate against industry standards and role requirements
-  2. Identify patterns in communication and problem-solving
-  3. Assess both explicit and implicit competencies
-  4. Consider company culture and team dynamics
-  5. Project future potential and growth trajectory
-  6. Analyze response effectiveness and impact
-  7. Evaluate leadership and advancement potential
-  8. Consider market positioning and competitive advantage
-  9. Identify unique value propositions
-  10. Assess cultural fit and adaptability
+EVIDENCE REQUIREMENTS:
+- Quote specific conversation excerpts for all assessments
+- Reference resume details when evaluating experience alignment
+- Provide concrete reasoning for all numerical scores
+- Include industry-specific insights and benchmarks
 
-  Response Requirements:
-  - Provide specific examples from the conversation
-  - Include measurable metrics and benchmarks
-  - Offer detailed, actionable feedback
-  - Suggest concrete improvement strategies
-  - Include industry-specific insights
-  - Reference relevant best practices
-  - Provide timeline-based development plans
-  - Include practice scenarios and exercises
-  - Offer resource recommendations
-  - Suggest follow-up strategies
-
-  The analysis should be:
-  - Comprehensive yet focused
-  - Data-driven yet practical
-  - Critical yet constructive
-  - Forward-looking yet immediately applicable
-  - Detailed yet clear
-  - Professional yet empathetic
-  - Strategic yet tactical
-  - Theoretical yet implementable
-  - Analytical yet intuitive
-  - Thorough yet prioritized
-  - Exhaustively detailed (minimum 2-3 sentences per text field)
-
-  IMPORTANT INSTRUCTIONS:
-  1. You MUST provide detailed content for EVERY field in the JSON structure. No field should be left empty.
-  2. For string fields, provide at least 2-3 sentences of detailed analysis.
-  3. For array fields, include at least 3-5 detailed items.
-  4. All feedback must reference specific examples from the conversation or resume.
-  5. When suggesting improvements, be extremely specific with actionable steps.
-`;
+CONTENT STANDARDS:
+- Minimum 2-3 detailed sentences for all text fields
+- Minimum 3-5 substantive items for all array fields
+- All feedback must be actionable and specific
+- Include both strengths and improvement areas with balanced perspective`;
 };
 
 export const applicationFeedbackPrompt = ({
@@ -437,49 +257,70 @@ export const applicationFeedbackPrompt = ({
   jobDescription,
   parsedResume,
 }) => {
-  return `You are an elite career coach and resume strategist with over 15 years of experience in helping professionals secure roles at top companies. Your expertise lies in transforming resumes into compelling narratives that highlight a candidate's unique value proposition and align perfectly with target roles.
+  return `You are a senior career strategist specializing in resume optimization for competitive tech roles. Transform this resume to maximize alignment with the target position while maintaining authenticity.
 
-  INPUT DATA:
-  Company Name: ${companyName}
-  Job Role: ${jobRole}
-  Job Description: ${jobDescription}
-  Resume: ${parsedResume}
+TARGET OPPORTUNITY:
+Company: ${companyName}
+Position: ${jobRole}
+Requirements: ${jobDescription}
 
-  Provide extremely specific, actionable feedback that focuses on:
+CURRENT RESUME:
+${parsedResume}
 
-  1. Strategic Positioning:
-    - How to position existing experience to match job requirements
-    - Ways to demonstrate required skills through accomplishments
-    - Opportunities to showcase leadership and impact
+OPTIMIZATION FRAMEWORK:
 
-  2. Achievement Enhancement:
-    - Transform generic statements into powerful accomplishments
-    - Add missing metrics and quantifiable results
-    - Highlight projects and initiatives that align with the role
+Core Alignment Analysis:
+- Calculate role fit score (0-100) based on requirements matching
+- Identify key strengths that align with job requirements
+- Highlight critical gaps in must-have qualifications
 
-  3. Keyword and Skills Integration:
-    - Natural placement of job-specific keywords
-    - Technical and soft skills demonstration
-    - Industry-specific terminology alignment
+Keyword Strategy:
+- Extract missing critical terms from job description
+- Classify keyword importance (Critical/High/Medium priority)
+- Provide exact text suggestions with strategic placement locations
+- Enhance existing keywords with stronger presentation
 
-  4. Professional Narrative:
-    - Career progression story enhancement
-    - Achievement context and impact
-    - Unique value proposition development
+Experience Enhancement:
+- Transform generic achievement bullets into impact-focused statements
+- Add quantifiable metrics to demonstrate value delivery
+- Reframe existing experiences to show relevance to target role requirements
+- Strengthen narrative flow and career progression story
 
-  5. Competitive Differentiation:
-    - Standout experiences and achievements
-    - Unique combinations of skills and experiences
-    - Industry-specific expertise demonstration
+Skills Optimization:
+- Prioritize technical skills additions based on job requirements
+- Identify skills needing better prominence or reframing
+- Enhance soft skills demonstration through concrete examples
+- Align technical terminology with industry standards
 
-  For each suggestion, provide:
-  - Exact current text
-  - Specific replacement text
-  - Strategic rationale
-  - Expected impact
-  - Priority level
+Professional Narrative Strengthening:
+- Optimize professional summary for target role alignment
+- Enhance career story elements for maximum strategic impact
+- Develop unique value proposition messaging
+- Improve competitive differentiation positioning
 
-  Focus on transformative changes that will make the resume stand out while maintaining authenticity and accuracy. Emphasize modifications that demonstrate the candidate's ability to deliver value in the target role.`;
+Impact Metrics Enhancement:
+- Identify achievements requiring quantification
+- Suggest specific metrics and data points to gather
+- Enhance existing metrics presentation for greater impact
+- Provide measurement frameworks for ongoing accomplishments
+
+Industry Alignment:
+- Emphasize domain expertise relevant to company/role
+- Highlight cultural fit indicators and company value alignment
+- Strengthen industry-specific knowledge demonstration
+- Position candidate expertise within industry context
+
+Action Prioritization:
+- Immediate high-impact changes for quick wins
+- Strategic enhancements for competitive advantage
+- Long-term career development recommendations
+
+DELIVERABLE REQUIREMENTS:
+- Provide exact before/after text examples for all suggestions
+- Include strategic rationale for each recommendation
+- Specify placement locations and formatting guidance
+- Prioritize changes by expected impact level
+- Ensure all suggestions maintain resume authenticity and accuracy`;
 };
 
 export const interviewTemplateSelectionPrompt = ({
@@ -589,377 +430,4 @@ Analyze the following areas:
 
 Provide detailed, constructive feedback with specific examples and actionable recommendations. Score each area from 0-10 and provide comprehensive analysis focused on audio-only elements.
 `;
-};
-
-export const getMediaAnalysisSchema = (mediaType) => {
-  const baseSchema = {
-    type: "object",
-    properties: {
-      type: {
-        type: "string",
-        enum: [mediaType],
-        description: `Type of media being analyzed: ${mediaType}`,
-      },
-      communicationSkills: {
-        type: "object",
-        properties: {
-          clarity: {
-            type: "object",
-            properties: {
-              score: {
-                type: "number",
-                minimum: 0,
-                maximum: 10,
-                description: "Score for speech clarity (0-10)",
-              },
-              feedback: {
-                type: "string",
-                description:
-                  "Detailed feedback on speech clarity with specific examples",
-              },
-              examples: {
-                type: "array",
-                items: { type: "string" },
-                description:
-                  "Specific examples from the interview demonstrating clarity",
-              },
-            },
-            required: ["score", "feedback", "examples"],
-          },
-          articulation: {
-            type: "object",
-            properties: {
-              score: { type: "number", minimum: 0, maximum: 10 },
-              feedback: {
-                type: "string",
-                description: "Feedback on articulation and pronunciation",
-              },
-              examples: { type: "array", items: { type: "string" } },
-            },
-            required: ["score", "feedback", "examples"],
-          },
-          pace: {
-            type: "object",
-            properties: {
-              score: { type: "number", minimum: 0, maximum: 10 },
-              feedback: {
-                type: "string",
-                description: "Feedback on speaking pace and rhythm",
-              },
-              examples: { type: "array", items: { type: "string" } },
-            },
-            required: ["score", "feedback", "examples"],
-          },
-          confidence: {
-            type: "object",
-            properties: {
-              score: { type: "number", minimum: 0, maximum: 10 },
-              feedback: {
-                type: "string",
-                description: "Assessment of confidence in delivery",
-              },
-              indicators: {
-                type: "array",
-                items: { type: "string" },
-                description:
-                  "Specific indicators of confidence or lack thereof",
-              },
-            },
-            required: ["score", "feedback", "indicators"],
-          },
-        },
-        required: ["clarity", "articulation", "pace", "confidence"],
-      },
-      audioQuality: {
-        type: "object",
-        properties: {
-          clarity: {
-            type: "object",
-            properties: {
-              score: { type: "number", minimum: 0, maximum: 10 },
-              feedback: {
-                type: "string",
-                description: "Assessment of audio clarity",
-              },
-              issues: {
-                type: "array",
-                items: { type: "string" },
-                description: "Specific audio clarity issues identified",
-              },
-            },
-            required: ["score", "feedback", "issues"],
-          },
-          volume: {
-            type: "object",
-            properties: {
-              score: { type: "number", minimum: 0, maximum: 10 },
-              feedback: {
-                type: "string",
-                description: "Assessment of audio volume levels",
-              },
-              notes: {
-                type: "array",
-                items: { type: "string" },
-                description:
-                  "Notes about volume consistency and appropriateness",
-              },
-            },
-            required: ["score", "feedback", "notes"],
-          },
-          background: {
-            type: "object",
-            properties: {
-              score: { type: "number", minimum: 0, maximum: 10 },
-              feedback: {
-                type: "string",
-                description: "Assessment of background noise and environment",
-              },
-              distractions: {
-                type: "array",
-                items: { type: "string" },
-                description: "Specific background distractions or noise issues",
-              },
-            },
-            required: ["score", "feedback", "distractions"],
-          },
-        },
-        required: ["clarity", "volume", "background"],
-      },
-      overallPerformance: {
-        type: "object",
-        properties: {
-          professionalism: {
-            type: "object",
-            properties: {
-              score: { type: "number", minimum: 0, maximum: 10 },
-              feedback: {
-                type: "string",
-                description: "Assessment of overall professionalism",
-              },
-              examples: {
-                type: "array",
-                items: { type: "string" },
-                description:
-                  "Examples of professional or unprofessional behavior",
-              },
-            },
-            required: ["score", "feedback", "examples"],
-          },
-          engagement: {
-            type: "object",
-            properties: {
-              score: { type: "number", minimum: 0, maximum: 10 },
-              feedback: {
-                type: "string",
-                description: "Assessment of engagement level",
-              },
-              indicators: {
-                type: "array",
-                items: { type: "string" },
-                description: "Indicators of engagement or disengagement",
-              },
-            },
-            required: ["score", "feedback", "indicators"],
-          },
-          readiness: {
-            type: "object",
-            properties: {
-              score: { type: "number", minimum: 0, maximum: 10 },
-              feedback: {
-                type: "string",
-                description: "Assessment of interview readiness",
-              },
-              assessment: {
-                type: "string",
-                description: "Overall readiness assessment and recommendations",
-              },
-            },
-            required: ["score", "feedback", "assessment"],
-          },
-        },
-        required: ["professionalism", "engagement", "readiness"],
-      },
-      recommendations: {
-        type: "object",
-        properties: {
-          immediate: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                area: {
-                  type: "string",
-                  description: "Area needing immediate attention",
-                },
-                suggestion: {
-                  type: "string",
-                  description: "Specific suggestion for improvement",
-                },
-                priority: {
-                  type: "string",
-                  enum: ["high", "medium", "low"],
-                  description: "Priority level for this recommendation",
-                },
-              },
-              required: ["area", "suggestion", "priority"],
-            },
-            description: "Immediate areas for improvement",
-          },
-          practice: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                skill: { type: "string", description: "Skill to practice" },
-                exercise: {
-                  type: "string",
-                  description: "Specific practice exercise",
-                },
-                frequency: {
-                  type: "string",
-                  description: "Recommended practice frequency",
-                },
-              },
-              required: ["skill", "exercise", "frequency"],
-            },
-            description: "Practice exercises and recommendations",
-          },
-          resources: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                type: { type: "string", description: "Type of resource" },
-                description: {
-                  type: "string",
-                  description: "Description of the resource",
-                },
-                link: {
-                  type: "string",
-                  description: "Link to the resource (if available)",
-                },
-              },
-              required: ["type", "description", "link"],
-            },
-            description: "Helpful resources for improvement",
-          },
-        },
-        required: ["immediate", "practice", "resources"],
-      },
-      summary: {
-        type: "object",
-        properties: {
-          strengths: {
-            type: "array",
-            items: { type: "string" },
-            description: "Key strengths identified in the interview",
-          },
-          weaknesses: {
-            type: "array",
-            items: { type: "string" },
-            description: "Areas needing improvement",
-          },
-          keyInsights: {
-            type: "array",
-            items: { type: "string" },
-            description: "Key insights and observations",
-          },
-          overallScore: {
-            type: "number",
-            minimum: 0,
-            maximum: 10,
-            description: "Overall interview performance score",
-          },
-        },
-        required: ["strengths", "weaknesses", "keyInsights", "overallScore"],
-      },
-    },
-    required: [
-      "type",
-      "communicationSkills",
-      "audioQuality",
-      "overallPerformance",
-      "recommendations",
-      "summary",
-    ],
-  };
-
-  // Add bodyLanguage for video analysis
-  if (mediaType === "video") {
-    baseSchema.properties.bodyLanguage = {
-      type: "object",
-      properties: {
-        posture: {
-          type: "object",
-          properties: {
-            score: { type: "number", minimum: 0, maximum: 10 },
-            feedback: {
-              type: "string",
-              description: "Assessment of posture and positioning",
-            },
-            observations: {
-              type: "array",
-              items: { type: "string" },
-              description: "Specific observations about posture",
-            },
-          },
-          required: ["score", "feedback", "observations"],
-        },
-        eyeContact: {
-          type: "object",
-          properties: {
-            score: { type: "number", minimum: 0, maximum: 10 },
-            feedback: {
-              type: "string",
-              description: "Assessment of eye contact with camera",
-            },
-            observations: {
-              type: "array",
-              items: { type: "string" },
-              description: "Observations about eye contact patterns",
-            },
-          },
-          required: ["score", "feedback", "observations"],
-        },
-        gestures: {
-          type: "object",
-          properties: {
-            score: { type: "number", minimum: 0, maximum: 10 },
-            feedback: {
-              type: "string",
-              description: "Assessment of hand gestures and movements",
-            },
-            observations: {
-              type: "array",
-              items: { type: "string" },
-              description: "Observations about gesture use and effectiveness",
-            },
-          },
-          required: ["score", "feedback", "observations"],
-        },
-        presence: {
-          type: "object",
-          properties: {
-            score: { type: "number", minimum: 0, maximum: 10 },
-            feedback: {
-              type: "string",
-              description: "Assessment of overall visual presence",
-            },
-            observations: {
-              type: "array",
-              items: { type: "string" },
-              description: "Observations about overall presence and demeanor",
-            },
-          },
-          required: ["score", "feedback", "observations"],
-        },
-      },
-      required: ["posture", "eyeContact", "gestures", "presence"],
-    };
-
-    // Add bodyLanguage to required fields for video
-    baseSchema.required.push("bodyLanguage");
-  }
-
-  return baseSchema;
 };
