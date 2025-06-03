@@ -514,3 +514,452 @@ export const interviewTemplateSelectionPrompt = ({
         - Technical skill requirements
         - Role seniority level`;
 };
+
+export const videoAnalysisPrompt = () => {
+  return `
+You are an expert interview analyst specializing in video interview assessment. Please analyze this interview video comprehensively, focusing on both visual and audio elements.
+
+Analyze the following areas:
+
+1. **Communication Skills**: 
+   - Clarity of speech and articulation
+   - Speaking pace and rhythm
+   - Confidence in delivery
+   - Provide specific examples from the interview
+
+2. **Body Language** (Video-specific):
+   - Posture and professional presence
+   - Eye contact with camera/interviewer
+   - Hand gestures and facial expressions
+   - Overall visual engagement
+
+3. **Audio Quality**:
+   - Voice clarity and volume
+   - Background noise or distractions
+   - Technical audio issues
+
+4. **Overall Performance**:
+   - Professionalism and interview readiness
+   - Engagement level and enthusiasm
+   - Interview preparedness
+
+5. **Recommendations**:
+   - Immediate areas for improvement
+   - Practice exercises and techniques
+   - Helpful resources
+
+Provide detailed, constructive feedback with specific examples and actionable recommendations. Score each area from 0-10 and provide comprehensive analysis.
+`;
+};
+
+export const audioAnalysisPrompt = () => {
+  return `
+You are an expert interview analyst specializing in audio-only interview assessment. Please analyze this interview audio comprehensively, focusing on vocal and communication elements.
+
+Analyze the following areas:
+
+1. **Communication Skills**: 
+   - Clarity of speech and articulation
+   - Speaking pace and rhythm
+   - Confidence in vocal delivery
+   - Provide specific examples from the interview
+
+2. **Audio Quality**:
+   - Voice clarity and volume levels
+   - Background noise or distractions
+   - Technical audio issues
+   - Overall audio professionalism
+
+3. **Vocal Performance**:
+   - Tone and inflection
+   - Energy and enthusiasm
+   - Professional vocal presence
+   - Verbal communication effectiveness
+
+4. **Overall Performance**:
+   - Professionalism in audio presentation
+   - Engagement level through voice
+   - Interview preparedness and readiness
+
+5. **Recommendations**:
+   - Immediate areas for vocal improvement
+   - Practice exercises for better audio presence
+   - Technical setup recommendations
+   - Helpful resources for audio interview skills
+
+Provide detailed, constructive feedback with specific examples and actionable recommendations. Score each area from 0-10 and provide comprehensive analysis focused on audio-only elements.
+`;
+};
+
+export const getMediaAnalysisSchema = (mediaType) => {
+  const baseSchema = {
+    type: "object",
+    properties: {
+      type: {
+        type: "string",
+        enum: [mediaType],
+        description: `Type of media being analyzed: ${mediaType}`,
+      },
+      communicationSkills: {
+        type: "object",
+        properties: {
+          clarity: {
+            type: "object",
+            properties: {
+              score: {
+                type: "number",
+                minimum: 0,
+                maximum: 10,
+                description: "Score for speech clarity (0-10)",
+              },
+              feedback: {
+                type: "string",
+                description:
+                  "Detailed feedback on speech clarity with specific examples",
+              },
+              examples: {
+                type: "array",
+                items: { type: "string" },
+                description:
+                  "Specific examples from the interview demonstrating clarity",
+              },
+            },
+            required: ["score", "feedback", "examples"],
+          },
+          articulation: {
+            type: "object",
+            properties: {
+              score: { type: "number", minimum: 0, maximum: 10 },
+              feedback: {
+                type: "string",
+                description: "Feedback on articulation and pronunciation",
+              },
+              examples: { type: "array", items: { type: "string" } },
+            },
+            required: ["score", "feedback", "examples"],
+          },
+          pace: {
+            type: "object",
+            properties: {
+              score: { type: "number", minimum: 0, maximum: 10 },
+              feedback: {
+                type: "string",
+                description: "Feedback on speaking pace and rhythm",
+              },
+              examples: { type: "array", items: { type: "string" } },
+            },
+            required: ["score", "feedback", "examples"],
+          },
+          confidence: {
+            type: "object",
+            properties: {
+              score: { type: "number", minimum: 0, maximum: 10 },
+              feedback: {
+                type: "string",
+                description: "Assessment of confidence in delivery",
+              },
+              indicators: {
+                type: "array",
+                items: { type: "string" },
+                description:
+                  "Specific indicators of confidence or lack thereof",
+              },
+            },
+            required: ["score", "feedback", "indicators"],
+          },
+        },
+        required: ["clarity", "articulation", "pace", "confidence"],
+      },
+      audioQuality: {
+        type: "object",
+        properties: {
+          clarity: {
+            type: "object",
+            properties: {
+              score: { type: "number", minimum: 0, maximum: 10 },
+              feedback: {
+                type: "string",
+                description: "Assessment of audio clarity",
+              },
+              issues: {
+                type: "array",
+                items: { type: "string" },
+                description: "Specific audio clarity issues identified",
+              },
+            },
+            required: ["score", "feedback", "issues"],
+          },
+          volume: {
+            type: "object",
+            properties: {
+              score: { type: "number", minimum: 0, maximum: 10 },
+              feedback: {
+                type: "string",
+                description: "Assessment of audio volume levels",
+              },
+              notes: {
+                type: "array",
+                items: { type: "string" },
+                description:
+                  "Notes about volume consistency and appropriateness",
+              },
+            },
+            required: ["score", "feedback", "notes"],
+          },
+          background: {
+            type: "object",
+            properties: {
+              score: { type: "number", minimum: 0, maximum: 10 },
+              feedback: {
+                type: "string",
+                description: "Assessment of background noise and environment",
+              },
+              distractions: {
+                type: "array",
+                items: { type: "string" },
+                description: "Specific background distractions or noise issues",
+              },
+            },
+            required: ["score", "feedback", "distractions"],
+          },
+        },
+        required: ["clarity", "volume", "background"],
+      },
+      overallPerformance: {
+        type: "object",
+        properties: {
+          professionalism: {
+            type: "object",
+            properties: {
+              score: { type: "number", minimum: 0, maximum: 10 },
+              feedback: {
+                type: "string",
+                description: "Assessment of overall professionalism",
+              },
+              examples: {
+                type: "array",
+                items: { type: "string" },
+                description:
+                  "Examples of professional or unprofessional behavior",
+              },
+            },
+            required: ["score", "feedback", "examples"],
+          },
+          engagement: {
+            type: "object",
+            properties: {
+              score: { type: "number", minimum: 0, maximum: 10 },
+              feedback: {
+                type: "string",
+                description: "Assessment of engagement level",
+              },
+              indicators: {
+                type: "array",
+                items: { type: "string" },
+                description: "Indicators of engagement or disengagement",
+              },
+            },
+            required: ["score", "feedback", "indicators"],
+          },
+          readiness: {
+            type: "object",
+            properties: {
+              score: { type: "number", minimum: 0, maximum: 10 },
+              feedback: {
+                type: "string",
+                description: "Assessment of interview readiness",
+              },
+              assessment: {
+                type: "string",
+                description: "Overall readiness assessment and recommendations",
+              },
+            },
+            required: ["score", "feedback", "assessment"],
+          },
+        },
+        required: ["professionalism", "engagement", "readiness"],
+      },
+      recommendations: {
+        type: "object",
+        properties: {
+          immediate: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                area: {
+                  type: "string",
+                  description: "Area needing immediate attention",
+                },
+                suggestion: {
+                  type: "string",
+                  description: "Specific suggestion for improvement",
+                },
+                priority: {
+                  type: "string",
+                  enum: ["high", "medium", "low"],
+                  description: "Priority level for this recommendation",
+                },
+              },
+              required: ["area", "suggestion", "priority"],
+            },
+            description: "Immediate areas for improvement",
+          },
+          practice: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                skill: { type: "string", description: "Skill to practice" },
+                exercise: {
+                  type: "string",
+                  description: "Specific practice exercise",
+                },
+                frequency: {
+                  type: "string",
+                  description: "Recommended practice frequency",
+                },
+              },
+              required: ["skill", "exercise", "frequency"],
+            },
+            description: "Practice exercises and recommendations",
+          },
+          resources: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                type: { type: "string", description: "Type of resource" },
+                description: {
+                  type: "string",
+                  description: "Description of the resource",
+                },
+                link: {
+                  type: "string",
+                  description: "Link to the resource (if available)",
+                },
+              },
+              required: ["type", "description", "link"],
+            },
+            description: "Helpful resources for improvement",
+          },
+        },
+        required: ["immediate", "practice", "resources"],
+      },
+      summary: {
+        type: "object",
+        properties: {
+          strengths: {
+            type: "array",
+            items: { type: "string" },
+            description: "Key strengths identified in the interview",
+          },
+          weaknesses: {
+            type: "array",
+            items: { type: "string" },
+            description: "Areas needing improvement",
+          },
+          keyInsights: {
+            type: "array",
+            items: { type: "string" },
+            description: "Key insights and observations",
+          },
+          overallScore: {
+            type: "number",
+            minimum: 0,
+            maximum: 10,
+            description: "Overall interview performance score",
+          },
+        },
+        required: ["strengths", "weaknesses", "keyInsights", "overallScore"],
+      },
+    },
+    required: [
+      "type",
+      "communicationSkills",
+      "audioQuality",
+      "overallPerformance",
+      "recommendations",
+      "summary",
+    ],
+  };
+
+  // Add bodyLanguage for video analysis
+  if (mediaType === "video") {
+    baseSchema.properties.bodyLanguage = {
+      type: "object",
+      properties: {
+        posture: {
+          type: "object",
+          properties: {
+            score: { type: "number", minimum: 0, maximum: 10 },
+            feedback: {
+              type: "string",
+              description: "Assessment of posture and positioning",
+            },
+            observations: {
+              type: "array",
+              items: { type: "string" },
+              description: "Specific observations about posture",
+            },
+          },
+          required: ["score", "feedback", "observations"],
+        },
+        eyeContact: {
+          type: "object",
+          properties: {
+            score: { type: "number", minimum: 0, maximum: 10 },
+            feedback: {
+              type: "string",
+              description: "Assessment of eye contact with camera",
+            },
+            observations: {
+              type: "array",
+              items: { type: "string" },
+              description: "Observations about eye contact patterns",
+            },
+          },
+          required: ["score", "feedback", "observations"],
+        },
+        gestures: {
+          type: "object",
+          properties: {
+            score: { type: "number", minimum: 0, maximum: 10 },
+            feedback: {
+              type: "string",
+              description: "Assessment of hand gestures and movements",
+            },
+            observations: {
+              type: "array",
+              items: { type: "string" },
+              description: "Observations about gesture use and effectiveness",
+            },
+          },
+          required: ["score", "feedback", "observations"],
+        },
+        presence: {
+          type: "object",
+          properties: {
+            score: { type: "number", minimum: 0, maximum: 10 },
+            feedback: {
+              type: "string",
+              description: "Assessment of overall visual presence",
+            },
+            observations: {
+              type: "array",
+              items: { type: "string" },
+              description: "Observations about overall presence and demeanor",
+            },
+          },
+          required: ["score", "feedback", "observations"],
+        },
+      },
+      required: ["posture", "eyeContact", "gestures", "presence"],
+    };
+
+    // Add bodyLanguage to required fields for video
+    baseSchema.required.push("bodyLanguage");
+  }
+
+  return baseSchema;
+};
