@@ -1,4 +1,8 @@
 import mongoose, { Schema } from "mongoose";
+import {
+  InterviewReportStatus,
+  InterviewReportStatusValues,
+} from "../utils/constants.js";
 
 const interviewReportSchema = new Schema(
   {
@@ -223,6 +227,11 @@ const interviewReportSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+    status: {
+      type: String,
+      enum: InterviewReportStatusValues,
+      default: InterviewReportStatus.PENDING,
     },
     mediaAnalysis: {
       type: {
@@ -511,7 +520,9 @@ const interviewReportSchema = new Schema(
           ],
           resources: [
             {
-              type: String,
+              type: {
+                type: String,
+              },
               description: String,
               link: String,
               _id: false,

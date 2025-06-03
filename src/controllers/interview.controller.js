@@ -21,6 +21,7 @@ import {
 } from "../utils/prompts.js";
 import { interviewReportSchema } from "../utils/schemas.js";
 import { queueMediaAnalysis } from "./mediaAnalysis.controller.js";
+import { InterviewReportStatus } from "../utils/constants.js";
 
 const vapiClient = new VapiClient({ token: process.env.VAPI_API_KEY });
 
@@ -351,7 +352,7 @@ const getOrGenerateReport = asyncHandler(async (req, res) => {
     interviewId,
   });
 
-  if (existingInterviewReport) {
+  if (existingInterviewReport?.status === "completed") {
     return res.status(200).json(
       new ApiResponse(
         200,
@@ -382,8 +383,8 @@ const getOrGenerateReport = asyncHandler(async (req, res) => {
     maxTokens: 10000,
   });
 
-  const interviewReport = await InterviewReport.findByIdAndUpdate(
-    interviewId,
+  const interviewReport = await InterviewReport.findOneAndUpdate(
+    { interviewId },
     {
       technicalAssessment: aiResponse.technicalAssessment,
       behavioralAnalysis: aiResponse.behavioralAnalysis,
@@ -391,6 +392,7 @@ const getOrGenerateReport = asyncHandler(async (req, res) => {
       roleAlignment: aiResponse.roleAlignment,
       performanceMetrics: aiResponse.performanceMetrics,
       developmentPlan: aiResponse.developmentPlan,
+      status: InterviewReportStatus.COMPLETED,
     },
     { new: true }
   );
