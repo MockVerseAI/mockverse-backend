@@ -224,33 +224,337 @@ const interviewReportSchema = new Schema(
       ref: "User",
       required: true,
     },
-    videoAnalysis: {
+    mediaAnalysis: {
+      type: {
+        type: String,
+        enum: ["video", "audio"],
+        default: null,
+      },
       analysis: {
-        type: String,
-        default: null,
-      },
-      googleFileUri: {
-        type: String,
-        default: null,
-      },
-      googleFileName: {
-        type: String,
-        default: null,
+        communicationSkills: {
+          clarity: {
+            score: {
+              type: Number,
+              min: 0,
+              max: 10,
+              default: null,
+            },
+            feedback: {
+              type: String,
+              default: null,
+            },
+            examples: [
+              {
+                type: String,
+                _id: false,
+              },
+            ],
+          },
+          articulation: {
+            score: {
+              type: Number,
+              min: 0,
+              max: 10,
+              default: null,
+            },
+            feedback: {
+              type: String,
+              default: null,
+            },
+            examples: [
+              {
+                type: String,
+                _id: false,
+              },
+            ],
+          },
+          pace: {
+            score: {
+              type: Number,
+              min: 0,
+              max: 10,
+              default: null,
+            },
+            feedback: {
+              type: String,
+              default: null,
+            },
+            examples: [
+              {
+                type: String,
+                _id: false,
+              },
+            ],
+          },
+          confidence: {
+            score: {
+              type: Number,
+              min: 0,
+              max: 10,
+              default: null,
+            },
+            feedback: {
+              type: String,
+              default: null,
+            },
+            indicators: [
+              {
+                type: String,
+                _id: false,
+              },
+            ],
+          },
+        },
+        bodyLanguage: {
+          posture: {
+            score: {
+              type: Number,
+              min: 0,
+              max: 10,
+              default: null,
+            },
+            feedback: {
+              type: String,
+              default: null,
+            },
+            observations: [
+              {
+                type: String,
+                _id: false,
+              },
+            ],
+          },
+          eyeContact: {
+            score: {
+              type: Number,
+              min: 0,
+              max: 10,
+              default: null,
+            },
+            feedback: {
+              type: String,
+              default: null,
+            },
+            observations: [
+              {
+                type: String,
+                _id: false,
+              },
+            ],
+          },
+          gestures: {
+            score: {
+              type: Number,
+              min: 0,
+              max: 10,
+              default: null,
+            },
+            feedback: {
+              type: String,
+              default: null,
+            },
+            observations: [
+              {
+                type: String,
+                _id: false,
+              },
+            ],
+          },
+          presence: {
+            score: {
+              type: Number,
+              min: 0,
+              max: 10,
+              default: null,
+            },
+            feedback: {
+              type: String,
+              default: null,
+            },
+            observations: [
+              {
+                type: String,
+                _id: false,
+              },
+            ],
+          },
+        },
+        audioQuality: {
+          clarity: {
+            score: {
+              type: Number,
+              min: 0,
+              max: 10,
+              default: null,
+            },
+            feedback: {
+              type: String,
+              default: null,
+            },
+            issues: [
+              {
+                type: String,
+                _id: false,
+              },
+            ],
+          },
+          volume: {
+            score: {
+              type: Number,
+              min: 0,
+              max: 10,
+              default: null,
+            },
+            feedback: {
+              type: String,
+              default: null,
+            },
+            notes: [
+              {
+                type: String,
+                _id: false,
+              },
+            ],
+          },
+          background: {
+            score: {
+              type: Number,
+              min: 0,
+              max: 10,
+              default: null,
+            },
+            feedback: {
+              type: String,
+              default: null,
+            },
+            distractions: [
+              {
+                type: String,
+                _id: false,
+              },
+            ],
+          },
+        },
+        overallPerformance: {
+          professionalism: {
+            score: {
+              type: Number,
+              min: 0,
+              max: 10,
+              default: null,
+            },
+            feedback: {
+              type: String,
+              default: null,
+            },
+            examples: [
+              {
+                type: String,
+                _id: false,
+              },
+            ],
+          },
+          engagement: {
+            score: {
+              type: Number,
+              min: 0,
+              max: 10,
+              default: null,
+            },
+            feedback: {
+              type: String,
+              default: null,
+            },
+            indicators: [
+              {
+                type: String,
+                _id: false,
+              },
+            ],
+          },
+          readiness: {
+            score: {
+              type: Number,
+              min: 0,
+              max: 10,
+              default: null,
+            },
+            feedback: {
+              type: String,
+              default: null,
+            },
+            assessment: {
+              type: String,
+              default: null,
+            },
+          },
+        },
+        recommendations: {
+          immediate: [
+            {
+              area: String,
+              suggestion: String,
+              priority: {
+                type: String,
+                enum: ["high", "medium", "low"],
+              },
+              _id: false,
+            },
+          ],
+          practice: [
+            {
+              skill: String,
+              exercise: String,
+              frequency: String,
+              _id: false,
+            },
+          ],
+          resources: [
+            {
+              type: String,
+              description: String,
+              link: String,
+              _id: false,
+            },
+          ],
+        },
+        summary: {
+          strengths: [
+            {
+              type: String,
+              _id: false,
+            },
+          ],
+          weaknesses: [
+            {
+              type: String,
+              _id: false,
+            },
+          ],
+          keyInsights: [
+            {
+              type: String,
+              _id: false,
+            },
+          ],
+          overallScore: {
+            type: Number,
+            min: 0,
+            max: 10,
+            default: null,
+          },
+        },
       },
       analyzedAt: {
         type: Date,
         default: null,
       },
-      fileSize: {
+      isCompleted: {
+        type: Boolean,
+        default: false,
+      },
+      processingDuration: {
         type: Number,
-        default: null,
-      },
-      error: {
-        type: String,
-        default: null,
-      },
-      failedAt: {
-        type: Date,
         default: null,
       },
     },

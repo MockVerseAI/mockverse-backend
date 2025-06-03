@@ -343,7 +343,7 @@ export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
   try {
     const start = performance.now();
 
-    const resumeModel = google("gemini-2.0-flash-lite-preview-02-05");
+    const resumeModel = google("gemini-2.0-flash-lite");
 
     const { text, usage, warnings, response } = await generateText({
       model: resumeModel,

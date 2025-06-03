@@ -9,8 +9,8 @@
     "start:no-worker": "START_WORKER=false node --experimental-loader=newrelic/esm-loader.mjs ./src/index.js",
     "dev": "nodemon ./src/index.js",
     "dev:no-worker": "START_WORKER=false nodemon ./src/index.js",
-    "worker:video": "node ./src/workers/videoAnalysis.worker.js",
-    "worker:video:dev": "nodemon ./src/workers/videoAnalysis.worker.js",
+    "worker:media": "node ./src/workers/mediaAnalysis.worker.js",
+    "worker:media:dev": "nodemon ./src/workers/mediaAnalysis.worker.js",
     "prepare": "husky",
     "lint-staged": "npx lint-staged"
   },
@@ -26,6 +26,7 @@
     "@aws-sdk/client-s3": "^3.624.0",
     "@deepgram/sdk": "^3.11.2",
     "@google/genai": "^1.0.0",
+    "@socket.io/redis-adapter": "^8.3.0",
     "@vapi-ai/server-sdk": "^0.5.1",
     "ai": "^4.1.24",
     "ai-fallback": "^0.1.1",
@@ -51,6 +52,7 @@
     "passport": "^0.7.0",
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
+    "socket.io": "^4.8.1",
     "winston": "^3.17.0",
     "xss": "^1.0.15"
   },
