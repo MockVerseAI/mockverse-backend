@@ -210,6 +210,8 @@ export const analyzeMediaWithLLM = async (file, mediaType, interviewId) => {
     const analysisText = result.text;
     let analysis;
 
+    console.log(analysisText);
+
     try {
       analysis = JSON.parse(analysisText);
       logger.info(
