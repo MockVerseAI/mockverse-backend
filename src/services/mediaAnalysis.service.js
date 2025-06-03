@@ -7,12 +7,9 @@ import logger from "../logger/winston.logger.js";
 import { Interview } from "../models/interview.model.js";
 import { InterviewReport } from "../models/interviewReport.model.js";
 import { ApiError } from "../utils/ApiError.js";
-import {
-  videoAnalysisPrompt,
-  audioAnalysisPrompt,
-  getMediaAnalysisSchema,
-} from "../utils/prompts.js";
+import { videoAnalysisPrompt, audioAnalysisPrompt } from "../utils/prompts.js";
 import { emitToRoom, EVENTS } from "./websocket.service.js";
+import { getMediaAnalysisSchema } from "../utils/schemas.js";
 
 /**
  * Singleton Google Generative AI client instance
