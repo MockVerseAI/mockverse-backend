@@ -9,21 +9,21 @@ export const applicationFeedbackSchema = z
           .min(0)
           .max(100)
           .describe(
-            "Honest role fit score using full 0-100 range. Use 0-30 for major mismatches (different industries/skills), 20-40 for career pivots without relevant experience, 40-70 for adequate matches with gaps, 70-100 for strong matches. Be realistic about fundamental role misalignment."
+            "Thoughtful role fit score using full 0-100 range. Use 30-50 for career transitions with development potential, 50-70 for good matches with skill gaps, 70-100 for strong matches. Reserve very low scores (0-30) only for fundamental role misalignment."
           ),
         key_matches: z
           .array(z.string())
           .describe(
-            "Genuine areas where candidate strongly matches job requirements. Be specific about actual demonstrated skills and experiences, not potential or transferable skills from different domains."
+            "Areas where candidate demonstrates strong alignment with job requirements. Focus on actual demonstrated skills and relevant experiences that provide a solid foundation."
           ),
         critical_gaps: z
           .array(z.string())
           .describe(
-            "Essential requirements that are completely missing and would be deal-breakers. Categorize as CRITICAL (immediate disqualifiers), HIGH (major concerns), or MEDIUM (addressable gaps). Be direct about fundamental missing qualifications."
+            "Important requirements that need development. Categorize as HIGH PRIORITY (essential for competitiveness), MEDIUM (important improvements), or DEVELOPMENT OPPORTUNITY (areas for growth). Frame constructively with focus on learning paths."
           ),
       })
       .describe(
-        "Realistic analysis of role fit including honest assessment of major mismatches and fundamental gaps"
+        "Balanced analysis of role fit including honest assessment while focusing on growth potential and development opportunities"
       ),
 
     keyword_optimization: z
@@ -35,35 +35,35 @@ export const applicationFeedbackSchema = z
                 .string()
                 .min(1)
                 .describe(
-                  "Critical technical term or skill from job description that's completely absent from resume"
+                  "Important technical term or skill from job description that could strengthen the application"
                 ),
               importance_level: z
                 .enum(["Critical", "High", "Medium"])
                 .describe(
-                  "Honest priority assessment - Critical for must-have skills that indicate fundamental gaps, High for important competitive advantages, Medium for nice-to-have additions"
+                  "Development priority assessment - Critical for core competencies, High for competitive advantages, Medium for enhancement opportunities"
                 ),
               context_in_job: z
                 .string()
                 .min(1)
                 .describe(
-                  "Explain why this missing keyword indicates a significant skill gap versus just presentation issue"
+                  "Explain the importance of this skill and how developing it would strengthen candidacy"
                 ),
               suggested_addition: z
                 .string()
                 .min(1)
                 .describe(
-                  "Realistic text suggestion - only if candidate actually has this skill. If not, recommend skill development first."
+                  "Constructive recommendation - if candidate has foundation, suggest presentation improvement; if new skill, recommend development approach."
                 ),
               placement_location: z
                 .string()
                 .min(1)
                 .describe(
-                  "Where to add this term, or note if candidate needs to acquire the skill before adding it"
+                  "Where to add this term once developed, or current learning initiatives to highlight"
                 ),
             })
           )
           .describe(
-            "Missing keywords that indicate actual skill gaps versus presentation issues. Differentiate between 'add these keywords' vs 'learn these skills first'"
+            "Skills and keywords that could strengthen the application. Balance between presentation improvements and genuine skill development recommendations"
           ),
         terms_to_strengthen: z
           .array(
@@ -71,31 +71,33 @@ export const applicationFeedbackSchema = z
               existing_term: z
                 .string()
                 .min(1)
-                .describe("Keyword present but inadequately demonstrated"),
+                .describe(
+                  "Skill or keyword that could be presented more effectively"
+                ),
               current_usage: z
                 .string()
                 .min(1)
-                .describe("Current weak or unclear presentation of the term"),
+                .describe("Current presentation that could be enhanced"),
               improved_phrasing: z
                 .string()
                 .min(1)
                 .describe(
-                  "Enhanced presentation that better demonstrates actual competency"
+                  "Enhanced presentation that better demonstrates competency and impact"
                 ),
               rationale: z
                 .string()
                 .min(1)
                 .describe(
-                  "Strategic reason for improvement and impact on candidate competitiveness"
+                  "Strategic benefit of improvement and impact on competitive positioning"
                 ),
             })
           )
           .describe(
-            "Terms that exist but need stronger evidence or better positioning to demonstrate actual competency"
+            "Existing skills that could be positioned more effectively to demonstrate stronger competency"
           ),
       })
       .describe(
-        "Honest keyword analysis distinguishing between presentation fixes versus fundamental skill acquisition needs"
+        "Constructive keyword analysis focusing on strategic improvements and development opportunities"
       ),
 
     experience_enhancement: z
@@ -167,12 +169,12 @@ export const applicationFeedbackSchema = z
             priority_additions: z
               .array(z.string())
               .describe(
-                "Technical skills from job requirements that candidate should acquire (not just add to resume). Prioritize based on actual job necessity."
+                "Technical skills that would strengthen candidacy for this role. Focus on achievable development areas with clear learning paths."
               ),
             skills_to_emphasize: z
               .array(z.string())
               .describe(
-                "Existing technical skills that are undersold or buried in resume but genuinely possessed by candidate"
+                "Existing technical skills that are valuable but underrepresented in current resume presentation"
               ),
             skills_to_reframe: z
               .array(
@@ -181,35 +183,35 @@ export const applicationFeedbackSchema = z
                     .string()
                     .min(1)
                     .describe(
-                      "Current weak or unclear presentation of actual skill"
+                      "Current presentation that doesn't fully showcase competency"
                     ),
                   suggested: z
                     .string()
                     .min(1)
                     .describe(
-                      "Improved presentation that better demonstrates competency level"
+                      "Enhanced presentation that better demonstrates skill level and application"
                     ),
                   strategic_reason: z
                     .string()
                     .min(1)
                     .describe(
-                      "Why this reframing addresses specific job requirements or industry standards"
+                      "Why this improvement addresses specific job requirements and strengthens positioning"
                     ),
                 })
               )
               .describe(
-                "Technical skills needing better presentation to accurately reflect candidate's actual competency"
+                "Technical skills requiring better presentation to accurately reflect candidate's capabilities"
               ),
           })
           .describe(
-            "Technical skills analysis focusing on genuine capabilities versus skills that need to be developed"
+            "Technical skills analysis focusing on leveraging existing capabilities and strategic development"
           ),
         soft_skills: z
           .object({
             missing_critical: z
               .array(z.string())
               .describe(
-                "Essential soft skills from job requirements not demonstrated through concrete examples in experience"
+                "Important soft skills that could be better demonstrated through specific examples and achievements"
               ),
             enhancement_suggestions: z
               .array(
@@ -217,25 +219,25 @@ export const applicationFeedbackSchema = z
                   skill: z
                     .string()
                     .min(1)
-                    .describe("Soft skill requiring better demonstration"),
+                    .describe("Soft skill with demonstration potential"),
                   demonstration_suggestion: z
                     .string()
                     .min(1)
                     .describe(
-                      "Specific way to demonstrate this skill through existing experiences, or note if candidate lacks relevant examples"
+                      "Constructive way to highlight this skill through existing experiences or suggest development activities"
                     ),
                 })
               )
               .describe(
-                "Realistic suggestions for demonstrating soft skills through actual experiences"
+                "Actionable suggestions for demonstrating soft skills more effectively"
               ),
           })
           .describe(
-            "Soft skills analysis based on evidence from actual experiences, not assumptions"
+            "Soft skills analysis with constructive improvement suggestions and development guidance"
           ),
       })
       .describe(
-        "Skills optimization distinguishing between genuine capabilities and skills requiring development"
+        "Skills optimization focusing on maximizing existing strengths and strategic development opportunities"
       ),
 
     impact_metrics: z
@@ -446,25 +448,25 @@ export const applicationFeedbackSchema = z
         immediate_changes: z
           .array(z.string())
           .describe(
-            "Critical modifications needed for basic competitiveness - presentation and formatting fixes"
+            "Quick wins for improving presentation and competitive positioning - formatting and presentation enhancements"
           ),
         high_impact_updates: z
           .array(z.string())
           .describe(
-            "Important changes addressing significant gaps or weak presentations that impact candidacy"
+            "Important improvements that would strengthen candidacy - better demonstration of existing skills and strategic additions"
           ),
         strategic_enhancements: z
           .array(z.string())
           .describe(
-            "Long-term skill development and experience building for career advancement - realistic timelines"
+            "Medium-term development opportunities for career advancement - skill building and experience expansion with realistic timelines"
           ),
       })
       .describe(
-        "Prioritized action plan with realistic timelines and honest assessment of effort required"
+        "Prioritized action plan with achievable improvements and constructive development guidance"
       ),
   })
   .describe(
-    "Comprehensive, honest application feedback focusing on realistic improvements and authentic candidate positioning"
+    "Comprehensive, constructive application feedback focusing on realistic improvements and strategic candidate development"
   );
 
 export const interviewReportSchema = z
@@ -479,7 +481,7 @@ export const interviewReportSchema = z
                 level: z
                   .enum(["beginner", "intermediate", "advanced", "expert"])
                   .describe(
-                    "Honest assessment of actual skill proficiency level demonstrated in interview"
+                    "Thoughtful assessment of demonstrated skill proficiency level based on interview evidence"
                   ),
                 evidence: z
                   .string()
@@ -498,7 +500,7 @@ export const interviewReportSchema = z
                 priority: z
                   .enum(["must-have", "preferred"])
                   .describe(
-                    "Priority level - must-have for essential skills, preferred for nice-to-have"
+                    "Priority level - must-have for core competencies, preferred for valuable additions"
                   ),
                 level: z
                   .string()
@@ -512,18 +514,18 @@ export const interviewReportSchema = z
                   .string()
                   .min(1)
                   .describe(
-                    "Critical skill gap identified - be specific about what's missing"
+                    "Skill development opportunity identified - frame as growth area"
                   ),
                 impact: z
                   .enum(["high", "medium", "low"])
                   .describe(
-                    "Honest impact assessment - high for deal-breakers, medium for concerning gaps, low for minor issues"
+                    "Development priority - high for core competencies, medium for important skills, low for enhancement opportunities"
                   ),
                 recommendation: z
                   .string()
                   .min(1)
                   .describe(
-                    "Realistic improvement suggestion with honest timeline expectations"
+                    "Constructive improvement suggestion with encouraging, realistic development guidance"
                   ),
               })
             ),
@@ -532,12 +534,12 @@ export const interviewReportSchema = z
                 skill: z
                   .string()
                   .min(1)
-                  .describe("Skill requiring development"),
+                  .describe("Skill with development potential"),
                 timeline: z
                   .string()
                   .min(1)
                   .describe(
-                    "Realistic development timeframe - be honest about months/years needed"
+                    "Encouraging but realistic development timeframe - focus on achievable progress"
                   ),
                 resources: z
                   .array(z.string())
@@ -548,7 +550,7 @@ export const interviewReportSchema = z
             ),
           })
           .describe(
-            "Honest technical skills analysis including significant gaps and realistic development timelines"
+            "Constructive technical skills analysis including development opportunities and realistic growth planning"
           ),
         problemSolving: z
           .object({
@@ -556,23 +558,23 @@ export const interviewReportSchema = z
               .string()
               .min(1)
               .describe(
-                "Direct assessment of problem breakdown ability with specific interview examples"
+                "Balanced assessment of problem breakdown ability with specific interview examples and improvement suggestions"
               ),
             design: z
               .string()
               .min(1)
               .describe(
-                "Honest evaluation of solution approach quality and feasibility"
+                "Constructive evaluation of solution approach quality with guidance for enhancement"
               ),
             scalability: z
               .string()
               .min(1)
               .describe(
-                "Assessment of scaling considerations and systems thinking demonstrated"
+                "Assessment of scaling considerations and systems thinking with development recommendations"
               ),
           })
           .describe(
-            "Realistic assessment of problem-solving capabilities based on actual interview performance"
+            "Problem-solving assessment focusing on demonstrated capabilities and growth potential"
           ),
         technicalCommunication: z
           .object({
@@ -580,21 +582,21 @@ export const interviewReportSchema = z
               .string()
               .min(1)
               .describe(
-                "Honest assessment of technical explanation ability - note unclear or confusing explanations"
+                "Constructive assessment of technical explanation ability - acknowledge strengths while noting improvement opportunities"
               ),
             depth: z
               .string()
               .min(1)
               .describe(
-                "Evaluation of technical discussion depth - acknowledge superficial understanding when evident"
+                "Evaluation of technical discussion depth - recognize current level while suggesting areas for deeper development"
               ),
           })
           .describe(
-            "Direct evaluation of technical communication effectiveness with specific examples"
+            "Technical communication evaluation with constructive feedback and development guidance"
           ),
       })
       .describe(
-        "Comprehensive technical assessment focusing on demonstrated capabilities versus role requirements"
+        "Comprehensive technical assessment balancing current capabilities with growth potential and development opportunities"
       ),
 
     behavioralAnalysis: z
@@ -852,32 +854,32 @@ export const interviewReportSchema = z
               .min(0)
               .max(100)
               .describe(
-                "Honest overall performance score using full 0-100 range - don't inflate for politeness"
+                "Thoughtful overall performance score using full 0-100 range - balanced assessment that encourages growth"
               ),
             technical: z
               .number()
               .min(0)
               .max(100)
               .describe(
-                "Technical skills score reflecting actual demonstrated competency"
+                "Technical skills score reflecting demonstrated competency with consideration for learning potential"
               ),
             behavioral: z
               .number()
               .min(0)
               .max(100)
               .describe(
-                "Behavioral competencies score based on evidence provided"
+                "Behavioral competencies score based on evidence provided with constructive interpretation"
               ),
             communication: z
               .number()
               .min(0)
               .max(100)
               .describe(
-                "Communication effectiveness score reflecting actual interview performance"
+                "Communication effectiveness score reflecting interview performance with development context"
               ),
           })
           .describe(
-            "Performance scores using full range and reflecting actual interview quality"
+            "Performance scores using thoughtful assessment that balances current demonstration with growth potential"
           ),
         benchmarks: z
           .object({
@@ -885,25 +887,27 @@ export const interviewReportSchema = z
               .string()
               .min(1)
               .describe(
-                "Honest industry comparison - acknowledge below-average performance when evident"
+                "Industry comparison with constructive context - acknowledge development areas while recognizing potential"
               ),
             role: z
               .string()
               .min(1)
-              .describe("Role-specific comparison noting readiness level"),
+              .describe(
+                "Role-specific comparison noting current readiness and development pathway"
+              ),
             level: z
               .string()
               .min(1)
               .describe(
-                "Level assessment - be direct about whether candidate meets role level expectations"
+                "Level assessment with constructive guidance on meeting role expectations through targeted development"
               ),
           })
           .describe(
-            "Performance benchmarking with honest industry and role comparisons"
+            "Performance benchmarking with balanced industry and role comparisons focused on development opportunities"
           ),
       })
       .describe(
-        "Performance evaluation using realistic scoring and honest benchmarking"
+        "Performance evaluation using thoughtful scoring and constructive benchmarking with development focus"
       ),
 
     developmentPlan: z
@@ -916,18 +920,18 @@ export const interviewReportSchema = z
                   .string()
                   .min(1)
                   .describe(
-                    "Critical focus area requiring immediate attention"
+                    "Important focus area with clear development potential"
                   ),
                 importance: z
                   .enum(["high", "medium", "low"])
                   .describe(
-                    "Realistic importance level - high for fundamental gaps, medium for improvements, low for nice-to-haves"
+                    "Development priority - high for core competencies, medium for competitive advantages, low for enhancement opportunities"
                   ),
                 action: z
                   .string()
                   .min(1)
                   .describe(
-                    "Specific, actionable step with realistic expectations"
+                    "Specific, achievable step with encouraging guidance and realistic expectations"
                   ),
               })
             ),
@@ -936,16 +940,20 @@ export const interviewReportSchema = z
                 type: z
                   .string()
                   .min(1)
-                  .describe("Specific exercise type targeting identified gaps"),
+                  .describe(
+                    "Practical exercise type targeting development opportunities"
+                  ),
                 description: z
                   .string()
                   .min(1)
-                  .describe("Detailed exercise focusing on actual weaknesses"),
+                  .describe(
+                    "Detailed exercise focusing on skill building and improvement"
+                  ),
                 goal: z
                   .string()
                   .min(1)
                   .describe(
-                    "Realistic expected outcome with measurable criteria"
+                    "Encouraging expected outcome with measurable but achievable criteria"
                   ),
               })
             ),
@@ -955,13 +963,13 @@ export const interviewReportSchema = z
                   .string()
                   .min(1)
                   .describe(
-                    "Resource type appropriate for identified skill level"
+                    "Resource type appropriate for current skill level and development goals"
                   ),
                 description: z
                   .string()
                   .min(1)
                   .describe(
-                    "Specific resource targeting actual development needs"
+                    "Specific resource targeting development needs with constructive guidance"
                   ),
                 link: z
                   .string()
@@ -971,7 +979,7 @@ export const interviewReportSchema = z
             ),
           })
           .describe(
-            "Immediate development actions targeting critical gaps and realistic improvements"
+            "Immediate development actions targeting priority areas with encouraging, achievable improvements"
           ),
         shortTerm: z
           .object({
@@ -981,18 +989,20 @@ export const interviewReportSchema = z
                   .string()
                   .min(1)
                   .describe(
-                    "Realistic development timeline based on skill gap severity"
+                    "Encouraging development timeline based on realistic skill building expectations"
                   ),
                 objective: z
                   .string()
                   .min(1)
                   .describe(
-                    "Specific, measurable goal addressing identified weaknesses"
+                    "Specific, achievable goal addressing development opportunities"
                   ),
                 success_criteria: z
                   .string()
                   .min(1)
-                  .describe("Clear measurement criteria for goal achievement"),
+                  .describe(
+                    "Clear, encouraging measurement criteria for goal achievement"
+                  ),
               })
             ),
             skills: z.array(
@@ -1000,29 +1010,33 @@ export const interviewReportSchema = z
                 skill: z
                   .string()
                   .min(1)
-                  .describe("Specific skill requiring development"),
+                  .describe("Specific skill with clear development potential"),
                 current_level: z
                   .string()
                   .min(1)
-                  .describe("Honest assessment of current proficiency level"),
+                  .describe(
+                    "Constructive assessment of current proficiency level"
+                  ),
                 target_level: z
                   .string()
                   .min(1)
-                  .describe("Realistic target proficiency for role"),
+                  .describe("Realistic target proficiency for role success"),
                 timeline: z
                   .string()
                   .min(1)
-                  .describe("Honest timeline for skill development"),
+                  .describe(
+                    "Encouraging timeline for skill development with achievable milestones"
+                  ),
               })
             ),
             actions: z
               .array(z.string())
               .describe(
-                "Specific development steps with realistic expectations"
+                "Specific development steps with encouraging guidance and realistic expectations"
               ),
           })
           .describe(
-            "Short-term development plan with honest timelines and achievable goals"
+            "Short-term development plan with encouraging timelines and achievable goals"
           ),
         preparation: z
           .object({
@@ -1032,16 +1046,18 @@ export const interviewReportSchema = z
                   .string()
                   .min(1)
                   .describe(
-                    "Specific practice question targeting identified weaknesses"
+                    "Specific practice question targeting development opportunities"
                   ),
                 category: z
                   .string()
                   .min(1)
-                  .describe("Question category based on gaps identified"),
+                  .describe(
+                    "Question category based on development areas identified"
+                  ),
                 preparation_tips: z
                   .array(z.string())
                   .describe(
-                    "Specific preparation guidance addressing actual response weaknesses"
+                    "Constructive preparation guidance addressing improvement opportunities"
                   ),
               })
             ),
@@ -1054,7 +1070,7 @@ export const interviewReportSchema = z
                 })
               )
               .describe(
-                "Response templates targeting actual communication issues"
+                "Response templates targeting communication development"
               )
               .optional(),
             scenarios: z.array(
@@ -1063,31 +1079,31 @@ export const interviewReportSchema = z
                   .string()
                   .min(1)
                   .describe(
-                    "Practice scenario addressing identified skill gaps"
+                    "Practice scenario addressing skill development areas"
                   ),
                 expected_response: z
                   .string()
                   .min(1)
-                  .describe("Ideal response structure and content"),
+                  .describe("Ideal response structure and content guidance"),
                 evaluation_criteria: z
                   .array(z.string())
                   .describe(
-                    "Assessment criteria focusing on improvement areas"
+                    "Assessment criteria focusing on improvement and development"
                   ),
               })
             ),
           })
           .partial()
           .describe(
-            "Interview preparation targeting specific weaknesses and gaps identified"
+            "Interview preparation targeting specific development opportunities with constructive guidance"
           ),
       })
       .describe(
-        "Comprehensive development plan with realistic timelines and honest assessment of effort required"
+        "Comprehensive development plan with encouraging timelines and constructive assessment of development opportunities"
       ),
   })
   .describe(
-    "Complete interview assessment with honest feedback and realistic development recommendations"
+    "Complete interview assessment with constructive feedback and encouraging development recommendations"
   );
 
 export const interviewTemplateSelectionSchema = z.object({
@@ -1117,18 +1133,18 @@ export const getMediaAnalysisSchema = (mediaType) => {
                 minimum: 0,
                 maximum: 10,
                 description:
-                  "Honest speech clarity score using full 0-10 range - use low scores for unclear speech, mumbling, or poor articulation",
+                  "Speech clarity score using thoughtful 0-10 range - focus on constructive assessment with development guidance",
               },
               feedback: {
                 type: "string",
                 description:
-                  "Direct feedback on speech clarity with specific examples - be honest about communication issues that would concern interviewers",
+                  "Constructive feedback on speech clarity with specific examples - balance acknowledgment of strengths with improvement opportunities",
               },
               examples: {
                 type: "array",
                 items: { type: "string" },
                 description:
-                  "Specific examples demonstrating clarity issues or strengths - include timestamps when relevant",
+                  "Specific examples demonstrating both strengths and development areas - include timestamps when relevant",
               },
             },
             required: ["score", "feedback", "examples"],
@@ -1141,18 +1157,18 @@ export const getMediaAnalysisSchema = (mediaType) => {
                 minimum: 0,
                 maximum: 10,
                 description:
-                  "Honest articulation score - use low scores for pronunciation problems or unclear speech",
+                  "Articulation score with constructive assessment - acknowledge current level while providing development guidance",
               },
               feedback: {
                 type: "string",
                 description:
-                  "Direct feedback on articulation quality - note specific pronunciation issues or unclear speech patterns",
+                  "Balanced feedback on articulation quality - note improvement opportunities with encouraging development suggestions",
               },
               examples: {
                 type: "array",
                 items: { type: "string" },
                 description:
-                  "Specific examples of articulation strengths or problems",
+                  "Specific examples of articulation strengths and development opportunities",
               },
             },
             required: ["score", "feedback", "examples"],
@@ -1165,17 +1181,18 @@ export const getMediaAnalysisSchema = (mediaType) => {
                 minimum: 0,
                 maximum: 10,
                 description:
-                  "Speaking pace score - use low scores for significantly too fast/slow speech that impairs understanding",
+                  "Speaking pace score with development focus - assess current effectiveness while providing improvement guidance",
               },
               feedback: {
                 type: "string",
                 description:
-                  "Honest assessment of speaking pace - note when speed significantly impacts comprehension or professionalism",
+                  "Constructive assessment of speaking pace - acknowledge what's working while suggesting refinements",
               },
               examples: {
                 type: "array",
                 items: { type: "string" },
-                description: "Examples of pace issues or appropriate rhythm",
+                description:
+                  "Examples of pace strengths and development opportunities",
               },
             },
             required: ["score", "feedback", "examples"],
@@ -1188,18 +1205,18 @@ export const getMediaAnalysisSchema = (mediaType) => {
                 minimum: 0,
                 maximum: 10,
                 description:
-                  "Confidence score - use low scores for excessive nervousness, hesitation, or uncertainty that impacts delivery",
+                  "Confidence score with encouraging assessment - recognize current level while providing building strategies",
               },
               feedback: {
                 type: "string",
                 description:
-                  "Realistic assessment of confidence level - acknowledge nervous energy or uncertainty when evident",
+                  "Balanced assessment of confidence level - acknowledge progress potential and provide development guidance",
               },
               indicators: {
                 type: "array",
                 items: { type: "string" },
                 description:
-                  "Specific behavioral indicators of confidence or nervousness - filler words, hesitation, voice trembling, etc.",
+                  "Specific behavioral indicators with focus on development opportunities and confidence building",
               },
             },
             required: ["score", "feedback", "indicators"],
@@ -1218,18 +1235,18 @@ export const getMediaAnalysisSchema = (mediaType) => {
                 minimum: 0,
                 maximum: 10,
                 description:
-                  "Audio clarity score based on professional interview standards - use low scores for technical issues that impair understanding",
+                  "Audio clarity score based on professional standards - provide constructive feedback for improvement",
               },
               feedback: {
                 type: "string",
                 description:
-                  "Honest assessment of audio quality - be direct about technical issues that would concern interviewers",
+                  "Balanced assessment of audio quality - acknowledge technical considerations while providing actionable improvement suggestions",
               },
               issues: {
                 type: "array",
                 items: { type: "string" },
                 description:
-                  "Specific technical audio problems - echo, static, distortion, cutting out, etc.",
+                  "Specific technical considerations and improvement opportunities for better audio quality",
               },
             },
             required: ["score", "feedback", "issues"],
@@ -1242,18 +1259,18 @@ export const getMediaAnalysisSchema = (mediaType) => {
                 minimum: 0,
                 maximum: 10,
                 description:
-                  "Volume appropriateness score - use low scores for consistently too quiet/loud audio that impacts professionalism",
+                  "Volume appropriateness score with development guidance - focus on optimization opportunities",
               },
               feedback: {
                 type: "string",
                 description:
-                  "Assessment of volume levels and consistency - note when volume issues would distract interviewers",
+                  "Assessment of volume levels with constructive suggestions for professional optimization",
               },
               notes: {
                 type: "array",
                 items: { type: "string" },
                 description:
-                  "Specific notes about volume consistency, appropriateness, and impact on interview quality",
+                  "Specific notes about volume optimization and professional audio setup recommendations",
               },
             },
             required: ["score", "feedback", "notes"],
@@ -1266,18 +1283,18 @@ export const getMediaAnalysisSchema = (mediaType) => {
                 minimum: 0,
                 maximum: 10,
                 description:
-                  "Background environment score - use low scores for distracting noise that would concern professional interviewers",
+                  "Background environment score - provide constructive guidance for professional setup optimization",
               },
               feedback: {
                 type: "string",
                 description:
-                  "Honest assessment of background environment - note unprofessional or distracting audio environment",
+                  "Assessment of background environment with practical suggestions for professional interview setup",
               },
               distractions: {
                 type: "array",
                 items: { type: "string" },
                 description:
-                  "Specific background noise, interruptions, or environmental distractions that impact professionalism",
+                  "Environmental considerations and practical recommendations for professional interview environment",
               },
             },
             required: ["score", "feedback", "distractions"],
@@ -1296,18 +1313,18 @@ export const getMediaAnalysisSchema = (mediaType) => {
                 minimum: 0,
                 maximum: 10,
                 description:
-                  "Professional presentation score using realistic standards - use low scores for behavior below interview expectations",
+                  "Professional presentation score with constructive development focus - acknowledge strengths while providing enhancement guidance",
               },
               feedback: {
                 type: "string",
                 description:
-                  "Honest assessment of professional demeanor - address unprofessional behaviors directly",
+                  "Balanced assessment of professional demeanor with constructive improvement suggestions",
               },
               examples: {
                 type: "array",
                 items: { type: "string" },
                 description:
-                  "Specific examples of professional or unprofessional behavior during the interview",
+                  "Specific examples highlighting both professional strengths and development opportunities",
               },
             },
             required: ["score", "feedback", "examples"],
@@ -1320,18 +1337,18 @@ export const getMediaAnalysisSchema = (mediaType) => {
                 minimum: 0,
                 maximum: 10,
                 description:
-                  "Engagement level score - use low scores for flat, disinterested, or overly nervous delivery that suggests poor fit",
+                  "Engagement level score with development potential focus - recognize current energy while suggesting enhancement strategies",
               },
               feedback: {
                 type: "string",
                 description:
-                  "Realistic assessment of engagement and enthusiasm - acknowledge when energy level raises concerns",
+                  "Constructive assessment of engagement and enthusiasm with development recommendations",
               },
               indicators: {
                 type: "array",
                 items: { type: "string" },
                 description:
-                  "Specific indicators of engagement or disengagement - energy level, responsiveness, interest",
+                  "Specific indicators of engagement with focus on building stronger interview presence",
               },
             },
             required: ["score", "feedback", "indicators"],
@@ -1344,17 +1361,17 @@ export const getMediaAnalysisSchema = (mediaType) => {
                 minimum: 0,
                 maximum: 10,
                 description:
-                  "Interview readiness score - be honest about preparation level and performance quality relative to role expectations",
+                  "Interview readiness score with development pathway focus - assess current level while providing clear improvement guidance",
               },
               feedback: {
                 type: "string",
                 description:
-                  "Direct assessment of interview preparation and performance readiness",
+                  "Constructive assessment of interview preparation and performance readiness with actionable next steps",
               },
               assessment: {
                 type: "string",
                 description:
-                  "Overall readiness evaluation - be honest about whether candidate is ready for target roles or needs significant preparation",
+                  "Overall readiness evaluation with encouraging development timeline and specific preparation recommendations",
               },
             },
             required: ["score", "feedback", "assessment"],
@@ -1373,24 +1390,24 @@ export const getMediaAnalysisSchema = (mediaType) => {
                 area: {
                   type: "string",
                   description:
-                    "Critical area needing immediate attention before further interviews",
+                    "Development area with clear improvement potential for enhanced interview performance",
                 },
                 suggestion: {
                   type: "string",
                   description:
-                    "Specific, actionable suggestion addressing the identified issue",
+                    "Specific, actionable suggestion with encouraging guidance for addressing the development area",
                 },
                 priority: {
                   type: "string",
                   enum: ["high", "medium", "low"],
                   description:
-                    "Realistic priority level - high for issues that would significantly impact hiring decisions",
+                    "Development priority level - high for core improvements, medium for competitive advantages, low for enhancement opportunities",
                 },
               },
               required: ["area", "suggestion", "priority"],
             },
             description:
-              "Critical improvements needed before pursuing target roles",
+              "Priority improvements with clear development benefits for interview success",
           },
           practice: {
             type: "array",
@@ -1399,23 +1416,24 @@ export const getMediaAnalysisSchema = (mediaType) => {
               properties: {
                 skill: {
                   type: "string",
-                  description: "Specific skill requiring focused practice",
+                  description:
+                    "Specific skill with clear development potential",
                 },
                 exercise: {
                   type: "string",
                   description:
-                    "Detailed practice exercise targeting the identified weakness",
+                    "Detailed practice exercise targeting the development opportunity with encouraging guidance",
                 },
                 frequency: {
                   type: "string",
                   description:
-                    "Realistic practice frequency and timeline for improvement",
+                    "Realistic practice frequency and encouraging timeline for improvement",
                 },
               },
               required: ["skill", "exercise", "frequency"],
             },
             description:
-              "Specific practice exercises targeting identified weaknesses",
+              "Specific practice exercises targeting development opportunities with achievable improvement goals",
           },
           resources: {
             type: "array",
@@ -1425,12 +1443,12 @@ export const getMediaAnalysisSchema = (mediaType) => {
                 type: {
                   type: "string",
                   description:
-                    "Type of resource appropriate for the skill level and needs identified",
+                    "Type of resource appropriate for the current skill level and development goals",
                 },
                 description: {
                   type: "string",
                   description:
-                    "Specific resource recommendation targeting actual improvement needs",
+                    "Specific resource recommendation targeting development needs with constructive guidance",
                 },
                 link: {
                   type: "string",
@@ -1441,7 +1459,7 @@ export const getMediaAnalysisSchema = (mediaType) => {
               required: ["type", "description", "link"],
             },
             description:
-              "Practical resources for addressing identified gaps and improving performance",
+              "Practical resources for addressing development areas and improving interview performance",
           },
         },
         required: ["immediate", "practice", "resources"],
@@ -1453,26 +1471,26 @@ export const getMediaAnalysisSchema = (mediaType) => {
             type: "array",
             items: { type: "string" },
             description:
-              "Genuine strengths demonstrated during the interview based on actual performance",
+              "Genuine strengths and positive aspects demonstrated during the interview",
           },
           weaknesses: {
             type: "array",
             items: { type: "string" },
             description:
-              "Critical areas needing improvement that impact interview effectiveness",
+              "Development areas and improvement opportunities that would enhance interview effectiveness",
           },
           keyInsights: {
             type: "array",
             items: { type: "string" },
             description:
-              "Key observations and insights about interview performance and readiness",
+              "Key observations and constructive insights about interview performance and development potential",
           },
           overallScore: {
             type: "number",
             minimum: 0,
             maximum: 10,
             description:
-              "Honest overall interview performance score using full 0-10 range - reflect actual interview quality and professional standards",
+              "Thoughtful overall interview performance score using balanced assessment that encourages growth and development",
           },
         },
         required: ["strengths", "weaknesses", "keyInsights", "overallScore"],
@@ -1501,18 +1519,18 @@ export const getMediaAnalysisSchema = (mediaType) => {
               minimum: 0,
               maximum: 10,
               description:
-                "Posture score based on professional standards - use low scores for slouching, fidgeting, or unprofessional positioning",
+                "Posture score with constructive development focus - assess current presentation while providing enhancement guidance",
             },
             feedback: {
               type: "string",
               description:
-                "Direct assessment of posture and body positioning - note unprofessional or distracting posture",
+                "Balanced assessment of posture and body positioning with practical improvement suggestions",
             },
             observations: {
               type: "array",
               items: { type: "string" },
               description:
-                "Specific observations about posture, positioning, and physical presence",
+                "Specific observations about posture and positioning with focus on professional enhancement opportunities",
             },
           },
           required: ["score", "feedback", "observations"],
@@ -1525,18 +1543,18 @@ export const getMediaAnalysisSchema = (mediaType) => {
               minimum: 0,
               maximum: 10,
               description:
-                "Eye contact score - use low scores for avoiding camera, looking away frequently, or poor visual engagement",
+                "Eye contact score with development guidance - recognize current level while providing engagement enhancement strategies",
             },
             feedback: {
               type: "string",
               description:
-                "Honest assessment of eye contact with camera - note when poor eye contact would concern interviewers",
+                "Constructive assessment of eye contact with camera, including practical tips for improvement",
             },
             observations: {
               type: "array",
               items: { type: "string" },
               description:
-                "Specific observations about eye contact patterns, camera engagement, and visual connection",
+                "Specific observations about eye contact patterns and visual connection with development recommendations",
             },
           },
           required: ["score", "feedback", "observations"],
@@ -1549,18 +1567,18 @@ export const getMediaAnalysisSchema = (mediaType) => {
               minimum: 0,
               maximum: 10,
               description:
-                "Gesture effectiveness score - use low scores for distracting, excessive, or inappropriate hand movements",
+                "Gesture effectiveness score with enhancement focus - evaluate current use while suggesting refinements",
             },
             feedback: {
               type: "string",
               description:
-                "Assessment of hand gestures and movements - note when gestures are distracting or unprofessional",
+                "Assessment of hand gestures and movements with constructive guidance for professional optimization",
             },
             observations: {
               type: "array",
               items: { type: "string" },
               description:
-                "Specific observations about gesture use, appropriateness, and impact on communication",
+                "Specific observations about gesture use with focus on communication enhancement opportunities",
             },
           },
           required: ["score", "feedback", "observations"],
@@ -1573,18 +1591,18 @@ export const getMediaAnalysisSchema = (mediaType) => {
               minimum: 0,
               maximum: 10,
               description:
-                "Overall visual presence score - honest assessment of professional appearance and on-camera demeanor",
+                "Overall visual presence score with development potential focus - assess current professional appearance while providing enhancement guidance",
             },
             feedback: {
               type: "string",
               description:
-                "Comprehensive assessment of visual presence and professional appearance on camera",
+                "Comprehensive assessment of visual presence with constructive recommendations for professional development",
             },
             observations: {
               type: "array",
               items: { type: "string" },
               description:
-                "Overall observations about visual presence, energy, and professional demeanor",
+                "Overall observations about visual presence and professional demeanor with development opportunities",
             },
           },
           required: ["score", "feedback", "observations"],
