@@ -89,8 +89,6 @@ export const fetchMediaBuffer = async (mediaUrl, mediaType) => {
       headers: {
         "User-Agent": "MockVerse-MediaAnalysis/1.0",
       },
-      // Add timeout for production
-      signal: AbortSignal.timeout(300000), // 5 minutes timeout
     });
 
     if (!mediaResponse.ok) {
