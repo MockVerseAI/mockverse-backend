@@ -4,6 +4,7 @@ import logger from "../logger/winston.logger.js";
 const redisConnectionConfig = {
   host: process.env.REDIS_HOST || "localhost",
   port: process.env.REDIS_PORT || 6379,
+  username: process.env.REDIS_USERNAME || "default",
   password: process.env.REDIS_PASSWORD || undefined,
   tls: process.env.REDIS_HOST ? {} : null,
 };
