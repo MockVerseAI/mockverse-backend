@@ -99,11 +99,6 @@ export const fetchMediaBuffer = async (mediaUrl, mediaType) => {
       );
     }
 
-    const contentLength = mediaResponse.headers.get("content-length");
-    if (contentLength && parseInt(contentLength) > 100 * 1024 * 1024) {
-      throw new Error(`${mediaType} file too large (max 100MB)`);
-    }
-
     const mediaArrayBuffer = await mediaResponse.arrayBuffer();
     const mediaUint8Array = new Uint8Array(mediaArrayBuffer);
 
