@@ -5,6 +5,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { generateAIResponse } from "../utils/helpers.js";
+import { escapeRegex } from "../utils/lib.js";
 import { coverLetterPrompt } from "../utils/prompts.js";
 
 /**
@@ -31,8 +32,8 @@ const generateCoverLetter = asyncHandler(async (req, res) => {
   // Check if a cover letter already exists for this company and role
   const existingCoverLetter = await CoverLetter.findOne({
     userId,
-    companyName: { $regex: new RegExp(`^${companyName}$`, "i") },
-    jobRole: { $regex: new RegExp(`^${jobRole}$`, "i") },
+    companyName: { $regex: new RegExp(`^${escapeRegex(companyName)}$`, "i") },
+    jobRole: { $regex: new RegExp(`^${escapeRegex(jobRole)}$`, "i") },
     isDeleted: false,
     resumeId,
   });
@@ -138,10 +139,12 @@ const getCoverLetters = asyncHandler(async (req, res) => {
     isDeleted: false,
   };
 
-  if (search) {
+  const escapedSearch = escapeRegex(search);
+
+  if (escapedSearch) {
     searchQuery.$or = [
-      { companyName: { $regex: search, $options: "i" } },
-      { jobRole: { $regex: search, $options: "i" } },
+      { companyName: { $regex: escapedSearch, $options: "i" } },
+      { jobRole: { $regex: escapedSearch, $options: "i" } },
     ];
   }
 

@@ -11,18 +11,14 @@ const createCoverLetterValidator = () => {
       .notEmpty()
       .withMessage("Company name is required")
       .isLength({ min: 2, max: 100 })
-      .withMessage("Company name must be between 2 and 100 characters")
-      .matches(/^[a-zA-Z0-9\s\-&.,()]+$/)
-      .withMessage("Company name contains invalid characters"),
+      .withMessage("Company name must be between 2 and 100 characters"),
 
     body("jobRole")
       .trim()
       .notEmpty()
       .withMessage("Job role is required")
       .isLength({ min: 2, max: 100 })
-      .withMessage("Job role must be between 2 and 100 characters")
-      .matches(/^[a-zA-Z0-9\s\-&.,()]+$/)
-      .withMessage("Job role contains invalid characters"),
+      .withMessage("Job role must be between 2 and 100 characters"),
 
     body("jobDescription")
       .trim()
@@ -78,23 +74,21 @@ const getCoverLettersValidator = () => {
   return [
     query("page")
       .optional()
+      .toInt()
       .isInt({ min: 1 })
-      .withMessage("Page must be a positive integer")
-      .toInt(),
+      .withMessage("Page must be a positive integer"),
 
     query("limit")
       .optional()
+      .toInt()
       .isInt({ min: 1, max: 50 })
-      .withMessage("Limit must be between 1 and 50")
-      .toInt(),
+      .withMessage("Limit must be between 1 and 50"),
 
     query("search")
       .optional()
       .trim()
       .isLength({ max: 100 })
-      .withMessage("Search term cannot exceed 100 characters")
-      .matches(/^[a-zA-Z0-9\s\-&.,()]+$/)
-      .withMessage("Search term contains invalid characters"),
+      .withMessage("Search term cannot exceed 100 characters"),
   ];
 };
 
