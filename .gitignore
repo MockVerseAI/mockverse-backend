@@ -4,3 +4,5 @@ logs
 newrelic_agent.log
 .env.prod
 .env.*
+
+.DS_Store

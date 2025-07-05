@@ -219,8 +219,9 @@ export const generateAIResponse = async ({
 
     const model = createFallback({
       models: [
+        groq("meta-llama/llama-4-maverick-17b-128e-instruct"),
+        groq("meta-llama/llama-4-scout-17b-16e-instruct"),
         groq("llama-3.3-70b-versatile"),
-        groq("llama-3.3-70b-specdec"),
         google("gemini-2.0-flash-lite"),
         groq("deepseek-r1-distill-llama-70b"),
         togetherai("meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"),
