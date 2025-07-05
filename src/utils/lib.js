@@ -24,4 +24,13 @@ const getHash = (content) => {
   return crypto.createHash("sha256").update(content).digest("hex");
 };
 
-export { getFormattedDateTime, getHash };
+/**
+ * @description Escape special regex characters in a string to prevent regex injection
+ * @param {string} string - The string to escape
+ * @returns {string} - The escaped string safe for use in regex patterns
+ */
+const escapeRegex = (string) => {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+};
+
+export { getFormattedDateTime, getHash, escapeRegex };
