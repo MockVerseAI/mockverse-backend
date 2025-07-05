@@ -72,6 +72,14 @@ const generateCoverLetter = asyncHandler(async (req, res) => {
       temperature: 0.7,
     });
 
+    // Validate AI generated content
+    if (!generatedContent || generatedContent.trim().length < 50) {
+      throw new ApiError(
+        500,
+        "AI failed to generate valid cover letter content"
+      );
+    }
+
     const generationEnd = performance.now();
     const generationDuration = Math.round(generationEnd - start);
 
@@ -108,15 +116,22 @@ const generateCoverLetter = asyncHandler(async (req, res) => {
   } catch (error) {
     logger.error("Error generating cover letter:", {
       error: error.message,
+      stack: error.stack,
       userId,
       companyName,
       jobRole,
       resumeId,
     });
 
+    // Preserve original error for debugging while providing user-friendly message
+    if (error instanceof ApiError) {
+      throw error;
+    }
+
     throw new ApiError(
       500,
-      "Failed to generate cover letter. Please try again."
+      "Failed to generate cover letter. Please try again.",
+      error
     );
   }
 });
