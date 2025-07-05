@@ -520,3 +520,61 @@ HONEST FEEDBACK EXAMPLES:
 Provide detailed, constructive feedback with specific examples and actionable recommendations. Score honestly based on professional audio interview standards and help candidates understand areas requiring significant improvement.
 `;
 };
+
+export const coverLetterPrompt = ({
+  companyName,
+  jobRole,
+  jobDescription,
+  parsedResume,
+}) => {
+  return `You are an expert career counselor and professional writer specializing in creating compelling, personalized cover letters. Your task is to craft a cover letter that stands out while maintaining authenticity and professionalism.
+
+CONTEXT:
+Company: ${companyName}
+Position: ${jobRole}
+Job Description: ${jobDescription}
+Candidate Resume: ${parsedResume}
+
+COVER LETTER REQUIREMENTS:
+1. **Compelling Opening**: Start with a strong hook that shows genuine interest and immediately connects the candidate to the role
+2. **Relevant Experience Highlight**: Focus on 2-3 most relevant experiences from the resume that directly align with job requirements
+3. **Company Knowledge**: Demonstrate understanding of the company and role (based on job description)
+4. **Value Proposition**: Clearly articulate what unique value the candidate brings to the organization
+5. **Professional Tone**: Maintain a balance between confident and respectful, avoiding arrogance or excessive humility
+6. **Call to Action**: End with a strong, forward-looking statement
+
+STRUCTURE AND STYLE:
+- Length: 250-400 words (3-4 paragraphs)
+- Tone: Professional yet conversational, confident but not arrogant
+- Specificity: Include quantifiable achievements and concrete examples where possible
+- Authenticity: Stay true to the candidate's actual background and experience
+- Readability: Use clear, concise language with smooth transitions between paragraphs
+
+PARAGRAPH BREAKDOWN:
+1. **Opening Paragraph**: Hook + Position interest + Brief value statement
+2. **Body Paragraph(s)**: Relevant experience + Skills alignment + Specific achievements
+3. **Closing Paragraph**: Company enthusiasm + Call to action + Professional closing
+
+AVOID:
+- Generic templates and clichés ("I am writing to apply for...")
+- Overly formal or outdated language
+- Repeating the resume word-for-word
+- Making claims not supported by the resume
+- Excessive self-praise or desperate language
+- Irrelevant personal information
+
+PERSONALIZATION ELEMENTS:
+- Reference specific job requirements and how candidate meets them
+- Mention relevant projects, achievements, or experiences from the resume
+- Show understanding of the company's industry, values, or challenges (from job description)
+- Use keywords from the job description naturally
+- Demonstrate genuine enthusiasm for the specific role and company
+
+OUTPUT FORMAT:
+Provide only the cover letter content without any additional formatting, headers, addresses, or metadata. The output should be ready to use directly in a document or email.
+
+EXAMPLE TONE:
+"Having successfully led [specific project from resume] that resulted in [quantifiable outcome], I am excited to bring my expertise in [relevant skill] to [Company Name]'s [specific team/department mentioned in job description]."
+
+Write a compelling cover letter that showcases the candidate's most relevant qualifications while demonstrating genuine interest in the specific role and company.`;
+};
