@@ -62,8 +62,11 @@ const coverLetterSchema = new Schema(
 // Indexes for performance optimization
 coverLetterSchema.index({ userId: 1, isDeleted: 1 });
 coverLetterSchema.index({ resumeId: 1 });
-coverLetterSchema.index({ createdAt: -1 });
-coverLetterSchema.index({ companyName: 1, userId: 1 });
+// Compound index for duplicate checking
+coverLetterSchema.index(
+  { userId: 1, companyName: 1, jobRole: 1, resumeId: 1, isDeleted: 1 },
+  { unique: true }
+);
 
 // Pre-save middleware to calculate word count
 coverLetterSchema.pre("save", function (next) {
