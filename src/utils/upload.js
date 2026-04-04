@@ -1,35 +1,31 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { readFile } from "node:fs/promises";
+import { v2 as cloudinary } from "cloudinary";
 import logger from "../logger/winston.logger.js";
 import { ApiError } from "./ApiError.js";
 import { getLocalPath, removeLocalFile } from "./helpers.js";
 
-const s3Client = new S3Client({
-  region: process.env.AWS_S3_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 export const upload = async (file, key) => {
   try {
     const localPath = getLocalPath(file?.filename);
 
-    const command = new PutObjectCommand({
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
-      Key: key,
-      ContentType: file.mimetype,
-      Body: await readFile(localPath),
+    const resourceType = file.mimetype === "application/pdf" ? "raw" : "image";
+
+    const env = process.env.NODE_ENV === "production" ? "prod" : "dev";
+
+    const result = await cloudinary.uploader.upload(localPath, {
+      public_id: `${env}/${key}`,
+      resource_type: resourceType,
+      overwrite: true,
     });
-
-    await s3Client.send(command);
-
-    const publicLink = `${process.env.CLOUDFRONT_DOMAIN}/${key}`;
 
     removeLocalFile(localPath);
 
-    return publicLink;
+    return result.secure_url;
   } catch (error) {
     logger.error(error);
     throw new ApiError(500, "Error Uploading File");
