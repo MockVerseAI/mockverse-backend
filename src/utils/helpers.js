@@ -1,7 +1,7 @@
 import { google } from "@ai-sdk/google";
 import { groq } from "@ai-sdk/groq";
 import { togetherai } from "@ai-sdk/togetherai";
-import { PollyClient, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
+import { createClient } from "@deepgram/sdk";
 import {
   embed,
   extractReasoningMiddleware,
@@ -385,44 +385,27 @@ export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
   }
 };
 
-// Initialize the Polly client
-const pollyClient = new PollyClient({
-  region: process.env.AWS_S3_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
-
 /**
- * Convert text to speech and return audio buffer
+ * Convert text to speech and return audio buffer using Deepgram Aura
  * @param {string} text - Text to convert to speech
- * @param {string} voiceId - Voice ID to use (default: Joanna)
- * @param {string} engine - Engine to use (default: neural)
- * @returns {Promise<Buffer>} Audio buffer
+ * @param {string} voiceId - Deepgram Aura voice model (default: aura-asteria-en)
+ * @param {string} engine - Unused, kept for API compatibility
+ * @returns {Promise<Buffer>} Audio buffer (MP3)
  */
-export const generateSpeech = async (
-  text,
-  voiceId = "Kajal",
-  engine = "neural"
-) => {
+export const generateSpeech = async (text, voiceId = "aura-asteria-en") => {
   const start = performance.now();
 
-  const params = {
-    Engine: engine,
-    OutputFormat: "mp3",
-    Text: text,
-    VoiceId: voiceId,
-    TextType: "text",
-  };
-
   try {
-    const command = new SynthesizeSpeechCommand(params);
-    const response = await pollyClient.send(command);
+    const deepgram = createClient(process.env.DEEPGRAM_MEMBER_API_KEY);
 
-    // Convert audio stream to buffer
+    const response = await deepgram.speak.request(
+      { text },
+      { model: voiceId, encoding: "mp3" }
+    );
+
+    const stream = await response.getStream();
     const chunks = [];
-    for await (const chunk of response.AudioStream) {
+    for await (const chunk of stream) {
       chunks.push(chunk);
     }
     const audioBuffer = Buffer.concat(chunks);
@@ -431,7 +414,6 @@ export const generateSpeech = async (
 
     logger.info("Speech Generation:", {
       voiceId,
-      engine,
       textLength: text.length,
       timeTaken: end - start,
     });

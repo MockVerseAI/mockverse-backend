@@ -441,13 +441,13 @@ const getInterviewAgentId = asyncHandler(async (req, res) => {
     name: "MockSage",
     transcriber: {
       provider: "deepgram",
-      model: "nova-3",
+      model: "flux-general-en",
       language: "en",
       smartFormat: true,
     },
     model: {
-      provider: "openai",
-      model: "gpt-4o-mini",
+      provider: "openai/gpt-oss-20b",
+      model: "groq",
       emotionRecognitionEnabled: true,
       messages: [
         {
@@ -463,11 +463,13 @@ const getInterviewAgentId = asyncHandler(async (req, res) => {
     },
     voice: {
       provider: "vapi",
-      voiceId: "Neha",
+      voiceId: "Naina",
     },
     firstMessageMode: "assistant-speaks-first-with-model-generated-message",
     startSpeakingPlan: {
-      smartEndpointingEnabled: true,
+      smartEndpointingPlan: {
+        provider: "livekit",
+      },
     },
     artifactPlan: {
       recordingEnabled: true,
@@ -481,6 +483,7 @@ const getInterviewAgentId = asyncHandler(async (req, res) => {
     server: {
       url: `${process.env.VAPI_WEBHOOK_URL}/api/v1/interview/agent-end-callback/${interviewId}`,
       secret: process.env.VAPI_WEBHOOK_SECRET,
+      timeoutSeconds: 20,
     },
     serverMessages: ["end-of-call-report"],
     endCallPhrases: ["that concludes our interview"],
