@@ -5,8 +5,8 @@ import { createClient } from "@deepgram/sdk";
 import {
   embed,
   extractReasoningMiddleware,
-  generateObject,
   generateText,
+  Output,
   wrapLanguageModel,
 } from "ai";
 import { createFallback } from "ai-fallback";
@@ -306,11 +306,11 @@ export const generateAIStructuredResponse = async ({
       },
     });
 
-    const { object, usage, warnings, response } = await generateObject({
+    const { output, usage, warnings, response } = await generateText({
       model: model ? model : _model,
-      schema,
+      output: Output.object({ schema }),
       prompt,
-      maxTokens,
+      maxOutputTokens: maxTokens,
       ...params,
     });
 
@@ -326,7 +326,7 @@ export const generateAIStructuredResponse = async ({
       logger.warn("AI Object Generation Warnings:", warnings);
     }
 
-    return object;
+    return output;
   } catch (error) {
     logger.error("AI Object Generation Error:", error);
 
@@ -354,8 +354,8 @@ export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
           content: [
             {
               type: "file",
-              data: pdfBuffer,
-              mimeType: "application/pdf",
+              url: `data:application/pdf;base64,${pdfBuffer.toString("base64")}`,
+              mediaType: "application/pdf",
             },
             {
               type: "text",
