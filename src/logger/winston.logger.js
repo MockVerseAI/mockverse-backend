@@ -1,4 +1,3 @@
-import newrelic from "newrelic";
 import winston from "winston";
 
 // Define your severity levels.
@@ -32,34 +31,10 @@ const colors = {
 // defined above to the severity levels.
 winston.addColors(colors);
 
-// Custom format for New Relic
-const newRelicFormat = winston.format((info) => {
-  // For error and warn levels, send to New Relic
-  if (info.level === "error" || info.level === "warn") {
-    if (info.error instanceof Error) {
-      // If there's an actual error object, send it to New Relic
-      newrelic.noticeError(info.error, {
-        message: info.message,
-        level: info.level,
-        ...info.metadata,
-      });
-    } else {
-      // Otherwise send the message as a custom event
-      newrelic.recordCustomEvent(`${info.level.toUpperCase()}`, {
-        message: info.message,
-        ...(info.metadata || {}),
-      });
-    }
-  }
-  return info;
-});
-
 // Chose the aspect of your log customizing the log format.
 const format = winston.format.combine(
   // Add the message timestamp with the preferred format
   winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss.SSS" }),
-  // Add New Relic integration
-  newRelicFormat(),
   // Extract any Error objects to get proper stack traces
   winston.format.errors({ stack: true }),
   // Add metadata support
