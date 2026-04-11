@@ -6,9 +6,6 @@ import helmet from "helmet";
 import passport from "passport";
 import { createServer } from "http";
 
-// Only load New Relic in non-development environments
-import("newrelic");
-
 import connectDB from "./db/index.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import { requestLogger } from "./middlewares/request.logger.middleware.js";
