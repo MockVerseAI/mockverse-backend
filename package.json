@@ -11,7 +11,7 @@
     "dev:no-worker": "START_WORKER=false nodemon ./src/index.js",
     "worker:media": "node ./src/workers/mediaAnalysis.worker.js",
     "worker:media:dev": "nodemon ./src/workers/mediaAnalysis.worker.js",
-    "prepare": "husky",
+    "prepare": "node scripts/prepare-husky.cjs",
     "lint-staged": "npx lint-staged"
   },
   "keywords": [],
