@@ -28,7 +28,7 @@ export const chatCompletion = async (req, res) => {
     const modelConfig = {
       model: groq("llama3-8b-8192"),
       temperature,
-      ...(max_tokens && { maxTokens: max_tokens }),
+      ...(max_tokens && { maxOutputTokens: max_tokens }),
     };
 
     // Handle streaming response
