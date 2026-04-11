@@ -446,8 +446,8 @@ const getInterviewAgentId = asyncHandler(async (req, res) => {
       smartFormat: true,
     },
     model: {
-      provider: "openai/gpt-oss-20b",
-      model: "groq",
+      provider: "groq",
+      model: "openai/gpt-oss-20b",
       emotionRecognitionEnabled: true,
       messages: [
         {
