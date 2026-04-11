@@ -219,10 +219,9 @@ export const generateAIResponse = async ({
 
     const model = createFallback({
       models: [
-        groq("meta-llama/llama-4-maverick-17b-128e-instruct"),
-        groq("meta-llama/llama-4-scout-17b-16e-instruct"),
         groq("llama-3.3-70b-versatile"),
-        google("gemini-2.0-flash-lite"),
+        groq("meta-llama/llama-4-scout-17b-16e-instruct"),
+        google("gemini-2.5-flash-lite"),
         groq("deepseek-r1-distill-llama-70b"),
         togetherai("meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"),
         togetherai("deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"),
@@ -242,9 +241,9 @@ export const generateAIResponse = async ({
 
     const { text, usage, warnings, response } = await generateText({
       model: enhancedModel,
-      maxTokens: 1024,
+      maxOutputTokens: 1024,
       system: systemPrompt,
-      messages,
+      ...(messages.length > 0 ? { messages } : { prompt: "Begin." }),
       temperature: 0.6,
       ...params,
     });
@@ -292,10 +291,10 @@ export const generateAIStructuredResponse = async ({
 
     const _model = createFallback({
       models: [
-        google("gemini-2.5-flash-preview-05-20"),
-        google("gemini-2.5-flash-preview-04-17"),
-        google("gemini-2.0-flash"),
-        google("gemini-2.0-flash-lite"),
+        google("gemini-2.5-flash"),
+        google("gemini-2.5-flash-lite"),
+        google("gemini-flash"),
+        google("gemini-flash-lite"),
         groq("llama-3.3-70b-versatile"),
       ],
       onError: (error, modelId) => {
@@ -344,7 +343,7 @@ export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
   try {
     const start = performance.now();
 
-    const resumeModel = google("gemini-2.0-flash-lite");
+    const resumeModel = google("gemini-flash-lite");
 
     const { text, usage, warnings, response } = await generateText({
       model: resumeModel,
