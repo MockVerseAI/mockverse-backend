@@ -353,7 +353,7 @@ export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
           content: [
             {
               type: "file",
-              url: `data:application/pdf;base64,${pdfBuffer.toString("base64")}`,
+              data: pdfBuffer,
               mediaType: "application/pdf",
             },
             {
