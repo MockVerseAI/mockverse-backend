@@ -343,7 +343,18 @@ export const generateAIContentFromPDF = async (pdfBuffer, prompt) => {
   try {
     const start = performance.now();
 
-    const resumeModel = google("gemini-flash-lite");
+    const resumeModel = createFallback({
+      models: [
+        google("gemini-3.1-flash-lite"),
+        google("gemini-2.5-flash-lite"),
+      ],
+      onError: (error, modelId) => {
+        logger.error(
+          `Error with AI PDF Content Generation model ${modelId}:`,
+          error
+        );
+      },
+    });
 
     const { text, usage, warnings, response } = await generateText({
       model: resumeModel,
