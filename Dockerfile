@@ -1,16 +1,11 @@
-FROM node:20-slim
+FROM node:24-slim
 
 WORKDIR /app
 
-COPY package* .
-RUN npm install
-
 COPY . .
+
+RUN npm install
 
 EXPOSE 8080
 
-ENV NEW_RELIC_NO_CONFIG_FILE=true
-ENV NEW_RELIC_DISTRIBUTED_TRACING_ENABLED=true
-ENV NEW_RELIC_LOG=stdout
-
-CMD ["node", "--experimental-loader=newrelic/esm-loader.mjs", "./src/index.js"]
+CMD ["npm", "start"]
