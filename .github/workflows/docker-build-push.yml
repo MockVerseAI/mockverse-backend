@@ -35,3 +35,6 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: ayush1018/mockverse-backend:prod
+
+      - name: Trigger deployment
+        run: curl -fsSL "${{ secrets.DEPLOYMENT_TRIGGER }}"
