@@ -13,7 +13,7 @@ const sendEmail = async (options) => {
     theme: "default",
     product: {
       name: "MockVerse",
-      link: "https://mockverse.me",
+      link: "https://mockverse-ai.netlify.app/",
     },
   });
 
@@ -36,7 +36,7 @@ const sendEmail = async (options) => {
   });
 
   const mail = {
-    from: "MockVerse <admin@info.mockverse.me>",
+    from: "MockVerse <info@mockverse.work.gd>",
     to: options.email, // receiver's mail
     subject: options.subject, // mail subject
     text: emailTextual, // mailgen content textual variant
