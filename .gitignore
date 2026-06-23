@@ -6,3 +6,4 @@ newrelic_agent.log
 .env.*
 
 .DS_Store
+.vercel
